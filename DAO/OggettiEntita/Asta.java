@@ -1,5 +1,6 @@
-package DAO.OggettiEntita;
+//Beans per le Aste
 
+package DAO.OggettiEntita;
 import java.sql.Date;
 import java.sql.Time;
 

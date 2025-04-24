@@ -1,6 +1,8 @@
-//Interfaccia Tabella Articoli
+//Interfaccia DAO Tabella Articoli
+
 package DAO;
 import java.util.*;
+import DAO.OggettiEntita.Articolo;
 
 public interface ArticoliDAO{
 	void insertNewArticolo(String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo);

@@ -1,10 +1,9 @@
-//Interfaccia Tabella Aste
+//Interfaccia DAO Tabella Aste
+
 package DAO;
 import java.sql.Time;
 import java.util.*;
-
 import DAO.OggettiEntita.Asta;
-
 import java.sql.Date;
 
 public interface AsteDAO{

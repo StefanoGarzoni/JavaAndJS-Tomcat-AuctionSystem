@@ -1,3 +1,5 @@
+//Beans per gli Articoli
+
 package DAO.OggettiEntita;
 /*
     cod INT PRIMARY KEY AUTO_INCREMENT,

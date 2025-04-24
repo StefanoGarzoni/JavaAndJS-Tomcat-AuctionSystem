@@ -1,6 +1,6 @@
-//Implementazione Tabella Utenti
-//package com.example.dao.impl;
+//Implementazione DAO Tabella Utenti
 
+//package com.example.dao.impl;
 //import com.example.dao.UsernameDAO;
 //import com.example.util.ConnectionManager;
 package DAO;

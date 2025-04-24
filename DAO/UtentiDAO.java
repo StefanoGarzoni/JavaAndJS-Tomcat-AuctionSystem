@@ -1,4 +1,4 @@
-//Interfaccia Tabella Utenti
+//Interfaccia DAO Tabella Utenti
 
 //package com.example.dao;
 package DAO;

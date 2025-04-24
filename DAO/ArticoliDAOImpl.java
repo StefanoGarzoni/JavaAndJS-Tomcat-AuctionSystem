@@ -1,11 +1,12 @@
-//Implementazione Tabella Articoli
-//package com.example.dao.impl;
+//Implementazione DAO Tabella Articoli
 
+//package com.example.dao.impl;
 //import com.example.dao.UsernameDAO;
 //import com.example.util.ConnectionManager;
 package DAO;
 import java.sql.*;
 import java.util.*;
+import DAO.OggettiEntita.Articolo;
 
 public class ArticoliDAOImpl implements ArticoliDAO{
 
