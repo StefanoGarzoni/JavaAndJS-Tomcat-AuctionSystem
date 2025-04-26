@@ -1,6 +1,6 @@
 //Beans per le Offerte
 
-package DAO.OggettiEntita;
+package DAO.Beans;
 import java.sql.Date;
 import java.sql.Time;
 /*

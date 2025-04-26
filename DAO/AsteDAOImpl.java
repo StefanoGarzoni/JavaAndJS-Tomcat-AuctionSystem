@@ -4,15 +4,14 @@ package DAO;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
-import DAO.OggettiEntita.Asta;
+import DAO.Beans.Asta;
 
 public class AsteDAOImpl implements AsteDAO{
 
     @Override
-    public void insertNewAsta(String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) {
+    public void insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) {
         String query = "INSERT INTO Aste (creatore, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza) VALUES (?, ?, ?, ?, ?);";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, usernameCreatore);
@@ -27,11 +26,10 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public ArrayList<Asta> getAllClosedAsteInfoByCreator(String usernameCreatore) {
+    public ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernameCreatore) {
         String query = "SELECT * FROM Aste WHERE creatore = ? AND chiusa = True;";
         ArrayList<Asta> aste = new ArrayList<>();
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, usernameCreatore);
@@ -56,11 +54,10 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public ArrayList<Asta> getAllOpenAsteInfoByCreator(String usernameCreatore) {
+    public ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernameCreatore) {
         String query = "SELECT * FROM Aste WHERE creatore = ? AND chiusa = False;";
         ArrayList<Asta> aste = new ArrayList<>();
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, usernameCreatore);
@@ -85,11 +82,10 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public ArrayList<Asta> getAsteByStringInArticoli(String stringaDiRicerca) {
+    public ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca) {
         String query = "SELECT Aste.* FROM Aste JOIN Articoli ON Aste.id_asta = Articoli.id_asta WHERE (data_scadenza < CURDATE() OR (data_scadenza = CURDATE() AND ora_scadenza < CURTIME())) AND (descrizione LIKE ? OR nome LIKE ?) ORDER BY data_scadenza DESC, ora_scadenza DESC;";
         ArrayList<Asta> aste = new ArrayList<>();
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, "%" + stringaDiRicerca + "%");
@@ -114,10 +110,9 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public void setOffertaMax(int idAsta, int idOfferta) {
+    public void setOffertaMax(Connection conn, int idAsta, int idOfferta) {
         String query = "UPDATE Aste SET offerta_max = ? WHERE id_asta = ?;";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idOfferta);
@@ -129,28 +124,28 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public double getPrezzoOffertaMax(int idAsta) {
-        String query = "SELECT prezzo FROM Aste JOIN Offerte ON offerta_max = id_offerta WHERE id_asta = ? ;";
+    public Map<Double,Double> getPrezzoOffertaMaxANDRialzoMinimo(Connection conn, int idAsta) {
+        String query = "SELECT prezzo, rialzo_minimo FROM Aste JOIN Offerte ON offerta_max = id_offerta WHERE id_asta = ? ;";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idAsta);
             ResultSet result = ps.executeQuery();
             if (result.next()) {
-                return result.getDouble("prezzo");
+                Map<Double, Double> results = new HashMap<>();
+                results.put(result.getDouble("prezzo"), result.getDouble("rialzo_minimo"));
+                return results;
             }
         } catch (SQLException e) {
             throw new RuntimeException("Errore in getPrezzoOffertaMax", e);
         }
-        return 0;
+        return null;
     }
 
     @Override
-    public Asta getOpenAstaById(int idAsta) {
+    public Asta getOpenAstaById(Connection conn, int idAsta) {
         String query = "SELECT * FROM Aste WHERE id_asta = ? AND chiusa = False;";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idAsta);
@@ -174,10 +169,9 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public Asta getClosedAstaById(int idAsta) {
+    public Asta getClosedAstaById(Connection conn, int idAsta) {
         String query = "SELECT * FROM Aste WHERE id_asta = ? AND chiusa = True;";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idAsta);
@@ -201,10 +195,9 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public boolean astaCanBeClosed(int idAsta) {
+    public boolean astaCanBeClosed(Connection conn, int idAsta) {
         String query = "SELECT * FROM Aste WHERE id_asta = ? AND chiusa = False AND (data_scadenza < CURDATE() OR (data_scadenza = CURDATE() AND ora_scadenza < CURTIME()));";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idAsta);
@@ -222,10 +215,9 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public void setAstaAsClosed(int idAsta, String username) {
+    public void setAstaAsClosed(Connection conn, int idAsta, String username) {
         String query = "UPDATE Aste SET chiusa = True WHERE id_asta = ? AND creatore = ?;";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idAsta);
@@ -237,11 +229,10 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public Map<Asta, ArrayList<String>> getInfoFromAClosedAsta(int idAsta) {
+    public Map<Asta, ArrayList<String>> getInfoFromAClosedAsta(Connection conn, int idAsta) {
         String query = "SELECT Aste.*, Utenti.nome as nomeAggiudicatario, prezzo, indirizzo FROM Aste JOIN Offerte ON offerta_max = id_offerta JOIN Utenti ON utente = username WHERE Aste.id_asta = ? AND chiusa = True;";
         Map<Asta, ArrayList<String>> info = new HashMap<>();
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idAsta);
@@ -270,10 +261,9 @@ public class AsteDAOImpl implements AsteDAO{
     }
 
     @Override
-    public boolean checkCreatorOfAsta(String username, int idAsta) {
+    public boolean checkCreatorOfAsta(Connection conn, String username, int idAsta) {
         String query = "SELECT * FROM Aste WHERE id_asta = ? AND creatore = ?;";
         try (
-            Connection conn = ConnectionManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, idAsta);

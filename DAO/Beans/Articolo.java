@@ -1,6 +1,6 @@
 //Beans per gli Articoli
 
-package DAO.OggettiEntita;
+package DAO.Beans;
 /*
     cod INT PRIMARY KEY AUTO_INCREMENT,
     venditore VARCHAR(50),
@@ -56,6 +56,11 @@ public class Articolo {
     }
     public int getIdAsta() {
         return idAsta;
+    }
+
+    public void setIdAsta(int idAsta) {
+        if(idAsta >= 0)  
+            this.idAsta = idAsta;
     }
 
 }
