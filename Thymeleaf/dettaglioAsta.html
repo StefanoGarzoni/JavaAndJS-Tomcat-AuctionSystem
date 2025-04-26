@@ -6,6 +6,22 @@
         <!--<link rel="stylesheet" href="style.css"> Dovessimo decidere di mettere la parte estetica-->
     </head>
     <body>
-
+        <h1>Dettaglio Asta</h1>
+        
+        <h1>Offerte per l'asta</h1>
+        <table border="1">
+            <tr>
+                <th>Utente</th>
+                <th>Prezzo</th>
+                <th>Data</th>
+                <th>Ora</th>
+            </tr>
+            <tr th:each="offerta : ${offerte}">
+                <td th:text="${offerta.utente}"></td>
+                <td th:text="${offerta.prezzo}"></td>
+                <td th:text="${offerta.data}"></td>
+                <td th:text="${offerta.ora}"></td>
+            </tr>
+        </table>
     </body>
 </html>

@@ -1,0 +1,74 @@
+package Servlet;
+
+import DAO.AsteDAOImpl;
+import Database.ConnectionManager;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+@WebServlet("/chiudi-asta")
+public class dettaglioAstaChiudiAstaServlet extends HttpServlet {
+
+    private AsteDAOImpl asteDAO;
+
+    @Override
+    public void init() throws ServletException {
+        asteDAO = new AsteDAOImpl();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        Integer idAsta = (Integer) session.getAttribute("idAsta");
+        String username = (String) session.getAttribute("username");
+
+        String chiudiParam = request.getParameter("chiudi");
+
+        if (idAsta == null || username == null || chiudiParam == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parametri mancanti.");
+            return;
+        }
+
+        boolean chiudi = Boolean.parseBoolean(chiudiParam);
+
+        if (chiudi) {
+            try (Connection conn = ConnectionManager.getConnection()) {
+                // Verifica che l'utente sia il creatore dell'asta
+                boolean isCreator = asteDAO.checkCreatorOfAsta(conn, username, idAsta);
+
+                if (!isCreator) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Non sei autorizzato a chiudere questa asta.");
+                    return;
+                }
+
+                // Verifica che l'asta possa essere chiusa
+                boolean canBeClosed = asteDAO.astaCanBeClosed(conn, idAsta);
+
+                if (canBeClosed) {
+                    asteDAO.setAstaAsClosed(conn, idAsta, username);
+                }else{
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "L'asta non può essere chiusa.");
+                    return;
+                }
+
+            } catch (SQLException e) {
+                throw new ServletException("Errore durante la chiusura dell'asta.", e);
+            }
+        }else{
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parametri errati.");
+            return;
+        }
+
+        // Dopo tutto reindirizza alla pagina servlet di costruzione pagina di dettaglio asta
+        response.sendRedirect(request.getContextPath() + "/dettaglioAsta/page");
+    }
+}

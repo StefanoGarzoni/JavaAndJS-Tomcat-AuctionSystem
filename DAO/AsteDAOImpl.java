@@ -250,7 +250,7 @@ public class AsteDAOImpl implements AsteDAO{
                 );
                 ArrayList<String> altreInfo = new ArrayList<>();
                 altreInfo.add(result.getString("nomeAggiudicatario"));
-                altreInfo.add(result.getString("descrizione"));
+                altreInfo.add(result.getString("prezzo"));
                 altreInfo.add(result.getString("indirizzo"));
                 info.put(asta, altreInfo);
             }
