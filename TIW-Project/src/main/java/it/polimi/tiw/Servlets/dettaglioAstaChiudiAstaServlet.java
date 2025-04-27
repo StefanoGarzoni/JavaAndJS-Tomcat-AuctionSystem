@@ -1,4 +1,4 @@
-package Servlet;
+package it.polimi.tiw.Servlets;
 
 import DAO.AsteDAOImpl;
 import Database.ConnectionManager;

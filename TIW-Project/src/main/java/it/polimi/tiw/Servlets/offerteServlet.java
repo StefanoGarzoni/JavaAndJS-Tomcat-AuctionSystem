@@ -1,8 +1,8 @@
-package com.tuo_pacchetto.servlets;
+package it.polimi.tiw.Servlets;
 
 
-import DAO.Beans.Articolo;
-import DAO.Beans.Offerta;
+import it.polimi.tiw.DAO.Beans.Articolo;
+import it.polimi.tiw.DAO.Beans.Offerta;
 import ConnectionManager; 
 
 import javax.servlet.RequestDispatcher;

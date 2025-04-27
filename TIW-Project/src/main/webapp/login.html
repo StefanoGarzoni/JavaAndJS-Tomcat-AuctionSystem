@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Login</title>
+	</head>
+	<body>
+		<form action="/TIW-Project/login" method="post">
+			<label for="username">Username:</label>
+			<input type="text" id="username" required><br>
+			
+			<label for="password">Password</label>
+			<input type="password" id="password" required><br>
+			
+			<input type="Submit" value="Login"><br>
+		</form>
+		<div th:if="${param.errorMessage != null}">
+			<p th:text="${param.errorMessage}">
+		</div>
+	</body>
+</html>
