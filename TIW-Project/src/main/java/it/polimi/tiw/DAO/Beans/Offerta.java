@@ -1,8 +1,9 @@
 //Beans per le Offerte
 
-package DAO.Beans;
+package it.polimi.tiw.DAO.Beans;
 import java.sql.Date;
 import java.sql.Time;
+
 /*
     CREATE TABLE Offerte (
     id_offerta INT PRIMARY KEY AUTO_INCREMENT,

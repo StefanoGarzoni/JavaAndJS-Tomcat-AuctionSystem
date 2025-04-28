@@ -1,10 +1,9 @@
 //Interfaccia DAO Tabella Aste
 
-package DAO;
+package it.polimi.tiw.DAO;
+import it.polimi.tiw.DAO.Beans.Asta;
 import java.sql.Time;
 import java.util.*;
-import DAO.Beans.Asta;
-
 import java.sql.Connection;
 import java.sql.Date;
 

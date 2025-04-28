@@ -1,8 +1,6 @@
 //Interfaccia DAO Tabella Utenti
 
-//package com.example.dao;
-package DAO;
-import java.util.*;
+package it.polimi.tiw.DAO;
 
 public interface UtentiDAO{
 	String checkUsernameAndPsw(String username, String psw);

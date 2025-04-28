@@ -1,9 +1,10 @@
 //Interfaccia DAO Tabella Articoli
 
-package DAO;
+package it.polimi.tiw.DAO;
+import it.polimi.tiw.DAO.Beans.Articolo;
 import java.sql.Connection;
 import java.util.*;
-import DAO.Beans.Articolo;
+
 
 public interface ArticoliDAO{
 	void insertNewArticolo(Connection conn, String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo);

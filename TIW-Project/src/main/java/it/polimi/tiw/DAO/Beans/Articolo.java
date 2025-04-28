@@ -1,6 +1,7 @@
 //Beans per gli Articoli
 
-package DAO.Beans;
+package it.polimi.tiw.DAO.Beans;
+
 /*
     cod INT PRIMARY KEY AUTO_INCREMENT,
     venditore VARCHAR(50),

@@ -1,6 +1,6 @@
 //Beans per le Aste
 
-package DAO.Beans;
+package it.polimi.tiw.DAO.Beans;
 import java.sql.Date;
 import java.sql.Time;
 

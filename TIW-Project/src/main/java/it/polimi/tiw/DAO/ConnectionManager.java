@@ -1,12 +1,11 @@
-//package 
-
+package it.polimi.tiw.DAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionManager {
 
-    private static final String URL = "" //url del db;
+    private static final String URL = "url"; //url del db;
     private static final String USER = "username";
     private static final String PASSWORD = "psw";
 

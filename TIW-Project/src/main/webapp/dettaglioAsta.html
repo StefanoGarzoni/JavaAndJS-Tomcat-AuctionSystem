@@ -1,27 +1,60 @@
-<html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dettaglio Asta</title>
+</head>
+<body>
+    <h1>Dettaglio Asta</h1>
 
-    <head>
-        <meta charset="UTF-8">
-        <title>Dettaglio Asta</title>
-        <!--<link rel="stylesheet" href="style.css"> Dovessimo decidere di mettere la parte estetica-->
-    </head>
-    <body>
-        <h1>Dettaglio Asta</h1>
-        
-        <h1>Offerte per l'asta</h1>
+    <div th:if="${openAsta != null}">
+        <h2>Asta Aperta</h2>
+        <p>Creatore Asta:<span th:text="${openAsta.creatore}"></span></p>
+        <p>Nome Asta: <span th:text="${openAsta.nome}"></span></p>
+        <p>Descrizione:<span th:text="${openAsta.descrizione}"></span></p>
+        <p>Prezzo Iniziale:<span th:text="${openAsta.prezzoIniziale}"></span></p>
+        <p>Rialzo Minimo:<span th:text="${openAsta.rialzoMinimo}"></span></p>
+        <p>Data Scadenza:<span th:text="${openAsta.dataScadenza}"></span></p>
+        <p>Ora Scadenza:<span th:text="${openAsta.oraScadenza}"></span></p>
+
+        <div th:if="${canBeClosed}">
+            <p style="color: red;">Chiudi L'asta</p>
+        </div>
+
+        <h2>Offerte ricevute per l'asta : </h2>
         <table border="1">
-            <tr>
-                <th>Utente</th>
-                <th>Prezzo</th>
-                <th>Data</th>
-                <th>Ora</th>
-            </tr>
-            <tr th:each="offerta : ${offerte}">
-                <td th:text="${offerta.utente}"></td>
-                <td th:text="${offerta.prezzo}"></td>
-                <td th:text="${offerta.data}"></td>
-                <td th:text="${offerta.ora}"></td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Utente</th>
+                    <th>Prezzo</th>
+                    <th>Data</th>
+                    <th>Ora</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="offerta : ${offerte}">
+                    <td th:text="${offerta.utente}"></td>
+                    <td th:text="${offerta.prezzo}"></td>
+                    <td th:text="${offerta.data}"></td>
+                    <td th:text="${offerta.ora}"></td>
+                </tr>
+            </tbody>
         </table>
-    </body>
+    </div>
+
+    <div th:if="${astaChiusa != null}">
+        <h2>Asta Chiusa</h2>
+        <p>Creatore Asta:<span th:text="${astaChiusa.creatore}"></span></p>
+        <p>Nome Asta: <span th:text="${astaChiusa.nome}"></span></p>
+        <p>Descrizione:<span th:text="${astaChiusa.descrizione}"></span></p>
+        <p>Prezzo Iniziale:<span th:text="${astaChiusa.prezzo_iniziale}"></span></p>
+        <p>Rialzo Minimo:<span th:text="${astaChiusa.rialzo_minimo}"></span></p>
+        <p>Data Scadenza:<span th:text="${astaChiusa.data_scadenza}"></span></p>
+        <p>Ora Scadenza:<span th:text="${astaChiusa.ora_scadenza}"></span></p><br>
+        <p>Prezzo finale: <span th:text="${prezzo}"></span></p>
+        <p>Acquirente: <span th:text="${nomeAcquirente}"></span></p>
+        <p>Indirizzo di consegna:<span th:text="${indirizzo}"></span></p>
+    </div>
+
+</body>
 </html>

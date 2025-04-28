@@ -1,10 +1,15 @@
 //Implementazione DAO Tabella Aste
 
-package DAO;
-import java.sql.*;
-import java.sql.Date;
+package it.polimi.tiw.DAO;
+import it.polimi.tiw.DAO.Beans.Asta;
+import java.sql.Time;
 import java.util.*;
-import DAO.Beans.Asta;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 
 public class AsteDAOImpl implements AsteDAO{
 
@@ -211,7 +216,7 @@ public class AsteDAOImpl implements AsteDAO{
         } catch (SQLException e) {
             throw new RuntimeException("Errore in astaCanBeClosed", e);
         }
-        return false;
+        //return false;
     }
 
     @Override

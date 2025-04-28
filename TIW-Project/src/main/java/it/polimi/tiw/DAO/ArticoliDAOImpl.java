@@ -3,10 +3,14 @@
 //package com.example.dao.impl;
 //import com.example.dao.UsernameDAO;
 //import com.example.util.ConnectionManager;
-package DAO;
-import java.sql.*;
+
+package it.polimi.tiw.DAO;
+import it.polimi.tiw.DAO.Beans.Articolo;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
-import DAO.Beans.Articolo;
 
 public class ArticoliDAOImpl implements ArticoliDAO{
 
