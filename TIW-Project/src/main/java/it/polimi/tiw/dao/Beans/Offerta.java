@@ -3,6 +3,7 @@
 package it.polimi.tiw.dao.Beans;
 import java.sql.Date;
 import java.sql.Time;
+
 /*
     CREATE TABLE Offerte (
     id_offerta INT PRIMARY KEY AUTO_INCREMENT,

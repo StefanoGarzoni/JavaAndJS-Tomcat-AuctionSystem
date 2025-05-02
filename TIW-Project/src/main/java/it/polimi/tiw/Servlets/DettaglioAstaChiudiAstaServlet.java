@@ -15,11 +15,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/chiudi-asta")
-public class dettaglioAstaChiudiAstaServlet extends HttpServlet {
+public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
 
-    private AsteDAOImpl asteDAO;
+	private static final long serialVersionUID = 1L; //Consigliato da Eclipse non so il perchè
+	private AsteDAOImpl asteDAO;
 
-    @Override
     public void init() throws ServletException {
         asteDAO = new AsteDAOImpl();
     }
