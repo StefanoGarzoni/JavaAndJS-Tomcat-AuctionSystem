@@ -1,21 +1,21 @@
 package it.polimi.tiw.Servlets;
 
-import DAO.ArticoliDAOImpl;
-import DAO.AsteDAO;
-import DAO.AsteDAOImpl;
-import DAO.OfferteDAOImpl;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
-import ConnectionManager;
+
+import it.polimi.tiw.ConnectionManager;
+import it.polimi.tiw.dao.ArticoliDAOImpl;
+import it.polimi.tiw.dao.AsteDAO;
+import it.polimi.tiw.dao.AsteDAOImpl;
+import it.polimi.tiw.dao.OfferteDAOImpl;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/offerta/add")
 public class addOffertaServlet extends HttpServlet {

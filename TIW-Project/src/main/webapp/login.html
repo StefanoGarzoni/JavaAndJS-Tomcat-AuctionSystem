@@ -5,17 +5,15 @@
 		<title>Login</title>
 	</head>
 	<body>
-		<form action="/TIW-Project/login" method="post">
+		<form action="/TIW-Project/verifyCredentials" method="post">
 			<label for="username">Username:</label>
-			<input type="text" id="username" required><br>
+			<input type="text" id="username" name="username" required><br>
 			
 			<label for="password">Password</label>
-			<input type="password" id="password" required><br>
+			<input type="password" id="password" name="password" required><br>
 			
 			<input type="Submit" value="Login"><br>
 		</form>
-		<div th:if="${param.errorMessage != null}">
-			<p th:text="${param.errorMessage}">
-		</div>
+		<div th:if="${#ctx.containsVariable('loginError')}" th:text="${#ctx.loginError}"></div>
 	</body>
 </html>

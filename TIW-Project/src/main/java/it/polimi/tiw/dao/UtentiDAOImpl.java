@@ -3,9 +3,10 @@
 //package com.example.dao.impl;
 //import com.example.dao.UsernameDAO;
 //import com.example.util.ConnectionManager;
-package DAO;
+package it.polimi.tiw.dao;
 import java.sql.*;
-import java.util.*;
+
+import it.polimi.tiw.ConnectionManager;
 
 public class UtentiDAOImpl implements UtentiDAO{
 

@@ -7,4 +7,68 @@
 		<servlet-name>HomeLoginServlet</servlet-name>
 		<url-pattern>/login</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>LoginServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.LoginServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LoginServlet</servlet-name>
+		<url-pattern>/verifyCredentials</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>HomeServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.HomeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>HomeServlet</servlet-name>
+		<url-pattern>/home</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>AcquistoHomeServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.AcquistoHomeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AcquistoHomeServlet</servlet-name>
+		<url-pattern>/acquisto</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>VendoHomeServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.VendoHomeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>VendoHomeServlet</servlet-name>
+		<url-pattern>/vendo</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>NewArticoloServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.NewArticoloServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>NewArticoloServlet</servlet-name>
+		<url-pattern>/newArticolo</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>NewAstaServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.NewAstaServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>NewAstaServlet</servlet-name>
+		<url-pattern>/newAsta</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>AsteByKeywordServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.AsteByKeywordServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AsteByKeywordServlet</servlet-name>
+		<url-pattern>/asteByKeyword</url-pattern>
+	</servlet-mapping>
+
 </web-app>

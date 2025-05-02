@@ -1,12 +1,11 @@
 //Interfaccia DAO Tabella Offerte
 
-package DAO;
-import java.sql.Time;
+package it.polimi.tiw.dao;
+
+
 import java.util.*;
-import DAO.Beans.Offerta;
-import java.lang.reflect.Array;
+import it.polimi.tiw.dao.Beans.Offerta;
 import java.sql.Connection;
-import java.sql.Date;
 
 public interface OfferteDAO{
     ArrayList<Offerta> getOfferteMaxByUsername(Connection conn, String username);

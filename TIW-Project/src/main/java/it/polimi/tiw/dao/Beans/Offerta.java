@@ -1,6 +1,6 @@
 //Beans per le Offerte
 
-package DAO.Beans;
+package it.polimi.tiw.dao.Beans;
 import java.sql.Date;
 import java.sql.Time;
 /*

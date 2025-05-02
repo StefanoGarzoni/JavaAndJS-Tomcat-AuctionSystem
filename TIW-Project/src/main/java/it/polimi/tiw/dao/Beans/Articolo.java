@@ -1,6 +1,6 @@
 //Beans per gli Articoli
 
-package DAO.Beans;
+package it.polimi.tiw.dao.Beans;
 /*
     cod INT PRIMARY KEY AUTO_INCREMENT,
     venditore VARCHAR(50),
@@ -31,9 +31,20 @@ public class Articolo {
         this.venduto = venduto;
         this.idAsta = idAsta;
     }
+    
+    public Articolo(int cod, String nomeArticolo, String descrizione, String imgPath, double prezzo) {
+        this.cod = cod;
+        this.nomeArticolo = nomeArticolo;
+        this.descrizione = descrizione;
+        this.imgPath = imgPath;
+        this.prezzo = prezzo;
+        // this.venditore = venditore;
+        // this.venduto = venduto;
+        // this.idAsta = idAsta;
+    }
 
     //GETTERS
-    public int getCod() {
+    public int getCodice() {
         return cod;
     }
     public String getNomeArticolo() {

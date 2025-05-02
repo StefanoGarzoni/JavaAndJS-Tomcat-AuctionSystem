@@ -1,8 +1,10 @@
 //Beans per le Aste
 
-package DAO.Beans;
+package it.polimi.tiw.dao.Beans;
+
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
 
 /*
     id_asta INT PRIMARY KEY AUTO_INCREMENT,
@@ -27,6 +29,10 @@ public class Asta {
     private int offerta_max;
     private boolean chiusa;
     
+    private ArrayList<Articolo> articoli;
+    private int giorni_rimanenti;
+    private int ore_rimanenti;
+    
     public Asta(int idAsta, String creatore, double prezzo_iniziale, double rialzo_minimo, Date data_scadenza, Time ora_scadenza, int offerta_max, boolean chiusa) {
         this.idAsta = idAsta;
         this.creatore = creatore;
@@ -36,6 +42,22 @@ public class Asta {
         this.ora_scadenza = ora_scadenza;
         this.offerta_max = offerta_max;
         this.chiusa = chiusa;
+    }
+    
+    public Asta(int idAsta, Date data_scadenza, Time ora_scadenza, int offerta_max, ArrayList<Articolo> articoli) {
+        this.idAsta = idAsta;
+        this.data_scadenza = data_scadenza;
+        this.ora_scadenza = ora_scadenza;
+        this.offerta_max = offerta_max;
+        this.articoli = articoli;
+    }
+    
+    // SETTERS
+    public void setGiorniRimanenti(int giorniRimanenti) {
+    	this.giorni_rimanenti = giorniRimanenti;
+    }
+    public void setOreRimanenti(int oreRimanenti) {
+    	this.ore_rimanenti = oreRimanenti;
     }
 
     //GETTERS
@@ -51,16 +73,25 @@ public class Asta {
     public double getRialzo_minimo() {
         return rialzo_minimo;
     }
-    public Date getData_scadenza() {
+    public Date getDataScadenza() {
         return data_scadenza;
     }
-    public Time getOra_scadenza() {
+    public Time getOraScadenza() {
         return ora_scadenza;
     }
-    public int getOfferta_max() {
+    public int getGiorniRimanenti() {
+    	return giorni_rimanenti;
+    }
+    public int getOreRimanenti() {
+    	return ore_rimanenti;
+    }
+    public int getOffertaMax() {
         return offerta_max;
     }
     public boolean isChiusa() {
         return chiusa;
+    }
+    public ArrayList<Articolo> getArticoli(){
+    	return articoli;
     }
 }

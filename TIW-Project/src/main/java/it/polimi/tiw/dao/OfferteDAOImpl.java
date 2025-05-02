@@ -1,14 +1,10 @@
 //Implementazione DAO Tabella Offerte
 
-//package com.example.dao.impl;
-//import com.example.dao.UsernameDAO;
-//import com.example.util.ConnectionManager;
-package DAO;
+package it.polimi.tiw.dao;
+
 import java.sql.*;
-import java.sql.Date;
 import java.util.*;
-import DAO.Beans.Offerta;
-import ConnectionManager;
+import it.polimi.tiw.dao.Beans.Offerta;
 
 public class OfferteDAOImpl implements OfferteDAO{
 

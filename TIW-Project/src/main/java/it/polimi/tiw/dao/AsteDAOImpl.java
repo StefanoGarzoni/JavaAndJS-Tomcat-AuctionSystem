@@ -1,49 +1,68 @@
 //Implementazione DAO Tabella Aste
 
-package DAO;
+package it.polimi.tiw.dao;
+
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
-import DAO.Beans.Asta;
+
+import it.polimi.tiw.dao.Beans.Articolo;
+import it.polimi.tiw.dao.Beans.Asta;
 
 public class AsteDAOImpl implements AsteDAO{
-
     @Override
-    public void insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) {
+    public int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException{
         String query = "INSERT INTO Aste (creatore, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza) VALUES (?, ?, ?, ?, ?);";
         try (
-            PreparedStatement ps = conn.prepareStatement(query)
+            PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
         ) {
             ps.setString(1, usernameCreatore);
             ps.setDouble(2, prezzoIniziale);
             ps.setDouble(3, rialzoMinimo);
             ps.setDate(4, dataScadenza);
             ps.setTime(5, oraScadenza);
-            ps.executeUpdate();
+            
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Inserimento fallito, nessuna riga aggiunta.");
+            }
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);		//nuovo id AUTO_INCREMENT generato
+                } else {
+                    throw new SQLException("Inserimento riuscito ma nessun ID ottenuto.");
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Errore in insertNewAsta", e);
         }
     }
 
     @Override
-    public ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernameCreatore) {
-        String query = "SELECT * FROM Aste WHERE creatore = ? AND chiusa = True;";
+    public ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernameCreatore) throws RuntimeException{
+    	String query = 
+        		"SELECT id_asta, data_scadenza, ora_scadenza, offerta_max "
+        		+ "FROM Aste "
+        		+ "WHERE creatore = ? AND chiusa = 1 "
+        		+ "ORDER BY data_scadenza, ora_scadenza";
+        
         ArrayList<Asta> aste = new ArrayList<>();
         try (
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, usernameCreatore);
+            
             ResultSet result = ps.executeQuery();
             while (result.next()) {
+            	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
+            	
                 Asta asta = new Asta(
                     result.getInt("id_asta"),
-                    result.getString("creatore"),
-                    result.getDouble("prezzo_iniziale"),
-                    result.getDouble("rialzo_minimo"),
                     result.getDate("data_scadenza"),
                     result.getTime("ora_scadenza"),
                     result.getInt("offerta_max"),
-                    result.getBoolean("chiusa")
+                    articoli
                 );
                 aste.add(asta);
             }
@@ -55,23 +74,28 @@ public class AsteDAOImpl implements AsteDAO{
 
     @Override
     public ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernameCreatore) {
-        String query = "SELECT * FROM Aste WHERE creatore = ? AND chiusa = False;";
+        String query = 
+        		"SELECT id_asta, data_scadenza, ora_scadenza, offerta_max "
+        		+ "FROM Aste "
+        		+ "WHERE creatore = ? AND chiusa = 0 "
+        		+ "ORDER BY data_scadenza, ora_scadenza;";
+        
         ArrayList<Asta> aste = new ArrayList<>();
         try (
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, usernameCreatore);
+            
             ResultSet result = ps.executeQuery();
             while (result.next()) {
+            	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
+            	
                 Asta asta = new Asta(
                     result.getInt("id_asta"),
-                    result.getString("creatore"),
-                    result.getDouble("prezzo_iniziale"),
-                    result.getDouble("rialzo_minimo"),
                     result.getDate("data_scadenza"),
                     result.getTime("ora_scadenza"),
                     result.getInt("offerta_max"),
-                    result.getBoolean("chiusa")
+                    articoli
                 );
                 aste.add(asta);
             }
@@ -207,11 +231,9 @@ public class AsteDAOImpl implements AsteDAO{
             }else {
                 return false;
             }
-         
         } catch (SQLException e) {
             throw new RuntimeException("Errore in astaCanBeClosed", e);
         }
-        return false;
     }
 
     @Override

@@ -1,24 +1,23 @@
 package it.polimi.tiw.Servlets;
-package package.servlets;
 
-import DAO.AsteDAOImpl;
-import DAO.OfferteDAOImpl;
-import ConnectionManager;
-import DAO.Beans.Asta;
-import DAO.Beans.Offerta;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
+
+import it.polimi.tiw.ConnectionManager;
+import it.polimi.tiw.dao.AsteDAOImpl;
+import it.polimi.tiw.dao.OfferteDAOImpl;
+import it.polimi.tiw.dao.Beans.Asta;
+import it.polimi.tiw.dao.Beans.Offerta;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/dettaglioAsta/page")
 public class dettaglioAstaPageServlet extends HttpServlet {

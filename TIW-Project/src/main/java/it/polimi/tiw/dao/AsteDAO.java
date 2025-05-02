@@ -1,15 +1,17 @@
 //Interfaccia DAO Tabella Aste
 
-package DAO;
+package it.polimi.tiw.dao;
+
 import java.sql.Time;
 import java.util.*;
-import DAO.Beans.Asta;
+import it.polimi.tiw.dao.Beans.Asta;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.SQLException;
 
 public interface AsteDAO{
-	void insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza);
+	int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException;
 	ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernamaCreatore); 
 	ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernamaCreatore);
     ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca); 
