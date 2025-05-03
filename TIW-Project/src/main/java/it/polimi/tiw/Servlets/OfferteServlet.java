@@ -57,7 +57,11 @@ public class OfferteServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        //FARE if che controlla se c'è la sessione altrimenti rimando al login con un errore (DA FARE IN TUTTE LE SERVLET)
+
         HttpSession session = request.getSession(false);
+
+        //idAsta proviene dal get non dalla sessione
         Integer idAsta= (session != null) ? (Integer) session.getAttribute("idAsta") : null;
 
         if (idAsta == null) {

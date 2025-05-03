@@ -27,7 +27,7 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
         Integer idAsta = (Integer) session.getAttribute("idAsta");
         String username = (String) session.getAttribute("username");
 
@@ -69,6 +69,6 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         }
 
         // Dopo tutto reindirizza alla pagina servlet di costruzione pagina di dettaglio asta
-        response.sendRedirect(request.getContextPath() + "/dettaglioAsta/page");
+        response.sendRedirect(request.getContextPath() + "/dettaglioAstaPage");
     }
 }

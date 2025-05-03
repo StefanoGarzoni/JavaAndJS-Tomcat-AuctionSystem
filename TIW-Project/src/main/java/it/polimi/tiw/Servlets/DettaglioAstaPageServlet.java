@@ -56,7 +56,9 @@ public class DettaglioAstaPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        Integer idAsta= (Integer)session.getAttribute("idAsta");
+         //DA FARE i parse int dentro un try catch per i parametri passati con request
+        Integer idAsta= (Integer)request.getAttribute("idAsta");
+        //mettere in sessione idAsta
         String username = (String)session.getAttribute("username");
 
         if (idAsta == null || username == null) {
