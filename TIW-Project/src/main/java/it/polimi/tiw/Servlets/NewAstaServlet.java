@@ -92,10 +92,11 @@ public class NewAstaServlet extends HttpServlet {
 			ora = LocalTime.parse(oraScadenzaString);
 			
 			if(
-					data.isBefore(LocalDate.now()) && 
-					ora.isBefore(LocalTime.now()))
+					data.isBefore(LocalDate.now()) || 
+					(data.isEqual(LocalDate.now()) && ora.isBefore(LocalTime.now())))
 			{
-				// TODO: come gestiamo la data passata?
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La data di scadenza scelta è nel passato");
+				return;
 			}
 		}
 		catch (DateTimeParseException e) {

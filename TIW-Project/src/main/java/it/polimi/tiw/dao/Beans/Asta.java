@@ -33,7 +33,7 @@ public class Asta {
     private int giorni_rimanenti;
     private int ore_rimanenti;
     
-    public Asta(int idAsta, String creatore, double prezzo_iniziale, double rialzo_minimo, Date data_scadenza, Time ora_scadenza, int offerta_max, boolean chiusa) {
+    public Asta(int idAsta, String creatore, double prezzo_iniziale, double rialzo_minimo, Date data_scadenza, Time ora_scadenza, int offerta_max, boolean chiusa, ArrayList<Articolo> articoli) {
         this.idAsta = idAsta;
         this.creatore = creatore;
         this.prezzo_iniziale = prezzo_iniziale;
@@ -42,13 +42,6 @@ public class Asta {
         this.ora_scadenza = ora_scadenza;
         this.offerta_max = offerta_max;
         this.chiusa = chiusa;
-    }
-    
-    public Asta(int idAsta, Date data_scadenza, Time ora_scadenza, int offerta_max, ArrayList<Articolo> articoli) {
-        this.idAsta = idAsta;
-        this.data_scadenza = data_scadenza;
-        this.ora_scadenza = ora_scadenza;
-        this.offerta_max = offerta_max;
         this.articoli = articoli;
     }
     
@@ -67,10 +60,10 @@ public class Asta {
     public String getCreatore() {
         return creatore;
     }
-    public double getPrezzo_iniziale() {
+    public double getPrezzoIniziale() {
         return prezzo_iniziale;
     }
-    public double getRialzo_minimo() {
+    public double getRialzoMinimo() {
         return rialzo_minimo;
     }
     public Date getDataScadenza() {
