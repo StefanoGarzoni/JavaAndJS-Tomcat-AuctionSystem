@@ -52,4 +52,40 @@
 		<servlet-name>NewAstaServlet</servlet-name>
 		<url-pattern>/newAsta</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>AddOffertaServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.AddOffertaServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AddOffertaServlet</servlet-name>
+		<url-pattern>/offertaAdd</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>DettaglioAstaChiudiAstaServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.DettaglioAstaChiudiAstaServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DettaglioAstaChiudiAstaServlet</servlet-name>
+		<url-pattern>/chiudiAsta</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>OfferteServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.OfferteServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>OfferteServlet</servlet-name>
+		<url-pattern>/offertePage</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>DettaglioAstaPageServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.DettaglioAstaPageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DettaglioAstaPageServlet</servlet-name>
+		<url-pattern>/dettaglioAstaPage</url-pattern>
+	</servlet-mapping>
 </web-app>
