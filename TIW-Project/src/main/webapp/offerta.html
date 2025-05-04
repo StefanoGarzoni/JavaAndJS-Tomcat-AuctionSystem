@@ -3,7 +3,6 @@
     <head>
         <meta charset="UTF-8">
         <title>Offerte</title>
-        <!--<link rel="stylesheet" href="style.css"> Dovessimo decidere di mettere la parte estetica-->
     </head>
     <body>
         <h1>Articoli presenti nell' asta</h1>
@@ -23,7 +22,7 @@
                 <td th:text="${articolo.descrizione}"></td>
                 <td th:text="${articolo.prezzo}"></td>
                 <!-- NOTA: 
-                hymeleaf accede direttamente all'attributo del beans usando i getters -->
+                thymeleaf accede direttamente all'attributo del beans usando i getters -->
             </tr>
         </table>
         <br><br>
@@ -44,7 +43,9 @@
         </table>
         <br><br>
         <h1>Fai un'offerta</h1>
-        <form action="#" th:action="@{/offertaAdd}" method="post">
+        <!--action="#" aggiungere se vogliamo che di default (es. la pagina è processata come pura html)
+         la pagina non invii i dati a se stessa in post ma a "#"-->
+        <form th:action="@{/offertaAdd}" method="post">
             <!-- idAsta e username vanno scaricati dalla sessione direttamente nella servlet 
             altrimenti con i campi hidden ci incula a manetta-->
             <!--Forse un controllo anche qua (praticamente quasi inutile) sul prezzo minimo da inserire andremme messo?-->
@@ -52,7 +53,7 @@
             <input type="number" id="prezzo" name="prezzo" required/><br><br>
             <input type="submit" value="Fai Offerta"/>
             <!--Errore nella esecuzione delle query di aggiornamento-->
-            <!--TODO-->
+            <!--TODO ??-->
         </form>
     </body>
 </html>

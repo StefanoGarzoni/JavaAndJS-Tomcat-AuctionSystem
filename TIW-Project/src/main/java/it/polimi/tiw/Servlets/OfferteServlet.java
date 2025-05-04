@@ -26,7 +26,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
-// @WebServlet("/offertePage") commentato perchè causa conflitti con web.xml
 public class OfferteServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -54,20 +53,32 @@ public class OfferteServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        //FARE if che controlla se c'è la sessione altrimenti rimando al login con un errore (DA FARE IN TUTTE LE SERVLET)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+        Integer idAsta;
 
-        //idAsta proviene dal get non dalla sessione
-        Integer idAsta= (session != null) ? (Integer) session.getAttribute("idAsta") : null;
+        if (session == null || session.getAttribute("username") == null) {
+            response.sendRedirect(request.getContextPath() + "/login?loginError=true");
+            return;
+        }
 
-        if (idAsta == null) {
+        
+        String idAstaParam = request.getParameter("idAsta");
+
+        if (idAstaParam == null) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non specificato");
             return;
         }
+
+        try{
+            idAsta = Integer.parseInt(idAstaParam);
+            session.setAttribute("idAsta", idAsta);
+        }catch(Exception e){
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non valido");
+            return;
+        }
+        
 
         ArrayList<Articolo> articoli;
         ArrayList<Offerta>  offerte;

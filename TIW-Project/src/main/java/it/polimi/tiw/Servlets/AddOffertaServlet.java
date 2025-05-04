@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-// @WebServlet("/offertadd")
 public class AddOffertaServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -36,6 +35,12 @@ public class AddOffertaServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session == null) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Sessione non valida.");
+            return;
+        }
+
+        
+        if (session == null || session.getAttribute("username") == null) {
+            response.sendRedirect(request.getContextPath() + "/login?loginError=true");
             return;
         }
 

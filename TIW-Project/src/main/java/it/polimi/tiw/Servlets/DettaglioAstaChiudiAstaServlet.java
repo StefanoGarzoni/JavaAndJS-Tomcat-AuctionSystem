@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-// @WebServlet("/chiudiAsta") commentato perchè causa conflitti con web.xml
 public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L; //Consigliato da Eclipse non so il perchè
@@ -28,7 +27,18 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        Integer idAsta = (Integer) session.getAttribute("idAsta");
+        Integer idAsta;
+        
+        if (session == null || session.getAttribute("username") == null) {
+            response.sendRedirect(request.getContextPath() + "/login?loginError=true");
+            return;
+        }
+        if(session.getAttribute("idAsta") == null){
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sessione mancante di dati.");
+            return;
+        }
+
+        idAsta = (Integer) session.getAttribute("idAsta");
         String username = (String) session.getAttribute("username");
 
         String chiudiParam = request.getParameter("chiudi");

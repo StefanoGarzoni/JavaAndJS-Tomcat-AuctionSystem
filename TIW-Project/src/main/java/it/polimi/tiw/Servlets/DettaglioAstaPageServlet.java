@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 
-// @WebServlet("/dettaglioAstaPage") commentato perchè causa conflitti con web.xml
 public class DettaglioAstaPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -55,14 +54,34 @@ public class DettaglioAstaPageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession();
-         //DA FARE i parse int dentro un try catch per i parametri passati con request
-        Integer idAsta= (Integer)request.getAttribute("idAsta");
-        //mettere in sessione idAsta
+        
+        HttpSession session = request.getSession(false);
+        Integer idAsta;
+        
+        if (session == null || session.getAttribute("username") == null) {
+            response.sendRedirect(request.getContextPath() + "/login?loginError=true");
+            return;
+        }
+
+         String idAstaParam = request.getParameter("idAsta");
+
+        if (idAstaParam == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non specificato");
+            return;
+        }
+
+        try{
+            idAsta = Integer.parseInt(idAstaParam);
+            session.setAttribute("idAsta", idAsta);
+        }catch(Exception e){
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non valido");
+            return;
+        }
+
         String username = (String)session.getAttribute("username");
 
-        if (idAsta == null || username == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta o username non trovati in sessione.");
+        if (username == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"username non valido in sessione.");
             return;
         }
 
