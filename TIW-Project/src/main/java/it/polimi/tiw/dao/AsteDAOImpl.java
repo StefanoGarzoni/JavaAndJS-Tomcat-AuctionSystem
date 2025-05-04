@@ -44,7 +44,7 @@ public class AsteDAOImpl implements AsteDAO{
     	String query = 
         		"SELECT id_asta, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza, offerta_max "
         		+ "FROM Aste "
-        		+ "WHERE creatore = ? AND chiusa = 1 "
+        		+ "WHERE creatore = ? AND chiusa = True "
         		+ "ORDER BY data_scadenza, ora_scadenza";
         
         ArrayList<Asta> aste = new ArrayList<>();
@@ -81,7 +81,7 @@ public class AsteDAOImpl implements AsteDAO{
         String query = 
         		"SELECT id_asta, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza, offerta_max "
         		+ "FROM Aste "
-        		+ "WHERE creatore = ? AND chiusa = 0 "
+        		+ "WHERE creatore = ? AND chiusa = False "
         		+ "ORDER BY data_scadenza, ora_scadenza;";
         
         ArrayList<Asta> aste = new ArrayList<>();
