@@ -44,6 +44,11 @@ public class NewAstaServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(request.getSession(false) == null) {	// if a session already exists (the client logged in)
+            response.sendRedirect(request.getContextPath() + "/login");
+			return;
+		}
+		
 		String redirectPath = "/TIW-Project/vendo";
 		
 		// parameters sanitise

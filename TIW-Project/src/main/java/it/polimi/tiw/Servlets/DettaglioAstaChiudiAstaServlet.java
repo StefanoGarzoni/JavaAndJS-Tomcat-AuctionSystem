@@ -30,7 +30,8 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         Integer idAsta;
         
         if (session == null || session.getAttribute("username") == null) {
-            response.sendRedirect(request.getContextPath() + "/login?loginError=true");
+            response.sendRedirect(request.getContextPath() + "/login");
+            // response.sendRedirect(request.getContextPath() + "/login?loginError=true");
             return;
         }
         if(session.getAttribute("idAsta") == null){

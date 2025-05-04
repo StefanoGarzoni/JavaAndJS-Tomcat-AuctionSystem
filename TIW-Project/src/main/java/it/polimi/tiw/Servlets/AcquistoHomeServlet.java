@@ -13,10 +13,8 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.AsteDAOImpl;
-import it.polimi.tiw.dao.Beans.Articolo;
 import it.polimi.tiw.dao.Beans.Asta;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 
@@ -41,6 +39,12 @@ public class AcquistoHomeServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String vendoPath = "/acquisto.html";
 		
+		if(request.getSession(false) == null) {	// verify if the client is authenticated
+            response.sendRedirect(request.getContextPath() + "/login");
+            // response.sendRedirect("/login?loginError=true");
+			return;
+		}
+		
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		templateEngine.process(vendoPath, ctx, response.getWriter());
@@ -53,7 +57,8 @@ public class AcquistoHomeServlet extends HttpServlet {
 		HttpSession session = request.getSession(false);
 		
 		if(session == null) {	// verify if the client is authenticated
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No valid session present");
+            response.sendRedirect(request.getContextPath() + "/login");
+            // response.sendRedirect("/login?loginError=true");
 			return;
 		}
 		

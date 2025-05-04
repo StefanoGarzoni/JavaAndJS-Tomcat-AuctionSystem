@@ -9,7 +9,11 @@
 		<a href="/TIW-Project/home">&lt;&lt; Torna alla home</a>
 	</div>
 
-	<div>
+
+	<div th:if="${#lists.isEmpty(asteAperte)}">
+		Non hai ancora aste aperte
+	</div> 
+	<div th:if="${not #lists.isEmpty(asteAperte)}">
 		<h2>Le tue aste aperte</h2>
 		<table>
 			<tr>
@@ -43,7 +47,10 @@
 		</table>
 	</div>
 	
-	<div>
+	<div th:if="${#lists.isEmpty(asteChiuse)}">
+		Non hai ancora aste chiuse
+	</div> 
+	<div th:if="not ${#lists.isEmpty(asteChiuse)}">
 		<h2>Le tue aste chiuse</h2>
 		<table>
 			<tr>

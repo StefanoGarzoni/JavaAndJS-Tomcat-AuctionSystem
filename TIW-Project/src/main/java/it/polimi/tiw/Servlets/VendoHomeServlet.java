@@ -52,7 +52,7 @@ public class VendoHomeServlet extends HttpServlet {
 		HttpSession session = request.getSession(false);
 		
 		if(session == null) {	// verify if the client is authenticated
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No valid session present");
+            response.sendRedirect(request.getContextPath() + "/login");
 			return;
 		}
 		

@@ -49,7 +49,7 @@ public class NewArticoloServlet extends HttpServlet {
 		String imageName;
 		
 		if(request.getSession(false) == null) {	// if a session already exists (the client logged in)
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No valid session present");
+            response.sendRedirect(request.getContextPath() + "/login");
 			return;
 		}
 		

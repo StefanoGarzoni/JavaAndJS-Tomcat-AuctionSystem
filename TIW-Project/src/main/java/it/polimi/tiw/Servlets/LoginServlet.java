@@ -45,6 +45,9 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = "/login.html";
 		
+		if(request.getSession(false) != null)	// if a session already exists (the client logged in)
+			response.sendRedirect(request.getContextPath() + "/home");
+		
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		
@@ -54,10 +57,15 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String loginPath = "/login.html";
 		String homePagePathString = "/TIW-Project/home";
+		
+		HttpSession session = request.getSession(false);
 
 		// evitiamo il login se un utente è già loggato
-		if(request.getSession(false) != null) {
-			response.sendRedirect(homePagePathString);
+		if(session != null) {
+			session.invalidate();	
+			// faccio questo e non un redirect alla home per evitare la seguente situazione: un utente precedentemente loggato invia nuovamente 
+			// delle credenziali (anche sbagliate) e riesce ad accedere alla home perchè viene fatta una redirect 
+			
 			return;
 		}
 		
@@ -73,7 +81,7 @@ public class LoginServlet extends HttpServlet {
 				boolean validCredential = new LoginDAO().areCredentialsCorrect(dbConnection, username, password);
 				
 				if(validCredential) {
-					HttpSession session = request.getSession(true);
+					session = request.getSession(true);
 					
 					session.setAttribute("lastLoginTimestamp", LocalDateTime.now());
 					session.setAttribute("username", username);

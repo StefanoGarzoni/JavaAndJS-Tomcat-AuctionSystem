@@ -44,6 +44,6 @@ public class HomeServlet extends HttpServlet {
 		if(request.getSession(false) != null)	// if a session already exists (the client logged in)
 			templateEngine.process(path, ctx, response.getWriter());
 		else
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No valid session present");
+            response.sendRedirect(request.getContextPath() + "/login");
 	}
 }

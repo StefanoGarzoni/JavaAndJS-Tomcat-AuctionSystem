@@ -17,8 +17,8 @@ public class HomePageSorterServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
 		if(request.getSession(false) == null)	// if a session already exists (the client logged in)
-			response.sendRedirect("/TIW-Project/login");
+			response.sendRedirect(request.getContextPath() + "/login");
 		else
-			response.sendRedirect("/TIW-Project/home");
+			response.sendRedirect(request.getContextPath() + "/TIW-Project/home");
 	}
 }
