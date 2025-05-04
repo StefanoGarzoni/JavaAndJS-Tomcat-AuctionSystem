@@ -22,7 +22,7 @@ import jakarta.servlet.http.*;
 /**
  * Implements the login credential verification
  */
-@WebServlet("/AcquistoHomeServlet")
+// @WebServlet("/AcquistoHomeServlet") commentato perchè causa conflitti con web.xml
 public class AcquistoHomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

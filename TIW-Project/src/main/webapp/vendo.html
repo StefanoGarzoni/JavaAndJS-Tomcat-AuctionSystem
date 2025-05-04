@@ -6,6 +6,10 @@
 </head>
 <body>
 	<div>
+		<a href="/TIW-Project/home">&lt;&lt; Torna alla home</a>
+	</div>
+
+	<div>
 		<h2>Le tue aste aperte</h2>
 		<table>
 			<tr>
@@ -19,7 +23,7 @@
 				<th>Articoli inclusi</th>
 			</tr>
 			<tr th:each="astaAperta : ${asteAperte}">
-				<td ><a th:href="@{/...(idAsta=${astaAperta.idAsta})}" th:text="${astaAperta.idAsta}"></a></td>
+				<td ><a th:href="@{/dettaglioAstaPage(idAsta=${astaAperta.idAsta})}" th:text="${astaAperta.idAsta}"></a></td>
 				<td th:text="${astaAperta.prezzoIniziale}"></td>
 				<td th:text="${astaAperta.offertaMax}"></td>
 				<td th:text="${astaAperta.dataScadenza}"></td>

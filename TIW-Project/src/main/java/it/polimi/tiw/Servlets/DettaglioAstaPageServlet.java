@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 
-@WebServlet("/dettaglioAstaPage")
+// @WebServlet("/dettaglioAstaPage") commentato perchè causa conflitti con web.xml
 public class DettaglioAstaPageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;

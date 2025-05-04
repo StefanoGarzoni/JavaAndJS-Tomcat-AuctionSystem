@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/chiudiAsta")
+// @WebServlet("/chiudiAsta") commentato perchè causa conflitti con web.xml
 public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L; //Consigliato da Eclipse non so il perchè

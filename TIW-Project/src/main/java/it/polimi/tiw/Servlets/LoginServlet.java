@@ -55,6 +55,12 @@ public class LoginServlet extends HttpServlet {
 		String loginPath = "/login.html";
 		String homePagePathString = "/TIW-Project/home";
 
+		// evitiamo il login se un utente è già loggato
+		if(request.getSession(false) != null) {
+			response.sendRedirect(homePagePathString);
+			return;
+		}
+		
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		

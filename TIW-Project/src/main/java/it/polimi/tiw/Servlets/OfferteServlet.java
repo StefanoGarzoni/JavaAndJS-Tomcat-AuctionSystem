@@ -26,7 +26,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
-@WebServlet("/offertePage")
+// @WebServlet("/offertePage") commentato perchè causa conflitti con web.xml
 public class OfferteServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
