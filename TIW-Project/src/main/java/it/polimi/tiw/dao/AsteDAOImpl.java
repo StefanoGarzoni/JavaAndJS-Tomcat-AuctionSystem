@@ -172,7 +172,7 @@ public class AsteDAOImpl implements AsteDAO{
 
     @Override
     public Map<Double,Double> getPrezzoOffertaMaxANDRialzoMinimo(Connection conn, int idAsta) {
-        String query = "SELECT prezzo, rialzo_minimo FROM Aste JOIN Offerte ON offerta_max = id_offerta WHERE id_asta = ? ;";
+        String query = "SELECT prezzo, rialzo_minimo FROM Aste JOIN Offerte ON offerta_max = id_offerta WHERE Aste.id_asta = ? ;";
         try (
             PreparedStatement ps = conn.prepareStatement(query)
         ) {

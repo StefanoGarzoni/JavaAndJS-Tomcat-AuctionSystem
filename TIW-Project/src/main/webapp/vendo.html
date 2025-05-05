@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>Vendo</title>
@@ -118,7 +118,7 @@
 				
 				<tr th:each="articolo : ${availableArticoli}">
 					<td><input type="checkbox" name="codiceArticolo" th:value="${articolo.codice}"></td>
-					<td th:text="${articolo.codice}"></td>
+					<td th:text="${articolo.cod}"></td>
 					<td th:text="${articolo.nomeArticolo}"></td>
 					<td th:text="${articolo.descrizione}"></td>
 					<td th:text="${articolo.prezzo} + €"></td>

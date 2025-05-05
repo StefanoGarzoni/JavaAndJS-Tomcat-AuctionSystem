@@ -19,7 +19,7 @@
 	</div>
 	
 	<div th:if="${asteAperte != null and #lists.isEmpty(asteAperte)}"> Nessuna asta con questa parola chiave. </div>
-	<table th:if="${not #lists.isEmpty(asteAperte)}">
+	<table border="1" th:if="${not #lists.isEmpty(asteAperte)}">
 		<tr>
 			<th>IdAsta</th>
 			<th>Creatore</th>
@@ -41,7 +41,7 @@
 			<td>
 				<table>
 					<tr th:each="articolo : ${astaAperta.articoli}">
-						<td th:text="${articolo.codice}"></td>
+						<td th:text="${articolo.cod}"></td>
 						<td th:text="${articolo.nomeArticolo}"></td>
 					</tr>
 				</table>

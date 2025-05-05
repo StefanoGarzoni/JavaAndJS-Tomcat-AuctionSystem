@@ -44,7 +44,7 @@ public class Articolo {
     }
 
     //GETTERS
-    public int getCodice() {
+    public int getCod() {
         return cod;
     }
     public String getNomeArticolo() {

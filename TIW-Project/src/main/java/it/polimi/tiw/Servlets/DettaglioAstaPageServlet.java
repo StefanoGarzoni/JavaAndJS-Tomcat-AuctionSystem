@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
@@ -85,7 +86,8 @@ public class DettaglioAstaPageServlet extends HttpServlet {
             return;
         }
 
-        Context ctx = new Context(request.getLocale());
+        JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
+		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 
         try (Connection conn = ConnectionManager.getConnection()) {
             boolean isCreator = asteDAO.checkCreatorOfAsta(conn, username, idAsta);

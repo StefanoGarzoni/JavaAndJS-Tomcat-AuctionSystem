@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
@@ -91,14 +92,15 @@ public class OfferteServlet extends HttpServlet {
         }
 
         // Preparazione modello Thymeleaf
-        Context ctx = new Context(request.getLocale());
+        JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
+		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
         ctx.setVariable("articoli", articoli);
         ctx.setVariable("offerte", offerte);
 
         // Render del template
         response.setContentType("text/html;charset=UTF-8");
         try (Writer writer = response.getWriter()) {
-            templateEngine.process("offerte", ctx, writer);
+            templateEngine.process("offerta", ctx, writer);
         }
     }
 }
