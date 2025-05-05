@@ -87,7 +87,10 @@ public class OfferteDAOImpl implements OfferteDAO{
     //richieste: SELECT utente, prezzo, data_offerta, ora_offerta
     public ArrayList<Offerta> getOfferteInOpenAsta(Connection conn, int idAsta) {
         ArrayList<Offerta> offerte = new ArrayList<>();
-        String sql = "SELECT * FROM Offerte WHERE id_asta = ? AND chiusa = False ORDER BY data_offerta, ora_offerta;";
+        String sql = "SELECT Offerte.* FROM "
+        		+ "Offerte JOIN Aste ON Offerte.id_asta = Aste.id_asta "
+        		+ "WHERE Aste.id_asta = ? AND chiusa = False "
+        		+ "ORDER BY data_offerta, ora_offerta;";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idAsta);
 

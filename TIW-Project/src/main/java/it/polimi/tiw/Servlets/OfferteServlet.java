@@ -43,7 +43,6 @@ public class OfferteServlet extends HttpServlet {
         JakartaServletWebApplication webApp=JakartaServletWebApplication.buildApplication(servletContext);
         WebApplicationTemplateResolver resolver=new WebApplicationTemplateResolver(webApp);
 
-        resolver.setPrefix("/WEB-INF/templates/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode(TemplateMode.HTML);
         resolver.setCharacterEncoding("UTF-8");

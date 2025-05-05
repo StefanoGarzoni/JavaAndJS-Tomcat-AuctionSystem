@@ -43,7 +43,6 @@ public class DettaglioAstaPageServlet extends HttpServlet {
 
         JakartaServletWebApplication webApplication=JakartaServletWebApplication.buildApplication(servletContext);
         WebApplicationTemplateResolver templateResolver =new WebApplicationTemplateResolver(webApplication);
-        templateResolver.setPrefix("/WEB-INF/templates/");
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding("UTF-8");
