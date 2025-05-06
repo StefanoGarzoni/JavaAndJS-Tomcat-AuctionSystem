@@ -19,7 +19,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 //Le immagini sono salvate in: eclipse-workspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\TIW-Project\WEB-INF\articlesImages\
-
+// da pietro le immagini solo salvate in: C:\Users\pietr\OneDrive - Politecnico di Milano\PoliMi\3anno\2semestre\TIW - progetto\Progetto-TIPIW\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\TIW-Project\WEB-INF\articlesImages
 @MultipartConfig(
 	    fileSizeThreshold = 1024 * 1024 * 100,      // 100MB in RAM
 	    maxFileSize = 1024 * 1024 * 100,       // 100MB per file

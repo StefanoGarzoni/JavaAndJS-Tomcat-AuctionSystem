@@ -174,21 +174,30 @@ public class AsteDAOImpl implements AsteDAO{
 
     @Override
     public Map<Double,Double> getPrezzoOffertaMaxANDRialzoMinimo(Connection conn, int idAsta) {
-        String query = "SELECT rialzo_minimo, prezzo, prezzo_iniziale FROM Aste JOIN Offerte ON offerta_max = id_offerta WHERE Aste.id_asta = ? ;";
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-            ps.setInt(1, idAsta);
-            ResultSet result = ps.executeQuery();
+        String existsOffertaMaxQuery = "SELECT rialzo_minimo, offerta_max, prezzo_iniziale FROM Aste WHERE id_asta = ?";
+    	String prezzoMaxOffertaQuery = "SELECT prezzo FROM Offerte WHERE id_offerta = ? ;";
+    	
+    	try {
+    		PreparedStatement ps1 = conn.prepareStatement(existsOffertaMaxQuery);
+            ps1.setInt(1, idAsta);
+            
+            ResultSet result = ps1.executeQuery();
             if (result.next()) {
-                Map<Double, Double> results = new HashMap<>();
+            	Double rialzoMinimo = result.getDouble("rialzo_minimo");
+            	Double prezzo = result.getDouble("prezzo_iniziale");
+            	
+            	if(result.getInt("offerta_max") != 0) {
+            		PreparedStatement ps2 = conn.prepareStatement(prezzoMaxOffertaQuery);
+                    ps1.setInt(1, result.getInt("offerta_max"));
+                    ResultSet result2 = ps2.executeQuery();
+                   
+                    if(result.next()) {
+                    	prezzo = result2.getDouble("prezzo");
+                    }
+            	}
                 
-                if(result.getDouble("prezzo") != 0.0) {
-                	results.put(result.getDouble("rialzo_minimo"), result.getDouble("prezzo"));
-                }
-                else{
-                	results.put(result.getDouble("rialzo_minimo"), result.getDouble("prezzo_iniziale"));
-                }
+            	Map<Double, Double> results = new HashMap<>();
+            	results.put(rialzoMinimo, prezzo);
                 
                 return results;
             }

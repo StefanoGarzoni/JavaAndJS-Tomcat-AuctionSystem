@@ -12,12 +12,12 @@
 		<a href="/TIW-Project/home">&lt;&lt; Torna alla home</a>
 	</div>
 
-
+	<h2>Le tue aste aperte</h2>
 	<div th:if="${#lists.isEmpty(asteAperte)}">
 		Non hai ancora aste aperte
 	</div> 
 	<div th:if="${not #lists.isEmpty(asteAperte)}">
-		<h2>Le tue aste aperte</h2>
+		
 		<table border="1">
 			<tr>
 				<th>IdAsta</th>
