@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
+import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.dao.Beans.Articolo;
 import it.polimi.tiw.dao.Beans.Offerta;
@@ -33,13 +34,15 @@ public class OfferteServlet extends HttpServlet {
 
     private OfferteDAOImpl offerteDAO;
     private ArticoliDAOImpl articoliDAO;
+    private AsteDAOImpl asteDAO;
     private TemplateEngine templateEngine;
 
     public void init() throws ServletException {
 
         ServletContext servletContext = getServletContext();
-        offerteDAO   = new OfferteDAOImpl();
-        articoliDAO  = new ArticoliDAOImpl();
+        offerteDAO = new OfferteDAOImpl();
+        articoliDAO = new ArticoliDAOImpl();
+        asteDAO = new AsteDAOImpl();
 
         JakartaServletWebApplication webApp=JakartaServletWebApplication.buildApplication(servletContext);
         WebApplicationTemplateResolver resolver=new WebApplicationTemplateResolver(webApp);
@@ -90,12 +93,21 @@ public class OfferteServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException("Errore durante il recupero dei dati", e);
         }
+        
+        Double rialzo = 0.0;
+        try (Connection conn = ConnectionManager.getConnection()) {
+            rialzo = asteDAO.getRialzoMinimo(conn, idAsta);
+           
+        } catch (SQLException e) {
+            throw new ServletException("Errore durante il recupero dei dati", e);
+        }
 
         // Preparazione modello Thymeleaf
         JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
         ctx.setVariable("articoli", articoli);
         ctx.setVariable("offerte", offerte);
+        ctx.setVariable("rialzo_minimo", rialzo);
         
         if(request.getParameter("PriceTooLow")!=null)
         	ctx.setVariable("PriceTooLow", request.getParameter("PriceTooLow"));

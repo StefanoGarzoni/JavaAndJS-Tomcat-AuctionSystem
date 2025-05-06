@@ -23,5 +23,6 @@ public interface AsteDAO{
     void setAstaAsClosed(Connection conn, int idAsta, String username);
     Map<Asta, ArrayList<String>> getInfoFromAClosedAsta(Connection conn, int idAsta);
     boolean checkCreatorOfAsta(Connection conn, String username, int idAsta);
+    public Double getRialzoMinimo(Connection conn, int idAsta);
 
 }

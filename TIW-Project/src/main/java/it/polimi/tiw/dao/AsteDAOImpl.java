@@ -10,6 +10,23 @@ import it.polimi.tiw.dao.Beans.Articolo;
 import it.polimi.tiw.dao.Beans.Asta;
 
 public class AsteDAOImpl implements AsteDAO{
+	
+	@Override
+	public Double getRialzoMinimo(Connection conn, int idAsta) {
+		String query = "SELECT rialzo_minimo FROM Aste WHERE id_asta = ?;";
+        try (
+            PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
+        ) {            
+            ResultSet result = ps.executeQuery();
+            if (result.next()) {
+            	return result.getDouble("rialzo_minimo");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore in insertNewAsta", e);
+        }
+        return null;
+    }
+	
     @Override
     public int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException{
         String query = "INSERT INTO Aste (creatore, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza) VALUES (?, ?, ?, ?, ?);";
