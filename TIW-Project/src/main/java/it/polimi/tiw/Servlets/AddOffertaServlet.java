@@ -33,11 +33,6 @@ public class AddOffertaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Sessione non valida.");
-            return;
-        }
-
         
         if (session == null || session.getAttribute("username") == null) {
             response.sendRedirect(request.getContextPath() + "/login");

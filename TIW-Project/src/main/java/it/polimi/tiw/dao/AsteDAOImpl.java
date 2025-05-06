@@ -16,13 +16,14 @@ public class AsteDAOImpl implements AsteDAO{
 		String query = "SELECT rialzo_minimo FROM Aste WHERE id_asta = ?;";
         try (
             PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
-        ) {            
+        ) {     
+        	ps.setInt(1, idAsta);
             ResultSet result = ps.executeQuery();
             if (result.next()) {
             	return result.getDouble("rialzo_minimo");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore in insertNewAsta", e);
+            throw new RuntimeException("Rialzo Minimo", e);
         }
         return null;
     }
