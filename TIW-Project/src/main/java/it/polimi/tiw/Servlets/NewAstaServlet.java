@@ -22,10 +22,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-/**
- * 
- */
-@WebServlet("/NewAstaServlet")
 public class NewAstaServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -100,7 +96,8 @@ public class NewAstaServlet extends HttpServlet {
 					data.isBefore(LocalDate.now()) || 
 					(data.isEqual(LocalDate.now()) && ora.isBefore(LocalTime.now())))
 			{
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La data di scadenza scelta è nel passato");
+				response.sendRedirect(redirectPath+"?passedExpirationData=true");
+				// response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La data di scadenza scelta è nel passato");
 				return;
 			}
 		}

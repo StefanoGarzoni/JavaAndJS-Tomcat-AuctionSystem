@@ -25,10 +25,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-/**
- * 
- */
-@WebServlet("/VendoHomeServlet")
 public class VendoHomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -79,6 +75,9 @@ public class VendoHomeServlet extends HttpServlet {
 			ctx.setVariable("asteAperte", openAste);
 			ctx.setVariable("asteChiuse", closedAste);
 			ctx.setVariable("availableArticoli", availableArticoli);
+			
+			if(request.getParameter("passedExpirationData") != null)
+				ctx.setVariable("passedExpirationData", true);
 			
 			templateEngine.process(vendoPath, ctx, response.getWriter());
 		}
