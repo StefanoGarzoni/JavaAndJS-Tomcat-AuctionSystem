@@ -6,6 +6,9 @@
 </head>
 <body>
 	<div>
+		<a href="/TIW-Project/logout">Logout</a>
+	</div>	
+	<div>
 		<a href="/TIW-Project/home">&lt;&lt; Torna alla home</a>
 	</div>
 
@@ -37,7 +40,7 @@
 				<td>
 					<table>
 						<tr th:each="articolo : ${astaAperta.articoli}">
-							<td th:text="${articolo.codice}"></td>
+							<td th:text="${articolo.cod}"></td>
 							<td th:text="${articolo.nomeArticolo}"></td>
 							<td th:text="${articolo.prezzo}+'€'"></td>
 						</tr>
@@ -46,12 +49,11 @@
 			</tr>
 		</table>
 	</div>
-	
+	<h2>Le tue aste chiuse</h2>
 	<div th:if="${#lists.isEmpty(asteChiuse)}">
 		Non hai ancora aste chiuse
 	</div> 
 	<div th:if="not ${#lists.isEmpty(asteChiuse)}">
-		<h2>Le tue aste chiuse</h2>
 		<table border="1">
 			<tr>
 				<th>IdAsta</th>
@@ -117,7 +119,7 @@
 				</tr>
 				
 				<tr th:each="articolo : ${availableArticoli}">
-					<td><input type="checkbox" name="codiceArticolo" th:value="${articolo.codice}"></td>
+					<td><input type="checkbox" name="codiceArticolo" th:value="${articolo.cod}"></td>
 					<td th:text="${articolo.cod}"></td>
 					<td th:text="${articolo.nomeArticolo}"></td>
 					<td th:text="${articolo.descrizione}"></td>
@@ -126,7 +128,7 @@
 			</table>
 			<br>
 			
-			<input type="Submit" value="Inserisci articolo">
+			<input type="Submit" value="Inserisci Nuova Asta">
 		</form>
 	</div>
 	

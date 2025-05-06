@@ -68,8 +68,10 @@ public class AcquistoHomeServlet extends HttpServlet {
 			return;
 		}
 		
+		String username = (String) session.getAttribute("username");
+		
 		try(Connection conn = ConnectionManager.getConnection()){
-			ArrayList<Asta> openAste = new AsteDAOImpl().getAsteByStringInArticoli(conn, keyword);
+			ArrayList<Asta> openAste = new AsteDAOImpl().getAsteByStringInArticoli(conn, keyword, username);
 			
 			JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 			WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());

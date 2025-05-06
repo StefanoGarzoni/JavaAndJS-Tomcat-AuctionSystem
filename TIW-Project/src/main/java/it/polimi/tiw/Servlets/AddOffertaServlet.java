@@ -48,7 +48,8 @@ public class AddOffertaServlet extends HttpServlet {
         Integer idAsta = (Integer) session.getAttribute("idAsta");
         String  username = (String) session.getAttribute("username");
         if (idAsta == null || username == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sessione mancante di dati.");
+            //response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sessione mancante di dati.");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -62,7 +63,8 @@ public class AddOffertaServlet extends HttpServlet {
         try {
             prezzo = Double.parseDouble(prezzoStr);
         } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Prezzo non valido.");
+            //response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Prezzo non valido.");
+        	response.sendRedirect(request.getContextPath() + "/offertePage?PriceTooLow=True&idAsta="+idAsta);
             return;
         }
 
@@ -76,12 +78,13 @@ public class AddOffertaServlet extends HttpServlet {
                     return;
                 }
 
-                double prezzoAttuale = prezziInfo.keySet().iterator().next();
-                double rialzoMinimo  = prezziInfo.get(prezzoAttuale);
+                double rialzoMinimo = prezziInfo.keySet().iterator().next();
+                double prezzoAttuale  = prezziInfo.get(rialzoMinimo);
 
-                if (prezzo <= prezzoAttuale || (prezzo - prezzoAttuale) < rialzoMinimo) {
+                if ((prezzo <= prezzoAttuale || (prezzo - prezzoAttuale) < rialzoMinimo)) {
                     conn.rollback();
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Prezzo offerta troppo basso.");
+                    response.sendRedirect(request.getContextPath() + "/offertePage?PriceTooLow=True&idAsta="+idAsta);
+                    //response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Prezzo offerta troppo basso.");
                     return;
                 }
 
@@ -95,7 +98,7 @@ public class AddOffertaServlet extends HttpServlet {
                 asteDAO.setOffertaMax(conn, idAsta, idOfferta);
                 conn.commit();
 
-                response.sendRedirect(request.getContextPath() + "/offerta/page");
+                response.sendRedirect(request.getContextPath() + "/offertePage?idAsta="+idAsta);
             } catch (Exception e) {
                 conn.rollback();
                 throw new ServletException("Errore nella gestione dell'offerta", e);

@@ -63,7 +63,7 @@ public class OfferteServlet extends HttpServlet {
             // response.sendRedirect(request.getContextPath() + "/login?loginError=true");
             return;
         }
-
+        
         
         String idAstaParam = request.getParameter("idAsta");
 
@@ -96,6 +96,9 @@ public class OfferteServlet extends HttpServlet {
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
         ctx.setVariable("articoli", articoli);
         ctx.setVariable("offerte", offerte);
+        
+        if(request.getParameter("PriceTooLow")!=null)
+        	ctx.setVariable("PriceTooLow", request.getParameter("PriceTooLow"));
 
         // Render del template
         response.setContentType("text/html;charset=UTF-8");

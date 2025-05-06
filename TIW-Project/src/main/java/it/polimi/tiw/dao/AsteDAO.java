@@ -14,7 +14,7 @@ public interface AsteDAO{
 	int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException;
 	ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernamaCreatore); 
 	ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernamaCreatore);
-    ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca); 
+    ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca, String username); 
     void setOffertaMax(Connection conn, int idAsta, int idOfferta);
     Map<Double,Double> getPrezzoOffertaMaxANDRialzoMinimo(Connection conn, int idAsta);
     Asta getOpenAstaById(Connection conn, int idAsta);

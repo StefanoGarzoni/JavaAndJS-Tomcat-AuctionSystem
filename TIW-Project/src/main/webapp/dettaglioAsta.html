@@ -5,7 +5,14 @@
     <title>Dettaglio Asta</title>
 </head>
 <body>
+	<div>
+		<a href="/TIW-Project/logout">Logout</a>
+	</div>	
+   	<div>
+		<a href="/TIW-Project/vendo">&lt;&lt; Torna alle tue aste</a>
+	</div>
     <h1>Dettaglio Asta</h1>
+    
 
     <div th:if="${openAsta != null}">
         <h2>Asta Aperta</h2>
@@ -35,8 +42,8 @@
                 <tr th:each="offerta : ${offerte}">
                     <td th:text="${offerta.utente}"></td>
                     <td th:text="${offerta.prezzo}"></td>
-                    <td th:text="${offerta.data}"></td>
-                    <td th:text="${offerta.ora}"></td>
+                    <td th:text="${offerta.dataOfferta}"></td>
+                    <td th:text="${offerta.oraOfferta}"></td>
                 </tr>
             </tbody>
         </table>

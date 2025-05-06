@@ -56,6 +56,10 @@ public class VendoHomeServlet extends HttpServlet {
 			return;
 		}
 		
+		if(session.getAttribute("idAsta")!=null) {
+			session.removeAttribute("idAsta");
+		}
+		
 		AsteDAO asteDAO = new AsteDAOImpl();
 		ArticoliDAO articoliDAO = new ArticoliDAOImpl();
 		

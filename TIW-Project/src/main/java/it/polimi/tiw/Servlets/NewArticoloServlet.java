@@ -1,8 +1,10 @@
 package it.polimi.tiw.Servlets;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -16,10 +18,12 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
+//Le immagini sono salvate in: eclipse-workspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\TIW-Project\WEB-INF\articlesImages\
+
 @MultipartConfig(
-	    fileSizeThreshold = 1024 * 1024,      // 1MB in RAM
-	    maxFileSize = 1024 * 1024 * 10,       // 10MB per file
-	    maxRequestSize = 1024 * 1024 * 50     // 50MB in totale
+	    fileSizeThreshold = 1024 * 1024 * 100,      // 100MB in RAM
+	    maxFileSize = 1024 * 1024 * 100,       // 100MB per file
+	    maxRequestSize = 1024 * 1024 * 500     // 500MB in totale
 	)
 @WebServlet("/newArticoloServlet")
 public class NewArticoloServlet extends HttpServlet {
@@ -58,6 +62,8 @@ public class NewArticoloServlet extends HttpServlet {
 			articleName = request.getParameter("nome");
 			articleDescription = request.getParameter("descrizione");
 			articlePriceString = request.getParameter("prezzo");
+			//Part filePart = request.getPart("immagine");
+			
 			imageName = saveImage(request);
 			
 			if(articleName == null || articleDescription == null || imageName == null || articlePriceString == null) {
@@ -92,27 +98,27 @@ public class NewArticoloServlet extends HttpServlet {
 	}	
 	
 	private String saveImage(HttpServletRequest request) throws ServletException, IOException {
-		Part filePart = request.getPart("immagine");	// FIXME: salvataggio immagine
+		Part filePart = request.getPart("immagine");	
 		if(filePart == null) {
 			return null;
 		}
 		
-		String fileName = getFileName(filePart);
+		String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+		String ext = "";
 		
-		String uploadPath = getServletContext().getRealPath("") + File.separator + "WEB-INF" + File.separator + "articlesImages";	// file separator serve poichè il separatore dipende dal sistema operativo
+		int i = fileName.lastIndexOf('.'); //prende la lunghezza del nome
+		if (i > 0) ext = fileName.substring(i); //estrae solo il nome e non l'estensione del file
+		String uniqueName = UUID.randomUUID().toString() + ext;
+		
+		String uploadPath = getServletContext().getRealPath("/WEB-INF/articlesImages");	// file separator serve poichè il separatore dipende dal sistema operativo
+		
+		File target = new File(uploadPath, uniqueName);
+		System.out.println("Scrivo l'immagine in: " + target.getAbsolutePath());
 
         // salva il file
-        filePart.write(uploadPath + File.separator + fileName);
+        filePart.write(uploadPath + File.separator + uniqueName);
 	
         return fileName;
 	}
-	
-	private String getFileName(Part part) {
-		for (String content : part.getHeader("content-disposition").split(";")) {		// recupera l'intestazione e la divide in parti
-            if (content.trim().startsWith("filename")) {	// controlla se quella parte di intestazione contiene il filename
-                return content.substring(content.indexOf('=') + 1).trim().replace("\"", "");
-            }
-        }
-        return null;
-	}
+
 }

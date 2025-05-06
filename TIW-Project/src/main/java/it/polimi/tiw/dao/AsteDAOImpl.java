@@ -114,10 +114,11 @@ public class AsteDAOImpl implements AsteDAO{
     }
     
     @Override
-    public ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca) {
+    public ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca, String username) {
         String query = "SELECT Aste.*"
         		+ "FROM Aste "
-        		+ "WHERE (data_scadenza > CURDATE() OR "
+        		+ "WHERE creatore NOT IN (?) AND"
+        		+ "(data_scadenza > CURDATE() OR "
         		+ "		(data_scadenza = CURDATE() AND ora_scadenza > CURTIME())) AND "
         		+ "		EXISTS( "
         		+ "			SELECT * "
@@ -130,8 +131,9 @@ public class AsteDAOImpl implements AsteDAO{
         try (
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
-            ps.setString(1, "%" + stringaDiRicerca + "%");
+        	ps.setString(1, username);
             ps.setString(2, "%" + stringaDiRicerca + "%");
+            ps.setString(3, "%" + stringaDiRicerca + "%");
             
             ResultSet result = ps.executeQuery();
             while (result.next()) {
@@ -172,7 +174,7 @@ public class AsteDAOImpl implements AsteDAO{
 
     @Override
     public Map<Double,Double> getPrezzoOffertaMaxANDRialzoMinimo(Connection conn, int idAsta) {
-        String query = "SELECT prezzo, rialzo_minimo FROM Aste JOIN Offerte ON offerta_max = id_offerta WHERE Aste.id_asta = ? ;";
+        String query = "SELECT rialzo_minimo, prezzo, prezzo_iniziale FROM Aste JOIN Offerte ON offerta_max = id_offerta WHERE Aste.id_asta = ? ;";
         try (
             PreparedStatement ps = conn.prepareStatement(query)
         ) {
@@ -180,7 +182,14 @@ public class AsteDAOImpl implements AsteDAO{
             ResultSet result = ps.executeQuery();
             if (result.next()) {
                 Map<Double, Double> results = new HashMap<>();
-                results.put(result.getDouble("prezzo"), result.getDouble("rialzo_minimo"));
+                
+                if(result.getDouble("prezzo") != 0.0) {
+                	results.put(result.getDouble("rialzo_minimo"), result.getDouble("prezzo"));
+                }
+                else{
+                	results.put(result.getDouble("rialzo_minimo"), result.getDouble("prezzo_iniziale"));
+                }
+                
                 return results;
             }
         } catch (SQLException e) {

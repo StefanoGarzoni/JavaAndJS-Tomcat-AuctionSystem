@@ -97,4 +97,12 @@
 		<servlet-name>DettaglioAstaPageServlet</servlet-name>
 		<url-pattern>/dettaglioAstaPage</url-pattern>
 	</servlet-mapping>
+		<servlet>
+		<servlet-name>LogoutServlet</servlet-name>
+		<servlet-class>it.polimi.tiw.Servlets.LogoutServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LogoutServlet</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
 </web-app>
