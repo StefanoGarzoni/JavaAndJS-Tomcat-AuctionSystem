@@ -76,6 +76,9 @@ public class VendoHomeServlet extends HttpServlet {
 			ctx.setVariable("asteChiuse", closedAste);
 			ctx.setVariable("availableArticoli", availableArticoli);
 			
+			if(request.getParameter("passedExpirationData") != null)
+				ctx.setVariable("passedExpirationData", true);
+			
 			templateEngine.process(vendoPath, ctx, response.getWriter());
 		}
 		catch (SQLException e) {

@@ -188,7 +188,7 @@ public class AsteDAOImpl implements AsteDAO{
             	
             	if(result.getInt("offerta_max") != 0) {
             		PreparedStatement ps2 = conn.prepareStatement(prezzoMaxOffertaQuery);
-                    ps1.setInt(1, result.getInt("offerta_max"));
+                    ps2.setInt(1, result.getInt("offerta_max"));
                     ResultSet result2 = ps2.executeQuery();
                    
                     if(result.next()) {
