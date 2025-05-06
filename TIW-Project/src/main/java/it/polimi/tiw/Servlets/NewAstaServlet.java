@@ -22,10 +22,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-/**
- * 
- */
-@WebServlet("/NewAstaServlet")
 public class NewAstaServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
