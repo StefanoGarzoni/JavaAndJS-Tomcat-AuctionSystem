@@ -313,34 +313,69 @@ public class AsteDAOImpl implements AsteDAO{
 
     @Override
     public Map<Asta, ArrayList<String>> getInfoFromAClosedAsta(Connection conn, int idAsta) {
-        String query = "SELECT Aste.*, Utenti.nome as nomeAggiudicatario, prezzo, indirizzo FROM Aste JOIN Offerte ON offerta_max = id_offerta JOIN Utenti ON utente = username WHERE Aste.id_asta = ? AND chiusa = True;";
-        Map<Asta, ArrayList<String>> info = new HashMap<>();
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-            ps.setInt(1, idAsta);
-            ResultSet result = ps.executeQuery();
-            if (result.next()) {
-                Asta asta = new Asta(
-                    result.getInt("id_asta"),
-                    result.getString("creatore"),
-                    result.getDouble("prezzo_iniziale"),
-                    result.getDouble("rialzo_minimo"),
-                    result.getDate("data_scadenza"),
-                    result.getTime("ora_scadenza"),
-                    result.getInt("offerta_max"),
-                    result.getBoolean("chiusa"),
-                    null
-                );
-                ArrayList<String> altreInfo = new ArrayList<>();
-                altreInfo.add(result.getString("nomeAggiudicatario"));
-                altreInfo.add(result.getString("prezzo"));
-                altreInfo.add(result.getString("indirizzo"));
-                info.put(asta, altreInfo);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getInfoFromAClosedAsta", e);
+    	String queryCheckOfferte = "SELECT * FROM Offerte WHERE id_asta = ?";
+    	String queryTakeAll = "SELECT Aste.*, Utenti.nome as nomeAggiudicatario, prezzo, indirizzo FROM Aste JOIN Offerte ON offerta_max = id_offerta JOIN Utenti ON utente = username WHERE Aste.id_asta = ? AND chiusa = True;";
+    	String onlyAsta = "SELECT * FROM Aste WHERE id_asta = ?";
+    	Map<Asta, ArrayList<String>> info = new HashMap<>();
+    	try (PreparedStatement ps = conn.prepareStatement(queryCheckOfferte)) {
+			ps.setInt(1, idAsta);
+	        ResultSet result = ps.executeQuery();
+			if (result.next()) {
+				try (PreparedStatement ps1 = conn.prepareStatement(queryTakeAll)) {
+					ps1.setInt(1, idAsta);
+			        ResultSet result1 = ps1.executeQuery();
+					
+					if (result1.next()) {
+		                Asta asta = new Asta(
+		                    result1.getInt("id_asta"),
+		                    result1.getString("creatore"),
+		                    result1.getDouble("prezzo_iniziale"),
+		                    result1.getDouble("rialzo_minimo"),
+		                    result1.getDate("data_scadenza"),
+		                    result1.getTime("ora_scadenza"),
+		                    result1.getInt("offerta_max"),
+		                    result1.getBoolean("chiusa"),
+		                    null
+		                );
+		                ArrayList<String> altreInfo = new ArrayList<>();
+		                altreInfo.add(result1.getString("nomeAggiudicatario"));
+		                altreInfo.add(result1.getString("prezzo"));
+		                altreInfo.add(result1.getString("indirizzo"));
+		                info.put(asta, altreInfo);
+		            }
+				}catch (SQLException e) {
+		            throw new RuntimeException("Errore in takeAll", e);
+		        }
+    		}else {
+				try (PreparedStatement ps1 = conn.prepareStatement(onlyAsta)) {
+					ps1.setInt(1, idAsta);
+			        ResultSet result1 = ps1.executeQuery();
+					
+					if (result1.next()) {
+		                Asta asta = new Asta(
+	                    result1.getInt("id_asta"),
+	                    result1.getString("creatore"),
+	                    result1.getDouble("prezzo_iniziale"),
+	                    result1.getDouble("rialzo_minimo"),
+	                    result1.getDate("data_scadenza"),
+	                    result1.getTime("ora_scadenza"),
+	                    result1.getInt("offerta_max"),
+	                    result1.getBoolean("chiusa"),
+	                    null
+	                    );
+		                ArrayList<String> altreInfo = new ArrayList<>();
+		                altreInfo.add("Asta non venduta");
+		                altreInfo.add("Prezzo non disponibile");
+		                altreInfo.add("Indirizzo non disponibile");
+		                info.put(asta, altreInfo);
+					}
+				}
+			}
+			
+    	}catch (SQLException e) {
+            throw new RuntimeException("Errore in checkOfferte", e);
         }
+
         return info;
     }
 

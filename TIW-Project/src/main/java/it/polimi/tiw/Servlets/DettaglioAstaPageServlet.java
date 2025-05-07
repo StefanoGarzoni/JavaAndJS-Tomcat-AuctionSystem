@@ -105,14 +105,17 @@ public class DettaglioAstaPageServlet extends HttpServlet {
                 ctx.setVariable("offerte", offerte);
 
             } else {
-                Map<Asta, ArrayList<String>> closedInfo = asteDAO.getInfoFromAClosedAsta(conn, idAsta);
-                Asta astaChiusa = closedInfo.keySet().iterator().next();
-                ArrayList<String> info = closedInfo.get(astaChiusa);
+            	//try (Connection conn2 = ConnectionManager.getConnection()){
+                    Map<Asta, ArrayList<String>> closedInfo = asteDAO.getInfoFromAClosedAsta(conn, idAsta);
+                    Asta astaChiusa = closedInfo.keySet().iterator().next();
+                    ArrayList<String> info = closedInfo.get(astaChiusa);
 
-                ctx.setVariable("astaChiusa", astaChiusa);
-                ctx.setVariable("nomeAcquirente", info.get(0));
-                ctx.setVariable("prezzo", info.get(1));
-                ctx.setVariable("indirizzo", info.get(2));
+                    ctx.setVariable("astaChiusa", astaChiusa);
+                    ctx.setVariable("nomeAcquirente", info.get(0));
+                    ctx.setVariable("prezzo", info.get(1));
+                    ctx.setVariable("indirizzo", info.get(2));
+            	//}
+
             }
         } catch (SQLException e) {
             throw new ServletException("Errore durante il recupero dei dati dell'asta", e);

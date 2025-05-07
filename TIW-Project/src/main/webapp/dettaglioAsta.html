@@ -24,6 +24,7 @@
 
         <div th:if="${canBeClosed}">
             <form th:action="@{/chiudiAsta}" method="post">
+            	<input type="hidden" name="chiudi" value="chiudi"></input>
               <button type="submit" style="color:red;">Chiudi l'asta</button>
             </form>
         </div>
@@ -52,10 +53,10 @@
     <div th:if="${astaChiusa != null}">
         <h2>Asta Chiusa</h2>
         <p>Creatore Asta:<span th:text="${astaChiusa.creatore}"></span></p>
-        <p>Prezzo Iniziale:<span th:text="${astaChiusa.prezzo_iniziale}"></span></p>
-        <p>Rialzo Minimo:<span th:text="${astaChiusa.rialzo_minimo}"></span></p>
-        <p>Data Scadenza:<span th:text="${astaChiusa.data_scadenza}"></span></p>
-        <p>Ora Scadenza:<span th:text="${astaChiusa.ora_scadenza}"></span></p><br>
+        <p>Prezzo Iniziale:<span th:text="${astaChiusa.prezzoIniziale}"></span></p>
+        <p>Rialzo Minimo:<span th:text="${astaChiusa.rialzoMinimo}"></span></p>
+        <p>Data Scadenza:<span th:text="${astaChiusa.dataScadenza}"></span></p>
+        <p>Ora Scadenza:<span th:text="${astaChiusa.oraScadenza}"></span></p><br>
         <p>Prezzo finale: <span th:text="${prezzo}"></span></p>
         <p>Acquirente: <span th:text="${nomeAcquirente}"></span></p>
         <p>Indirizzo di consegna:<span th:text="${indirizzo}"></span></p>

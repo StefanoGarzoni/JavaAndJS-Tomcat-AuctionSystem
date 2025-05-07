@@ -42,16 +42,16 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         idAsta = (Integer) session.getAttribute("idAsta");
         String username = (String) session.getAttribute("username");
 
-        String chiudiParam = request.getParameter("chiudi");
-
-        if (idAsta == null || username == null || chiudiParam == null) {
+        //String chiudiParam = request.getParameter("chiudi");
+        //idAsta == null || username == null || chiudiParam == null
+        if (idAsta == null || username == null ) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parametri mancanti.");
             return;
         }
 
-        boolean chiudi = Boolean.parseBoolean(chiudiParam);
-
-        if (chiudi) {
+        //boolean chiudi = Boolean.parseBoolean(chiudiParam);
+        //chiudi
+        if (true) {
             try (Connection conn = ConnectionManager.getConnection()) {
                 // Verifica che l'utente sia il creatore dell'asta
                 boolean isCreator = asteDAO.checkCreatorOfAsta(conn, username, idAsta);
@@ -80,6 +80,6 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         }
 
         // Dopo tutto reindirizza alla pagina servlet di costruzione pagina di dettaglio asta
-        response.sendRedirect(request.getContextPath() + "/dettaglioAstaPage");
+        response.sendRedirect(request.getContextPath() + "/dettaglioAstaPage?idAsta="+idAsta);
     }
 }
