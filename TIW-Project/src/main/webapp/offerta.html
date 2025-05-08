@@ -6,12 +6,10 @@
         <title>Offerte</title>
     </head>
     <body>
-    	<div>
-		<a href="/TIW-Project/logout">Logout</a>
-	</div>	
-    	<div>
-			<a href="/TIW-Project/acquisto">&lt;&lt; Torna alle aste</a>
-		</div>
+		<a href="/TIW-Project/logout">Logout</a><br>
+    	
+		<a href="/TIW-Project/acquisto">&lt;&lt; Torna alle aste</a><br>
+	
         <h1>Articoli presenti nell' asta</h1>
         <table border="1">
             <tr>
@@ -47,7 +45,6 @@
         </table>
         <br><br>
         <h1>Fai un'offerta</h1>
-        <!-- #ctx.containsVariable('PriceTooLow') -->
         <div th:if="${#ctx.containsVariable('PriceTooLow')}">Inserisci un'offerta valido ! </div>
        
         <h3>Rialzo minimo:</h3>

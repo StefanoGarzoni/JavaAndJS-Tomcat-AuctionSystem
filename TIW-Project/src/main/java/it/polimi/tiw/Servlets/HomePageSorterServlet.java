@@ -8,10 +8,11 @@ import jakarta.servlet.http.*;
 public class HomePageSorterServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	/** Produces the home page
+	/**
+	 * Smista gli utenti se sono già loggati o no
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
-		if(request.getSession(false) == null)	// if a session already exists (the client logged in)
+		if(request.getSession(false) == null)
 			response.sendRedirect(request.getContextPath() + "/login");
 		else
 			response.sendRedirect(request.getContextPath() + "/TIW-Project/home");

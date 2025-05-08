@@ -29,32 +29,28 @@ public class AsteDAOImpl implements AsteDAO{
     }
 	
     @Override
-    public int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException{
+    public int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException {
         String query = "INSERT INTO Aste (creatore, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza) VALUES (?, ?, ?, ?, ?);";
-        try (
-            PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
-        ) {
-            ps.setString(1, usernameCreatore);
-            ps.setDouble(2, prezzoIniziale);
-            ps.setDouble(3, rialzoMinimo);
-            ps.setDate(4, dataScadenza);
-            ps.setTime(5, oraScadenza);
-            
-            int affectedRows = ps.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("Inserimento fallito, nessuna riga aggiunta.");
-            }
-
-            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);		//nuovo id AUTO_INCREMENT generato
-                } else {
-                    throw new SQLException("Inserimento riuscito ma nessun ID ottenuto.");
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in insertNewAsta", e);
+        
+        // impostando RETURN_GENERATED_KEYS ci viene restituito l'id dell'asta creato da AUTO_INCREMENT
+    	PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+    	
+        ps.setString(1, usernameCreatore);
+        ps.setDouble(2, prezzoIniziale);
+        ps.setDouble(3, rialzoMinimo);
+        ps.setDate(4, dataScadenza);
+        ps.setTime(5, oraScadenza);
+        
+        int affectedRows = ps.executeUpdate();
+        if (affectedRows == 0) {
+            throw new SQLException("Inserimento fallito, nessuna riga aggiunta.");
         }
+
+        ResultSet generatedKeys = ps.getGeneratedKeys();
+        if (generatedKeys.next())
+        	return generatedKeys.getInt(1);		//nuovo id AUTO_INCREMENT generato            	
+        else
+            throw new SQLException("Inserimento riuscito ma nessun ID ottenuto.");
     }
 
     @Override
@@ -193,7 +189,10 @@ public class AsteDAOImpl implements AsteDAO{
     @Override
     public Map<Double,Double> getPrezzoOffertaMaxANDRialzoMinimo(Connection conn, int idAsta) {
         String existsOffertaMaxQuery = "SELECT rialzo_minimo, offerta_max, prezzo_iniziale FROM Aste WHERE id_asta = ?";
-    	String prezzoMaxOffertaQuery = "SELECT prezzo FROM Offerte WHERE id_offerta = ? ;";
+    	
+        // è necessaria una query a parte poichè, nel caso in cui un'asta non abbia ancora offerte, 
+        // la join tra offerta e asta (che andrebbe inserita per unificare le due query) non restituirebbe una tupla
+        String prezzoMaxOffertaQuery = "SELECT prezzo FROM Offerte WHERE id_offerta = ? ;";
     	
     	try {
     		PreparedStatement ps1 = conn.prepareStatement(existsOffertaMaxQuery);
@@ -204,13 +203,13 @@ public class AsteDAOImpl implements AsteDAO{
             	Double rialzoMinimo = result.getDouble("rialzo_minimo");
             	Double prezzo = result.getDouble("prezzo_iniziale");
             	
-            	if(result.getInt("offerta_max") != 0) {
+            	if(result.getInt("offerta_max") != 0) {		// se è già stata fatta un'offerta (offerta_max == NULL, quindi getInt() = 0), estraiamo l'offerta massima
             		PreparedStatement ps2 = conn.prepareStatement(prezzoMaxOffertaQuery);
                     ps2.setInt(1, result.getInt("offerta_max"));
                     ResultSet result2 = ps2.executeQuery();
                    
-                    if(result.next()) {
-                    	prezzo = result2.getDouble("prezzo");
+                    if(result2.next()) {
+                    	prezzo = result2.getDouble("prezzo");	// sovrasciviamo il prezo_iniziale con l'offerta massima
                     }
             	}
                 
@@ -219,10 +218,12 @@ public class AsteDAOImpl implements AsteDAO{
                 
                 return results;
             }
+            else {
+            	return null;	// non esiste un'asta con quell'id      	
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Errore in getPrezzoOffertaMax", e);
         }
-        return null;
     }
 
     @Override

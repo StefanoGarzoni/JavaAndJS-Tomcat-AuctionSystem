@@ -20,6 +20,7 @@ import jakarta.servlet.http.*;
 
 //Le immagini sono salvate in: eclipse-workspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\TIW-Project\WEB-INF\articlesImages\
 // da pietro le immagini solo salvate in: C:\Users\pietr\OneDrive - Politecnico di Milano\PoliMi\3anno\2semestre\TIW - progetto\Progetto-TIPIW\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\TIW-Project\WEB-INF\articlesImages
+
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 100,      // 100MB in RAM
     maxFileSize = 1024 * 1024 * 100,       // 100MB per file
@@ -56,29 +57,28 @@ public class NewArticoloServlet extends HttpServlet {
 			return;
 		}
 		
-		// input sanitise
+		// estrazione e sanificazione input
+		articleName = request.getParameter("nome");
+		articleDescription = request.getParameter("descrizione");
+		articlePriceString = request.getParameter("prezzo");
+		
+		imageName = saveImage(request);
+			
+		if(articleName == null || articleDescription == null || imageName == null || articlePriceString == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			return;
+		}
+		
 		try {
-			articleName = request.getParameter("nome");
-			articleDescription = request.getParameter("descrizione");
-			articlePriceString = request.getParameter("prezzo");
-			//Part filePart = request.getPart("immagine");
-			
-			imageName = saveImage(request);
-			
-			if(articleName == null || articleDescription == null || imageName == null || articlePriceString == null) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
-				return;
-			}
-			
 			articlePrice = Integer.parseInt(articlePriceString);
-			
-			if(articlePrice < 0) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Negative price");
-				return;
-			}
 		}
 		catch (NumberFormatException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The selected price is not a number");
+			return;
+		}
+		
+		if(articlePrice < 0) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Negative price");
 			return;
 		}
 		
@@ -97,27 +97,27 @@ public class NewArticoloServlet extends HttpServlet {
 	}	
 	
 	private String saveImage(HttpServletRequest request) throws ServletException, IOException {
-		Part filePart = request.getPart("immagine");	
+		Part filePart = request.getPart("immagine");
 		if(filePart == null) {
 			return null;
 		}
 		
-		String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-		String ext = "";
+		String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();	// estrazione del nome del file dell'immagine
+		String extension = "";
 		
-		int i = fileName.lastIndexOf('.'); //prende la lunghezza del nome
-		if (i > 0) ext = fileName.substring(i); //estrae solo il nome e non l'estensione del file
-		String uniqueName = UUID.randomUUID().toString() + ext;
+		int i = fileName.lastIndexOf('.');
+		if (i > 0) extension = fileName.substring(i); 	// estrae l'estensione del file
+		String uniqueName = UUID.randomUUID().toString() + extension;		// genera un nome casuale per salvare il file (per evitare più file con lo stesso nome)
 		
-		String uploadPath = getServletContext().getRealPath("/WEB-INF/articlesImages");	// file separator serve poichè il separatore dipende dal sistema operativo
+		String uploadPath = getServletContext().getRealPath("/WEB-INF/articlesImages");
 		
 		File target = new File(uploadPath, uniqueName);
 		System.out.println("Scrivo l'immagine in: " + target.getAbsolutePath());
 
-        // salva il file
+        // scrive l'immagine nel file
         filePart.write(uploadPath + File.separator + uniqueName);
 	
-        return fileName;
+        return uniqueName;
 	}
 
 }

@@ -35,12 +35,12 @@ public class HomeServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = "/home.html";
 		
+		if(request.getSession(false) == null)	// se non esiste una sessione, indirizza al login
+            response.sendRedirect(request.getContextPath() + "/login");
+		
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		
-		if(request.getSession(false) != null)	// if a session already exists (the client logged in)
-			templateEngine.process(path, ctx, response.getWriter());
-		else
-            response.sendRedirect(request.getContextPath() + "/login");
+		templateEngine.process(path, ctx, response.getWriter());
 	}
 }

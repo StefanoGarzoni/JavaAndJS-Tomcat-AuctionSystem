@@ -40,7 +40,7 @@ public class AddOffertaServlet extends HttpServlet {
             return;
         }
         
-        //estraggo i dati dalle sessioni (non faccio il parse dato che i dati sono in sessione (potenzialmente sicuri)
+        //estraggo i dati dalle sessioni (non faccio il parse dato che i dati sono in sessione (sicuri)
         Integer idAsta = (Integer) session.getAttribute("idAsta");
         String  username = (String) session.getAttribute("username");
         if (idAsta == null) {
@@ -68,11 +68,8 @@ public class AddOffertaServlet extends HttpServlet {
         
         //inizio delle query
         try (Connection conn = ConnectionManager.getConnection()) {
-        	
-            conn.setAutoCommit(false);
-            
             try {
-            	//recupero i prezzi dall'asta, se non riesco -> errore
+            	//recupero i prezzi dall'asta
                 Map<Double, Double> prezziInfo = asteDAO.getPrezzoOffertaMaxANDRialzoMinimo(conn, idAsta);
                 if (prezziInfo == null || prezziInfo.isEmpty()) {
                     response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Errore nel recuperare prezzi asta.");
@@ -82,24 +79,25 @@ public class AddOffertaServlet extends HttpServlet {
                 //salvo i dati dei prezzi appena estratti
                 double rialzoMinimo = prezziInfo.keySet().iterator().next();
                 double prezzoAttuale  = prezziInfo.get(rialzoMinimo);
+                
+                System.out.println(rialzoMinimo);
+                System.out.println(prezzoAttuale);
 
-                //controllo se il nuovo prezzo inserito è logicamente valido
+                //controllo se il nuovo prezzo inserito è valido
+                //se non lo è, reindirizzo dicendo di inserire un prezzo valido all'utente
                 if ((prezzo <= prezzoAttuale || (prezzo - prezzoAttuale) < rialzoMinimo)) {
-                	
-                	//se non va bene faccio rollback -> annullo tutto e reindirizzo dicendo di inserire un prezzo valido all'utente
-                    conn.rollback();
                     response.sendRedirect(request.getContextPath() + "/offertePage?PriceTooLow=True&idAsta="+idAsta);
                     return;
                 }
 
-                
                 int idOfferta;
+                conn.setAutoCommit(false);
                 try{
                 	//inserisco la nuova offerta e controllo che vada tutto bene
-                	 idOfferta= offerteDAO.insertNewOfferta(conn, idAsta, username, prezzo);
+                	 idOfferta = offerteDAO.insertNewOfferta(conn, idAsta, username, prezzo);
+                	 
                 	 if (idOfferta == -1) {
-                		 
-                		 //se no va a buon fine annullo tutto e mando un errore
+                		 //se l'inserimento non va a buon fine, si esegue il rollback e si comunica l'errore
                          conn.rollback();
                          response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Inserimento offerta fallito.");
                          return;
@@ -109,9 +107,8 @@ public class AddOffertaServlet extends HttpServlet {
                      asteDAO.setOffertaMax(conn, idAsta, idOfferta);
                      conn.commit();
                 	 
-                }catch(Exception e) {
-                	
-                	//se no va a buon fine annullo tutto e mando un errore
+                }catch(SQLException e) {
+                	//se non va a buon fine annullo le modifiche precedenti e comunico un errore
                 	conn.rollback();
                     throw new ServletException("Errore nella esecuzione dell'inserimento in db", e);
                 }
@@ -120,7 +117,6 @@ public class AddOffertaServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/offertePage?idAsta="+idAsta);
                 
             } catch (Exception e) {
-            	
             	//se va male qualcosa annullo e mando l'errore
                 conn.rollback();
                 throw new ServletException("Errore nella gestione dell'offerta", e);
@@ -130,7 +126,6 @@ public class AddOffertaServlet extends HttpServlet {
             }
             
         } catch (SQLException e) {
-        	
         	//se va male qualcosa annullo e mando l'errore
             throw new ServletException("Errore di connessione al database", e);
         }

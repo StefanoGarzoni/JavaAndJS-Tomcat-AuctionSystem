@@ -41,7 +41,6 @@ public class AcquistoHomeServlet extends HttpServlet {
 		
 		if(request.getSession(false) == null) {	// verify if the client is authenticated
             response.sendRedirect(request.getContextPath() + "/login");
-            // response.sendRedirect("/login?loginError=true");
 			return;
 		}
 		
@@ -50,7 +49,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 		templateEngine.process(vendoPath, ctx, response.getWriter());
 	}
 	
-	// mostra la pagina con in aggiunta la tabella delle aste con quella keyword
+	// mostra la pagina con in aggiunta la tabella delle aste con la parola chiave
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String vendoPath = "/acquisto.html";
 		
@@ -58,7 +57,6 @@ public class AcquistoHomeServlet extends HttpServlet {
 		
 		if(session == null) {	// verify if the client is authenticated
             response.sendRedirect(request.getContextPath() + "/login");
-            // response.sendRedirect("/login?loginError=true");
 			return;
 		}
 		

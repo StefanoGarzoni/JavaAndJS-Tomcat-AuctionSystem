@@ -47,12 +47,13 @@ public class VendoHomeServlet extends HttpServlet {
 		
 		HttpSession session = request.getSession(false);
 		
-		if(session == null) {	// verify if the client is authenticated
+		if(session == null) {	// se un utente non è loggato, lo reindirizza al login
             response.sendRedirect(request.getContextPath() + "/login");
 			return;
 		}
 		
-		if(session.getAttribute("idAsta")!=null) {
+		// se presente, azzera idAsta precedentemente impostato per mostrare l'asta corretta in DettaglioAsta
+		if(session.getAttribute("idAsta") != null) {
 			session.removeAttribute("idAsta");
 		}
 		
@@ -76,8 +77,14 @@ public class VendoHomeServlet extends HttpServlet {
 			ctx.setVariable("asteChiuse", closedAste);
 			ctx.setVariable("availableArticoli", availableArticoli);
 			
+			// imposta una variabile nel contesto per segnalare che la data inserita nella precedente creazione di un'asta 
+			// è nel passato e perciò non consentita
 			if(request.getParameter("passedExpirationData") != null)
 				ctx.setVariable("passedExpirationData", true);
+			
+			// imposta una variabile nel contesto per segnalare che c'è stato un problema nell'inerimento dell'asta
+			if(request.getParameter("errorWhileCreatingAsta") != null)
+				ctx.setVariable("errorWhileCreatingAsta", true);
 			
 			templateEngine.process(vendoPath, ctx, response.getWriter());
 		}

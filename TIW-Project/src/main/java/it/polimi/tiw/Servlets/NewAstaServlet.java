@@ -19,7 +19,6 @@ import it.polimi.tiw.dao.ArticoliDAOImpl;
 import it.polimi.tiw.dao.AsteDAO;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 public class NewAstaServlet extends HttpServlet {
@@ -106,42 +105,55 @@ public class NewAstaServlet extends HttpServlet {
 			return;
 		}
 		
-		// new asta queries
+		if(selectedArticlesIds.isEmpty()) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Non è possibile creare un'asta senza articoli");
+			return;
+		}
+		
+		// creazione nuova asta
+		String username = (String) request.getSession().getAttribute("username");
+		AsteDAO asteDAO = new AsteDAOImpl();
+		ArticoliDAO articoliDAO = new ArticoliDAOImpl();
 		try {
-			ArticoliDAO articoliDAO = new ArticoliDAOImpl();
-			
 			Connection conn = ConnectionManager.getConnection();
-			String username = (String) request.getSession().getAttribute("username");
 			
-			if(!selectedArticlesIds.isEmpty()) {
-				
-				// controllo che l'utente possegga tutti gli articoli che vengono messi all'asta
-				if(!articoliDAO.areAllArticlesOfUser(conn, username, selectedArticlesIds)) {
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only your own articles");
-					return;
-				}
-			
+			// controllo che l'utente possegga tutti gli articoli che vengono messi all'asta
+			if(!articoliDAO.areAllArticlesOfUser(conn, username, selectedArticlesIds)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only your own articles");
+				return;
+			}
+		
+			conn.setAutoCommit(false);
+			try {
 				int startingPrice = articoliDAO.getSumOfPrice(conn, selectedArticlesIds);
 				
-				AsteDAO asteDAO = new AsteDAOImpl();
 				int newAstaId = asteDAO.insertNewAsta(
-					conn, 
-					username, 
-					startingPrice, 
-					rialzoMinimo, 
-					java.sql.Date.valueOf(data),
-					java.sql.Time.valueOf(ora)
-				);
+						conn, 
+						username, 
+						startingPrice, 
+						rialzoMinimo, 
+						java.sql.Date.valueOf(data),
+						java.sql.Time.valueOf(ora)
+						);
 				
-				// idAsta update in all selected articles
+				// aggiornamento degli id_asta negli articoli in essa presenti
 				articoliDAO.updateIdAstaInArticles(conn, selectedArticlesIds, newAstaId);
+				
+				// eseguo le modifiche sul DB se tutti i campi sono stati aggiornati correttamente senza errori
+				conn.commit();
+				response.sendRedirect(redirectPath);
 			}
-			// else non fa niente?
-			
-			response.sendRedirect(redirectPath);
+			catch (SQLException e) {
+				conn.rollback();
+				throw new SQLException("Errore nella creazione dell'asta");
+			}
+			finally {
+				conn.setAutoCommit(true);
+			}
 		}
 		catch (SQLException e) {
-			e.printStackTrace(System.out);
+			e.printStackTrace(System.out);	// stampo su CLI l'errore SQL
+			response.sendRedirect(redirectPath+"?errorWhileCreatingAsta=true");
 		}
-	}	
+	}
 }
