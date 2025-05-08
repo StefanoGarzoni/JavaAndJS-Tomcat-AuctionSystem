@@ -1,6 +1,4 @@
 package it.polimi.tiw.Servlets;
-
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,8 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
-
-	private static final long serialVersionUID = 1L; //Consigliato da Eclipse non so il perchè
+	//Consigliato da Eclipse
+	private static final long serialVersionUID = 1L; 
 	private AsteDAOImpl asteDAO;
 
     public void init() throws ServletException {
@@ -29,57 +27,48 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         Integer idAsta;
         
+        //se la sessione non esiste o l'username non è in sessione rimanda tutti alla pagina di login
         if (session == null || session.getAttribute("username") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
-            // response.sendRedirect(request.getContextPath() + "/login?loginError=true");
             return;
         }
+        
+        //controllo se c'è l'idAsta in sessione, se no errore (controllo che viene fatto solo qui, per questo non è unito al controllo sopra)
         if(session.getAttribute("idAsta") == null){
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sessione mancante di dati.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Sessione mancante di dati : non c'è l'idAsta in Sessione.");
             return;
         }
 
+        //faccio il casting senza fare "parse" dato che i dati provengono da una sessione (si presume "sicuri")
         idAsta = (Integer) session.getAttribute("idAsta");
         String username = (String) session.getAttribute("username");
 
-        //String chiudiParam = request.getParameter("chiudi");
-        //idAsta == null || username == null || chiudiParam == null
-        if (idAsta == null || username == null ) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parametri mancanti.");
-            return;
-        }
 
-        //boolean chiudi = Boolean.parseBoolean(chiudiParam);
-        //chiudi
-        if (true) {
-            try (Connection conn = ConnectionManager.getConnection()) {
-                // Verifica che l'utente sia il creatore dell'asta
-                boolean isCreator = asteDAO.checkCreatorOfAsta(conn, username, idAsta);
-
-                if (!isCreator) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Non sei autorizzato a chiudere questa asta.");
-                    return;
-                }
-
-                // Verifica che l'asta possa essere chiusa
-                boolean canBeClosed = asteDAO.astaCanBeClosed(conn, idAsta);
-
-                if (canBeClosed) {
-                    asteDAO.setAstaAsClosed(conn, idAsta, username);
-                }else{
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "L'asta non può essere chiusa.");
-                    return;
-                }
-
-            } catch (SQLException e) {
-                throw new ServletException("Errore durante la chiusura dell'asta.", e);
+        try (Connection conn = ConnectionManager.getConnection()) {
+            
+        	// Verifica che l'utente sia il creatore dell'asta
+            boolean isCreator = asteDAO.checkCreatorOfAsta(conn, username, idAsta);
+            if (!isCreator) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Non sei autorizzato a chiudere questa asta.");
+                return;
             }
-        }else{
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parametri errati.");
-            return;
+
+            // Verifica che l'asta possa essere chiusa
+            boolean canBeClosed = asteDAO.astaCanBeClosed(conn, idAsta);
+            if (canBeClosed) {
+            	//chiudo l'asta
+                asteDAO.setAstaAsClosed(conn, idAsta, username);
+            }else{
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "L'asta non può essere chiusa.");
+                return;
+            }
+
+        } catch (SQLException e) {
+            throw new ServletException("Errore durante la chiusura dell'asta. -> query error", e);
         }
 
-        // Dopo tutto reindirizza alla pagina servlet di costruzione pagina di dettaglio asta
+
+        // Dopo aver fatto tutto reindirizza alla pagina servlet di costruzione della pagina di dettaglio asta
         response.sendRedirect(request.getContextPath() + "/dettaglioAstaPage?idAsta="+idAsta);
     }
 }

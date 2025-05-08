@@ -1,5 +1,4 @@
 package it.polimi.tiw.Servlets;
-
 import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.ConnectionManager;
@@ -29,21 +28,25 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class DettaglioAstaPageServlet extends HttpServlet {
-
+	//consigliato da Eclipse
     private static final long serialVersionUID = 1L;
-
+    
+    //oggetti DAO e templateEngine
     private OfferteDAOImpl offerteDAO;
     private AsteDAOImpl asteDAO;
     private TemplateEngine templateEngine;
+    private JakartaServletWebApplication webApplication;
+    private  WebApplicationTemplateResolver templateResolver;
 
     public void init() throws ServletException {
 
         ServletContext servletContext = getServletContext();
         offerteDAO = new OfferteDAOImpl();
         asteDAO    = new AsteDAOImpl();
-
-        JakartaServletWebApplication webApplication=JakartaServletWebApplication.buildApplication(servletContext);
-        WebApplicationTemplateResolver templateResolver =new WebApplicationTemplateResolver(webApplication);
+        
+        //set di attributi e costruzione oggetti per la costruzione del template thymeleaf
+        webApplication = JakartaServletWebApplication.buildApplication(servletContext);
+        templateResolver = new WebApplicationTemplateResolver(webApplication);
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding("UTF-8");
@@ -58,54 +61,65 @@ public class DettaglioAstaPageServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         Integer idAsta;
         
+        //se la sessione non è creata o non c'è l'username
         if (session == null || session.getAttribute("username") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
-            // response.sendRedirect(request.getContextPath() + "/login?loginError=true");
             return;
         }
 
-         String idAstaParam = request.getParameter("idAsta");
-
+        //controllo che ci sia il parametro idAsta nel get 
+        String idAstaParam = request.getParameter("idAsta");
         if (idAstaParam == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non specificato");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non specificato : non c'è nel get");
             return;
         }
-
+        
+        //provo il parsing dell'idAsta -> se riesco salvo anche in sessione l'idAsta
         try{
             idAsta = Integer.parseInt(idAstaParam);
             session.setAttribute("idAsta", idAsta);
         }catch(Exception e){
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non valido");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"ID asta non valido : errore nel parsing");
             return;
         }
-
+        
+        //provo a estrarre l'username dalla sessione
         String username = (String)session.getAttribute("username");
-
         if (username == null) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST,"username non valido in sessione.");
             return;
         }
 
-        JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
+        //costruzione del webContext
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 
         try (Connection conn = ConnectionManager.getConnection()) {
+        	
+        	//controllo che l'utente che richiede i dettagli sia il creatore dell'asta
             boolean isCreator = asteDAO.checkCreatorOfAsta(conn, username, idAsta);
             if (!isCreator) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN,"Non sei il creatore dell'asta.");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN,"Non sei il creatore dell'asta. Non puoi vederla.");
                 return;
             }
-
+            
+            //controllo se l'asta è aperta o no
             Asta openAsta = asteDAO.getOpenAstaById(conn, idAsta);
             if (openAsta != null) {
+            	
+            	//asta aperta
                 ctx.setVariable("openAsta", openAsta);
+                
+                //l'asta può essere chiusa?
                 ctx.setVariable("canBeClosed", asteDAO.astaCanBeClosed(conn, idAsta));
-
+                
+                //scarico i dettagli delle offerte sull'asta
                 ArrayList<Offerta> offerte =offerteDAO.getOfferteInOpenAsta(conn, idAsta);
+                
                 ctx.setVariable("offerte", offerte);
 
             } else {
-            	//try (Connection conn2 = ConnectionManager.getConnection()){
+            		
+            		//scaricamento delle informazioni necessarie se l'asta è chiusa
                     Map<Asta, ArrayList<String>> closedInfo = asteDAO.getInfoFromAClosedAsta(conn, idAsta);
                     Asta astaChiusa = closedInfo.keySet().iterator().next();
                     ArrayList<String> info = closedInfo.get(astaChiusa);
@@ -114,15 +128,16 @@ public class DettaglioAstaPageServlet extends HttpServlet {
                     ctx.setVariable("nomeAcquirente", info.get(0));
                     ctx.setVariable("prezzo", info.get(1));
                     ctx.setVariable("indirizzo", info.get(2));
-            	//}
-
             }
         } catch (SQLException e) {
-            throw new ServletException("Errore durante il recupero dei dati dell'asta", e);
+            throw new ServletException("Errore durante il recupero dei dati dell'asta -> errore nelle query", e);
         }
 
         response.setContentType("text/html;charset=UTF-8");
+        
         try (Writer writer = response.getWriter()) {
+        	
+        	//mando tutto a thymeleaf
             templateEngine.process("dettaglioAsta", ctx, writer);
         }
     }
