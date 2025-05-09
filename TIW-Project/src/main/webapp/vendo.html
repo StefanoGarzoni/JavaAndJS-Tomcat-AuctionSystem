@@ -91,10 +91,16 @@
 			</form>
 		</div>
 		
-		<h2>Crea asta:</h2> <span th:if="${#ctx.containsVariable('passedExpirationData')}">Data e ora inserite precedentemente sono nel passato</span>
+		<h2>Crea asta:</h2> 
+		
+		<div th:if="${#ctx.containsVariable('passedExpirationData')}">Data e ora inserite precedentemente sono nel passato</div>
+		<div th:if="${#ctx.containsVariable('emptyArticlesList')}">L'asta precedente non comprendeva alcun articolo</div>
+		<div th:if="${#ctx.containsVariable('errorWhileCreatingAsta')}">Errore nell'inserimento dell'asta precedentemente creata</div>
+		
 		<div th:if="${#lists.isEmpty(availableArticoli)}">
 			Prima di creare una nuova asta, inserisci un nuovo articolo
 		</div> 
+		
 		<div th:if="${not #lists.isEmpty(availableArticoli)}">
 			<form action="/TIW-Project/newAsta" method="post">
 				<label for="rialzoMinimo">Rialzo minimo (in €):</label>
@@ -102,11 +108,12 @@
 				
 				<label for="dataScadenza">Data scadenza:</label>
 				<input type="date" id="dataScadenza" name="dataScadenza" required>
-				<span th:if="${#ctx.containsVariable('errorWhileCreatingAsta')}">Errore nell'inserimento dell'asta precedentemente creata</span>
+				
 				<br>
 				
 				<label for="oraScadenza">Ora scadenza:</label>
 				<input type="time" id="oraScadenza" name="oraScadenza" required><br>
+				
 				
 				<table border="1">
 					<tr>
@@ -117,7 +124,7 @@
 						<th>Prezzo</th>
 					</tr>
 					
-					<tr th:each="articolo : ${availableArticoli}">
+					<tr th:each="articolo: ${availableArticoli}">
 						<td><input type="checkbox" name="codiceArticolo" th:value="${articolo.cod}"></td>
 						<td th:text="${articolo.cod}"></td>
 						<td th:text="${articolo.nomeArticolo}"></td>

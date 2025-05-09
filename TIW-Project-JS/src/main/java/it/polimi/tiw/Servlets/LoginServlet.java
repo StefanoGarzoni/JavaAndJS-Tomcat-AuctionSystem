@@ -50,11 +50,10 @@ public class LoginServlet extends HttpServlet {
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String loginPath = "/login.html";
-		String homePagePathString = "/TIW-Project/home";
+		String mainPagePathString = "/home";
 		
 		HttpSession session = request.getSession(false);
 
-		// evitiamo il login se un utente è già loggato
 		if(session != null) {
 			session.invalidate();	
 			// faccio questo e non un redirect alla home per evitare la seguente situazione: un utente precedentemente loggato invia nuovamente 
@@ -80,7 +79,7 @@ public class LoginServlet extends HttpServlet {
 					session.setAttribute("lastLoginTimestamp", LocalDateTime.now());
 					session.setAttribute("username", username);
 					
-					response.sendRedirect(homePagePathString);
+					response.sendRedirect(request.getContextPath()+mainPagePathString);
 					return;
 				}
 				else {

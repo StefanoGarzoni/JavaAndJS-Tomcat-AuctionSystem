@@ -79,12 +79,13 @@ public class VendoHomeServlet extends HttpServlet {
 			
 			// imposta una variabile nel contesto per segnalare che la data inserita nella precedente creazione di un'asta 
 			// è nel passato e perciò non consentita
-			if(request.getParameter("passedExpirationData") != null)
-				ctx.setVariable("passedExpirationData", true);
+			if(request.getParameter("passedExpirationData") != null) ctx.setVariable("passedExpirationData", true);
 			
 			// imposta una variabile nel contesto per segnalare che c'è stato un problema nell'inerimento dell'asta
-			if(request.getParameter("errorWhileCreatingAsta") != null)
-				ctx.setVariable("errorWhileCreatingAsta", true);
+			if(request.getParameter("errorWhileCreatingAsta") != null) ctx.setVariable("errorWhileCreatingAsta", true);
+			
+			// imposta una variabile nel contesto per segnalare che l'asta che si è provato ad inserire non aveva articoli selezionati
+			if(request.getParameter("emptyArticlesList") != null) ctx.setVariable("emptyArticlesList", true);
 			
 			templateEngine.process(vendoPath, ctx, response.getWriter());
 		}

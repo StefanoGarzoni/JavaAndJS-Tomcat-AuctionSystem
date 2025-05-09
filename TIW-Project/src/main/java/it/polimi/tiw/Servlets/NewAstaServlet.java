@@ -53,8 +53,14 @@ public class NewAstaServlet extends HttpServlet {
 		String oraScadenzaString = request.getParameter("oraScadenza");
 		
 		// controllo presenza di tutti i parametri
-		if(selectedArticlesStrings == null || rialzoMinimoString == null || dataScadenzaString == null || oraScadenzaString == null) {
+		if( /* selectedArticlesStrings == null || */ rialzoMinimoString == null || dataScadenzaString == null || oraScadenzaString == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			return;
+		}
+		
+		if(selectedArticlesStrings == null) {
+			response.sendRedirect(redirectPath+"?emptyArticlesList=true");
+			// response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Non è possibile creare un'asta senza articoli");
 			return;
 		}
 		
@@ -102,11 +108,6 @@ public class NewAstaServlet extends HttpServlet {
 		}
 		catch (DateTimeParseException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Data o ora di scadenza non sono date");
-			return;
-		}
-		
-		if(selectedArticlesIds.isEmpty()) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Non è possibile creare un'asta senza articoli");
 			return;
 		}
 		

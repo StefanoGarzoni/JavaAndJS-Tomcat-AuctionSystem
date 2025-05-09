@@ -79,9 +79,6 @@ public class AddOffertaServlet extends HttpServlet {
                 //salvo i dati dei prezzi appena estratti
                 double rialzoMinimo = prezziInfo.keySet().iterator().next();
                 double prezzoAttuale  = prezziInfo.get(rialzoMinimo);
-                
-                System.out.println(rialzoMinimo);
-                System.out.println(prezzoAttuale);
 
                 //controllo se il nuovo prezzo inserito è valido
                 //se non lo è, reindirizzo dicendo di inserire un prezzo valido all'utente
