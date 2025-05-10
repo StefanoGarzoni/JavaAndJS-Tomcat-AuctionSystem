@@ -146,6 +146,9 @@
 			</div>
 		</div>
 		
+		
+		
+		
 		<div id="acquistoPage">
 			<h2>Inserisci una parola chiave:</h2>
 			<div>
@@ -167,13 +170,34 @@
 							<th>Ora Scadenza</th>
 							<th>Offerta Massima</th>
 							<th>Articoli inclusi</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
-						<!-- qui vengono aggiunte tutte le aste legate a quella parola chiave -->					
+						<!-- qui vengono aggiunte tutte le aste legate a quella parola chiave, se -->					
 					</tbody>
-					
 				</table>
+				
+				<template id="astaByKeywordRow">
+					<tr>
+						<!-- td con text = id asta -->
+						<!-- td con text = creatore -->
+						<!-- td con text = prezzo iniziale asta -->
+						<!-- td con text = rialzo minimo asta -->
+						<!-- td con text = data scadenza asta -->
+						<!-- td con text = ora scadenza asta -->
+						<!-- td con text = offerta massima asta -->
+						<td>
+							<table>
+								<tr>
+									<!-- td con text = codice articolo -->
+									<!-- td con text = nome articolo -->
+								</tr>
+							</table>
+						</td>
+						<td><button class="dettaglioAstaApertaButton">Dettaglio asta</button></td> <!-- va aggiunto value = id asta -->	
+					</tr>
+				</template>
 			</div>
 			
 		</div>
