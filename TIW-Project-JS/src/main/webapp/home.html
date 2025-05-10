@@ -9,9 +9,9 @@
 	<body>
 		<table>
 			<tr>
-				<td><span id="moveToVendo">Vendo</span><br></td>
-				<td><span id="moveToAcquisto">Acquisto</span><br></td>
-				<td><span id="logout">Logout</span><br></td>
+				<td><span id="moveToVendo">Vendo</span></td>
+				<td><span id="moveToAcquisto">Acquisto</span></td>
+				<td><span id="logout">Logout</span></td>
 			</tr>
 		</table>
 		
@@ -29,27 +29,67 @@
 						<th>Giorni Rimanenti</th>
 						<th>Ore Rimanenti</th>
 						<th>Articoli inclusi</th>
+						<th></th>
 					</tr>
+					<!-- qui vengono aggiunte tutte le aste aperte, secondo il template "astaApertaRow" -->
 				</table>
+				
+				<template id="astaApertaRow">
+					<tr>
+						<!-- td con text = id asta -->
+						<!-- td con text = prezzo iniziale asta -->
+						<!-- td con text = offerta massima asta -->
+						<!-- td con text = data scadenza asta -->
+						<!-- td con text = ora scadenza asta -->
+						<!-- td con text = giorni rimanenti -->
+						<!-- td con text = ora rimanenti -->
+						<td>
+							<table>
+								<tr>
+									<!-- td con text = codice articolo -->
+									<!-- td con text = nome articolo -->
+									<!-- td con text = prezzo articolo -->
+								</tr>
+							</table>
+						</td>
+						<td><button class="dettaglioAstaApertaButton">Dettaglio asta</button></td> <!-- va aggiunto value = id asta -->	
+					</tr>
+				</template>
 			</div>
 			
 			<br>
 			<h2>Le tue aste chiuse</h2>
 			<div id="listaAsteChiuse">
 				<table border="1" id="tabelleAsteChiuse">
-					<tr>
-						<th>IdAsta</th>
-						<th>Prezzo iniziale</th>
-						<th>Offerta Massima</th>
-						<th>Data Scadenza</th>
-						<th>Ora Scadenza</th>
-					</tr>
+					<thead>
+						<tr>
+							<th>IdAsta</th>
+							<th>Prezzo iniziale</th>
+							<th>Offerta Massima</th>
+							<th>Data Scadenza</th>
+							<th>Ora Scadenza</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- qui vengono aggiunte tutte le aste chiuse, seguendo il template "astaChiusaRow" -->					
+					</tbody>
 				</table>
+				
+				<template id="astaChiusaRow">
+					<tr>
+						<!-- td con text = id asta -->
+						<!-- td con text = prezzo iniziale asta -->
+						<!-- td con text = offerta massima asta -->
+						<!-- td con text = data scadenza asta -->
+						<!-- td con text = ora scadenza asta -->
+						<td><button class="dettaglioAstaChiusaButton">Dettaglio asta</button></td> <!-- va aggiunto value = id asta -->
+					</tr>
+				</template>
 			</div>
 			
 			<br>
 			<h2>Inserisci un nuovo articolo:</h2>
-			<form action="/TIW-Project/newArticolo" method="post" enctype="multipart/form-data">
+			<div id="formNuovoArticolo">
 				<label for="nome">Nome:</label>
 				<input type="text" id="nome" name="nome" required><br>
 				
@@ -62,37 +102,80 @@
 				<label for="prezzo">Prezzo (in €):</label>
 				<input type="number" id="prezzo" name="prezzo" min="0" required><br>
 				
-				<input type="Submit" value="Inserisci articolo"><br>
-			</form>
+				<button id="submitNewArticolo">Inserisci articolo</button>
+			</div>
 			
 			<h2>Crea asta:</h2>
 			<div id="newAstaMessage"></div>
-			<form id="formAsta" action="/TIW-Project/newAsta" method="post">
+			<div id="formNewAsta">
 				<label for="rialzoMinimo">Rialzo minimo (in €):</label>
 				<input type="number" id="rialzoMinimo" name="rialzoMinimo" min="0.01" step="0.01" required><br>
 				
 				<label for="dataScadenza">Data scadenza:</label>
-				<input type="date" id="dataScadenza" name="dataScadenza" required>
-				<br>
+				<input type="date" id="dataScadenza" name="dataScadenza" required><br>
 				
 				<label for="oraScadenza">Ora scadenza:</label>
 				<input type="time" id="oraScadenza" name="oraScadenza" required><br>
 				
-				<table border="1">
+				<table border="1" id="tabellaArticoliNewAsta">
+					<thead>
+						<tr>
+							<th>Seleziona</th>
+							<th>Id articolo</th>
+							<th>Nome articolo</th>
+							<th>Descrizione</th>
+							<th>Prezzo</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- qui vengono aggiunti tutti gli articoli selezionabili per una nuova asta, secondo il template "articoliSelezionabiliRow" -->				
+					</tbody>
+				</table>
+				<button id="submitNewAsta">Inserisci Nuova Asta</button>
+				
+				<!-- template di una riga della tabella tabellaArticoliNewAsta -->
+				<template id="articoliSelezionabiliRow">
 					<tr>
-						<th>Seleziona</th>
-						<th>Id articolo</th>
-						<th>Nome articolo</th>
-						<th>Descrizione</th>
-						<th>Prezzo</th>
+						<td><input type="checkbox" name="codiceArticolo"></td>	<!-- value = codice articolo -->
+						<!-- td con text = codice articolo -->
+						<!-- td con text = nome articolo -->
+						<!-- td con text = descrizione articolo -->
+						<!-- td con text = prezzo articolo -->
 					</tr>
-				</table>				
-				<input type="Submit" value="Inserisci Nuova Asta">
-			</form>
+				</template>
+			</div>
 		</div>
 		
 		<div id="acquistoPage">
+			<h2>Inserisci una parola chiave:</h2>
+			<div>
+				<label for="parolaChiave">Parola chiave:</label>
+				<input type="text" id="parolaChiave" name="parolaChiave" required><br>
+				
+				<button id="sumbitSearchByKeyword">Ricerca aste</button>
+			</div>
 		
+			<div id="listaAsteByKeyword">
+				<table border="1" id="tabellaAsteByKeyword">
+					<thead>
+						<tr>
+							<th>IdAsta</th>
+							<th>Creatore</th>
+							<th>Prezzo Iniziale</th>
+							<th>Rialzo Minimo</th>
+							<th>Data Scadenza</th>
+							<th>Ora Scadenza</th>
+							<th>Offerta Massima</th>
+							<th>Articoli inclusi</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- qui vengono aggiunte tutte le aste legate a quella parola chiave -->					
+					</tbody>
+					
+				</table>
+			</div>
+			
 		</div>
 		
 		<div id="dettaglioAstaPage">
