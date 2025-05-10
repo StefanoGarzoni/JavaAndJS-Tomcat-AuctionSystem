@@ -22,7 +22,6 @@ import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.Beans.Articolo;
 import it.polimi.tiw.dao.Beans.Asta;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 public class VendoHomeServlet extends HttpServlet {

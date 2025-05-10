@@ -15,7 +15,6 @@ import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 //Le immagini sono salvate in: eclipse-workspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\TIW-Project\WEB-INF\articlesImages\

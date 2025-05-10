@@ -5,12 +5,9 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import it.polimi.tiw.ConnectionManager;
-import it.polimi.tiw.dao.ArticoliDAOImpl;
-import it.polimi.tiw.dao.AsteDAO;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

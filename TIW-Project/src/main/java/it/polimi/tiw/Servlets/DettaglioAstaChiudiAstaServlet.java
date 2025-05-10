@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
