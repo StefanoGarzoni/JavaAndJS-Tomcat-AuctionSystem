@@ -1,6 +1,6 @@
-/**
- * Nasconde tutte le "pagine" (div) dell'applicazione single-page.
- */
+//FUNZIONI PER LA PAGINA OFFERTE
+
+//funzione comune a tutte le pagine per nascondere tutto
 export function hideAllPages() {
   document.getElementById('vendoPage').hidden = true;
   document.getElementById('acquistoPage').hidden = true;
@@ -8,119 +8,104 @@ export function hideAllPages() {
   document.getElementById('offertaPage').hidden = true;
 }
 
-/**
- * Rende visibile e popola la pagina di offerta per l'asta specificata.
- * @param {number|string} idAsta - Identificativo dell'asta da visualizzare
- */
-export async function renderOffertaPage(idAsta) {
-  // 1. Nascondi tutte le altre pagine
-  hideAllPages();
+function clearTable(table) {
+  // elimina tutte le righe dopo la prima (<tr> header)
+  while (table.rows.length > 1) {
+    table.deleteRow(1);
+  }
+}
 
-  // 2. Mostra il contenitore offertaPage
-  const offertaPage = document.getElementById('offertaPage');
-  offertaPage.hidden = false;
-  offertaPage.innerHTML = ''; // Pulisci contenuto precedente
+export async function renderOffertaPage(idAsta) {
+  //Nasconde tutte le "pagine" e mostra solo offertaPage
+  hideAllPages();
+  const page = document.getElementById('offertaPage');
+  page.hidden = false;
+  page.innerHTML = ''; //resetta il contenuto della pagina
+
+  //Seleziono le due tabelle (prima = articoli, seconda = offerte)
+  const [artTable, offTable] = page.getElementsByTagName('table');
+  clearTable(artTable);
+  clearTable(offTable);
 
   try {
-    // 3. Richiedi i dati dell'asta in formato JSON dal server
-    const res = await fetch(`OfferteJsonServlet?idAsta=${idAsta}`);
-    if (!res.ok) throw new Error(`Errore ${res.status} nel caricamento dati offerta`);
-    const data = await res.json();
-    const { articoli, offerte, rialzo_minimo, prezzo_attuale } = data;
+    //Fetch JSON da OfferteServlet (che ora restituisce { articoli, offerte, rialzo_minimo, prezzo_attuale })
+    const res = await fetch(`OfferteServlet?idAsta=${encodeURIComponent(idAsta)}`);
+    if (!res.ok) throw new Error(`Server risponde ${res.status}`);
+    const { articoli, offerte, rialzo_minimo, prezzo_attuale } = await res.json();
 
-    // 4. Titolo e informazioni base dell'asta
-    const title = document.createElement('h2');
-    title.textContent = `Dettaglio Asta #${idAsta}`;
-    offertaPage.appendChild(title);
-
-    // 5. Tabella articoli
-    const artTable = document.createElement('table');
-    artTable.innerHTML = `
-      <thead>
-        <tr>
-          <th>Codice</th>
-          <th>Nome</th>
-          <th>Prezzo</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${articoli.map(a => `
-          <tr>
-            <td>${a.codice}</td>
-            <td>${a.nome}</td>
-            <td>${a.prezzo.toFixed(2)}€</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-    offertaPage.appendChild(artTable);
-
-    // 6. Elenco offerte (ordinate per data+ora decrescente)
-    const offTable = document.createElement('table');
-    offTable.innerHTML = `
-      <h3>Offerte ricevute</h3>
-      <thead>
-        <tr>
-          <th>Utente</th>
-          <th>Prezzo</th>
-          <th>Data e ora</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${offerte.map(o => `
-          <tr>
-            <td>${o.username}</td>
-            <td>${o.prezzo.toFixed(2)}€</td>
-            <td>${new Date(o.timestamp).toLocaleString()}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-    offertaPage.appendChild(offTable);
-
-    // 7. Form per inserire una nuova offerta
-    const minBid = prezzo_attuale + rialzo_minimo;
-    const formDiv = document.createElement('div');
-    formDiv.innerHTML = `
-      <h3>Inserisci la tua offerta</h3>
-      <label>Prezzo (minimo ${minBid.toFixed(2)}€):</label>
-      <input type="number" id="prezzoOfferta" step="0.01" min="${minBid.toFixed(2)}" required>
-      <button id="submitOfferta">Invia Offerta</button>
-      <span id="offertaError" style="color:red;margin-left:1em;"></span>
-    `;
-    offertaPage.appendChild(formDiv);
-
-    // 8. Gestione click su "Invia Offerta"
-    document.getElementById('submitOfferta').addEventListener('click', async () => {
-      const input = document.getElementById('prezzoOfferta');
-      const prezzoUser = parseFloat(input.value);
-      const errorSpan = document.getElementById('offertaError');
-      errorSpan.textContent = '';
-
-      if (isNaN(prezzoUser) || prezzoUser < minBid) {
-        errorSpan.textContent = `Devi inserire almeno ${minBid.toFixed(2)}€`;
-        return;
-      }
-
-      try {
-        // Invia POST al server per inserire l'offerta
-        const postRes = await fetch('AddOffertaJsonServlet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idAsta, prezzo: prezzoUser })
-        });
-        if (!postRes.ok) throw new Error(`Errore ${postRes.status} nell'invio offerta`);
-
-        // Dopo inserimento, ricarica la pagina offerta
-        renderOffertaPage(idAsta);
-      } catch (err) {
-        errorSpan.textContent = 'Errore durante l'invio dell'offerta.';
-        console.error(err);
-      }
+    //Popolo la tabella degli articoli
+    //    colonne: Codice, Venditore, Nome Articolo, Descrizione, Prezzo
+    articoli.forEach(a => {
+      const row = artTable.insertRow();
+      row.insertCell().textContent = a.codice;
+      row.insertCell().textContent = a.venditore;         
+      row.insertCell().textContent = a.nomeArticolo;
+      row.insertCell().textContent = a.descrizione;
+      row.insertCell().textContent = a.prezzo.toFixed(2);
     });
 
+    //Popolo la tabella delle offerte
+    //    colonne: Utente, Prezzo, Data, Ora
+    offerte.forEach(o => {
+      const row = offTable.insertRow();
+      row.insertCell().textContent = o.username;
+      row.insertCell().textContent = o.prezzo.toFixed(2);
+      row.insertCell().textContent = o.dataOfferta;
+      row.insertCell().textContent = dt.oraOfferta;
+    });
+
+    //Mostro il rialzo minimo
+    document.getElementById('rialzoMinimo').textContent = rialzo_minimo.toFixed(2);
+    
+    //addevent listener al bottone per l'inserimento dell'offerta
+    const btn = document.getElementById('submitNewOfferta');
+    btn.addEventListener('click', event =>
+      handlerAddOfferta(event, idAsta, prezzoAttuale, rialzoMinimo)
+  );
+
+
+  } catch (e) {
+    alert(e.error + 'Impossibile caricare i dati dell\'asta.');
+  }
+}
+
+export async function handlerAddOfferta(event, idAsta, prezzoAttuale, rialzoMinimo) {
+  event.preventDefault();
+
+  // Seleziono gli elementi
+  const inputPrezzo = document.getElementById('prezzo');
+  
+  // Parsing e validazione
+  const prezzoUser = parseFloat(inputPrezzo.value);
+  const minOfferta = prezzoAttuale + rialzoMinimo;
+
+  if (isNaN(prezzoUser) || prezzoUser < minOfferta) {
+    alert('Offerta minima:'+ minOfferta.toFixed(2)+'€');
+    return;
+  }
+
+  try {
+    // Costruisco body
+    const params = new URLSearchParams();
+    params.set('prezzo', prezzoUser);
+
+    // Chiamo la servlet che inserisce l'offerta in sessione legge idAsta da sessione 
+    const postRes = await fetch('AddOffertaServlet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:   params.toString()
+    });
+
+    if (!postRes.ok) {
+      alert(postRes.status);
+      throw new Error(`Errore ${postRes.status}`);
+    }
+
+    // Al successo, ricarico la pagina offerta
+    await renderOffertaPage(idAsta);
+
   } catch (err) {
-    offertaPage.textContent = 'Impossibile caricare i dati dell'asta.';
     console.error(err);
+    alert(err.error + ' Errore durante l\'invio dell\'offerta.');
   }
 }
