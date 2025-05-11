@@ -219,7 +219,7 @@
 							<th>Ora</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody id="listaOfferte">
 					</tbody>
 				</table>
 			</div>
@@ -241,25 +241,32 @@
 		<div id="offertaPage" hidden>
 			<h1>Articoli presenti nell' asta</h1>
 			<table border="1">
-				<tr>
-					<th>Codice</th>
-					<th>Venditore</th>
-					<th>Nome Articolo</th>
-					<th>Descrizione</th>
-					<th>Prezzo</th>
-				</tr>
-
+				<thead>
+					<tr>
+						<th>Codice</th>
+						<th>Venditore</th>
+						<th>Nome Articolo</th>
+						<th>Descrizione</th>
+						<th>Prezzo</th>
+					</tr>
+				</thead>
+				<tbody id="articoliAsta">
+				</tbody>
 			</table>
 			<br><br>
+
         <h1>Offerte per l'asta</h1>
         <table border="1">
-            <tr>
-                <th>Utente</th>
-                <th>Prezzo</th>
-                <th>Data</th>
-                <th>Ora</th>
-            </tr>
-
+			<thead>
+				<tr>
+					<th>Utente</th>
+					<th>Prezzo</th>
+					<th>Data</th>
+					<th>Ora</th>
+				</tr>
+			</thead>
+			<tbody id="listaOfferte">
+			</tbody>
         </table>
         <br><br>
         <h1>Fai un'offerta</h1>

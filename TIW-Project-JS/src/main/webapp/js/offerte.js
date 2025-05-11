@@ -1,6 +1,6 @@
-//FUNZIONI PER LA PAGINA OFFERTE
+// FUNZIONI PER LA PAGINA OFFERTE
 
-//funzione comune a tutte le pagine per nascondere tutto
+// funzione comune a tutte le pagine per nascondere tutto
 export function hideAllPages() {
   document.getElementById('vendoPage').hidden = true;
   document.getElementById('acquistoPage').hidden = true;
@@ -8,104 +8,106 @@ export function hideAllPages() {
   document.getElementById('offertaPage').hidden = true;
 }
 
-function clearTable(table) {
-  // elimina tutte le righe dopo la prima (<tr> header)
-  while (table.rows.length > 1) {
-    table.deleteRow(1);
-  }
-}
-
-export async function renderOffertaPage(idAsta) {
-  //Nasconde tutte le "pagine" e mostra solo offertaPage
+// rendering della pagina offerta usando XMTHttpRequest
+export function renderOffertaPage(idAsta) {
   hideAllPages();
   const page = document.getElementById('offertaPage');
-  page.hidden = false;
-  page.innerHTML = ''; //resetta il contenuto della pagina
 
-  //Seleziono le due tabelle (prima = articoli, seconda = offerte)
+  // Pulisco i campi dinamici
+  const listaOff = document.getElementById('listaOfferte');
+  if (listaOff) listaOff.innerHTML = '';
+  const listaArt = document.getElementById('articoliAsta');
+  if (listaArt) listaArt.innerHTML = '';
+
+  // Seleziono le due tabelle (prima = articoli, seconda = offerte)
   const [artTable, offTable] = page.getElementsByTagName('table');
-  clearTable(artTable);
-  clearTable(offTable);
+  page.hidden = false;
 
-  try {
-    //Fetch JSON da OfferteServlet (che ora restituisce { articoli, offerte, rialzo_minimo, prezzo_attuale })
-    const res = await fetch(`OfferteServlet?idAsta=${encodeURIComponent(idAsta)}`);
-    if (!res.ok) throw new Error(`Server risponde ${res.status}`);
-    const { articoli, offerte, rialzo_minimo, prezzo_attuale } = await res.json();
+  // Chiamata GET tramite XMTHttpRequest
+  const xhr = new XMTHttpRequest();
+  xhr.open('GET', `OfferteServlet?idAsta=${encodeURIComponent(idAsta)}`);
+  xhr.responseType = 'json';
 
-    //Popolo la tabella degli articoli
-    //    colonne: Codice, Venditore, Nome Articolo, Descrizione, Prezzo
+  xhr.onload = function() {
+    if (xhr.status < 200 || xhr.status >= 300) {
+      alert(`Server risponde ${xhr.status}`);
+      return;
+    }
+    const { articoli, offerte, rialzo_minimo, prezzo_attuale } = xhr.response;
+
+    // Popolo la tabella degli articoli
     articoli.forEach(a => {
       const row = artTable.insertRow();
       row.insertCell().textContent = a.codice;
-      row.insertCell().textContent = a.venditore;         
+      row.insertCell().textContent = a.venditore;
       row.insertCell().textContent = a.nomeArticolo;
       row.insertCell().textContent = a.descrizione;
       row.insertCell().textContent = a.prezzo.toFixed(2);
     });
 
-    //Popolo la tabella delle offerte
-    //    colonne: Utente, Prezzo, Data, Ora
+    // Popolo la tabella delle offerte
     offerte.forEach(o => {
       const row = offTable.insertRow();
       row.insertCell().textContent = o.username;
       row.insertCell().textContent = o.prezzo.toFixed(2);
       row.insertCell().textContent = o.dataOfferta;
-      row.insertCell().textContent = dt.oraOfferta;
+      row.insertCell().textContent = o.oraOfferta;
     });
 
-    //Mostro il rialzo minimo
+    // Mostro il rialzo minimo
     document.getElementById('rialzoMinimo').textContent = rialzo_minimo.toFixed(2);
-    
-    //addevent listener al bottone per l'inserimento dell'offerta
+
+    // Aggancio il bottone per l'inserimento dell'offerta (riclonandolo per rimuovere listener)
     const btn = document.getElementById('submitNewOfferta');
-    btn.addEventListener('click', event =>
-      handlerAddOfferta(event, idAsta, prezzoAttuale, rialzoMinimo)
-  );
+    const newBtn = btn.cloneNode(true);
+    btn.replaceWith(newBtn);
+    newBtn.addEventListener('click', event =>
+      handlerAddOfferta(event, idAsta, prezzo_attuale, rialzo_minimo)
+    );
+  };
 
+  xhr.onerror = function() {
+    alert('Impossibile caricare i dati dell\'asta.');
+  };
 
-  } catch (e) {
-    alert(e.error + 'Impossibile caricare i dati dell\'asta.');
-  }
+  xhr.send();
 }
 
-export async function handlerAddOfferta(event, idAsta, prezzoAttuale, rialzoMinimo) {
+// gestione dell'aggiunta di una nuova offerta usando XMTHttpRequest
+export function handlerAddOfferta(event, idAsta, prezzoAttuale, rialzoMinimo) {
   event.preventDefault();
 
-  // Seleziono gli elementi
+  // Seleziono e valido l'input prezzo
   const inputPrezzo = document.getElementById('prezzo');
-  
-  // Parsing e validazione
   const prezzoUser = parseFloat(inputPrezzo.value);
   const minOfferta = prezzoAttuale + rialzoMinimo;
 
   if (isNaN(prezzoUser) || prezzoUser < minOfferta) {
-    alert('Offerta minima:'+ minOfferta.toFixed(2)+'€');
+    alert('Offerta minima: ' + minOfferta.toFixed(2) + '€');
     return;
   }
 
-  try {
-    // Costruisco body
-    const params = new URLSearchParams();
-    params.set('prezzo', prezzoUser);
+  // Costruisco body URL-encoded
+  const params = new URLSearchParams();
+  params.set('prezzo', prezzoUser);
 
-    // Chiamo la servlet che inserisce l'offerta in sessione legge idAsta da sessione 
-    const postRes = await fetch('AddOffertaServlet', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body:   params.toString()
-    });
+  // Chiamata POST tramite XMTHttpRequest
+  const xhr = new XMTHttpRequest();
+  xhr.open('POST', 'AddOffertaServlet');
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    if (!postRes.ok) {
-      alert(postRes.status);
-      throw new Error(`Errore ${postRes.status}`);
+  xhr.onload = function() {
+    if (xhr.status < 200 || xhr.status >= 300) {
+      alert(xhr.status);
+      return;
     }
-
     // Al successo, ricarico la pagina offerta
-    await renderOffertaPage(idAsta);
+    renderOffertaPage(idAsta);
+  };
 
-  } catch (err) {
-    console.error(err);
-    alert(err.error + ' Errore durante l\'invio dell\'offerta.');
-  }
+  xhr.onerror = function() {
+    alert('Errore durante l\'invio dell\'offerta.');
+  };
+
+  xhr.send(params.toString());
 }
