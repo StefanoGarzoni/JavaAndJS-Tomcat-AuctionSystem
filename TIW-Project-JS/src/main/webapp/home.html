@@ -7,13 +7,9 @@
 		<script type="module" src="js/main.js" defer></script>
 	</head>
 	<body>
-		<table>
-			<tr>
-				<td><span id="moveToVendo">Vendo</span></td>
-				<td><span id="moveToAcquisto">Acquisto</span></td>
-				<td><span id="logout">Logout</span></td>
-			</tr>
-		</table>
+		<a href="/TIW-Project/logout">Logout</a><br>
+		<span id="moveToVendo" hidden>Vendo</span><br>
+		<span id="moveToAcquisto" hidden>Acquisto</span><br>
 		
 		<div id="vendoPage" hidden>
 		
@@ -151,7 +147,9 @@
 				</template>
 			</div>
 		</div>
-
+		
+		
+		
 		
 		<div id="acquistoPage" hidden>
 			<h2>Inserisci una parola chiave:</h2>
@@ -205,14 +203,85 @@
 			</div>
 		</div>
 
-		
 		<div id="dettaglioAstaPage" hidden>
-		
+
+			<h1>Dettaglio Asta</h1>
+			<div id="astaAperta" hidden>
+				<h2>Asta Aperta</h2>
+				<p>Creatore Asta:<span id="creatore"></span></p>
+				<p>Prezzo Iniziale:<span id="prezzo"></span></p>
+				<p>Rialzo Minimo:<span id="rialzo"></span></p>
+				<p>Data Scadenza:<span id="dataScadenza"></span></p>
+				<p>Ora Scadenza:<span id="oraScadenza"></span></p>
+
+				<div id="canBeClosed" hidden>
+					<button type="submit" style="color:red;">Chiudi l'asta</button>
+				</div>
+
+				<h2>Offerte ricevute per l'asta : </h2>
+				<table border="1">
+					<thead>
+						<tr>
+							<th>Utente</th>
+							<th>Prezzo</th>
+							<th>Data</th>
+							<th>Ora</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+
+			<div id="astaChiusa" hidden>
+				<h2>Asta Chiusa</h2>
+				<p>Creatore Asta:<span id="creatore"></span></p>
+				<p>Prezzo Iniziale:<span id="prezzoIniziale"></span></p>
+				<p>Rialzo Minimo:<span id="rialzoMinimo"></span></p>
+				<p>Data Scadenza:<span id="dataScadenza"></span></p>
+				<p>Ora Scadenza:<span id="oraScadenza"></span></p><br>
+				<p>Prezzo finale: <span id="prezzo"></span></p>
+				<p>Acquirente: <span id="nomeAcquirente"></span></p>
+				<p>Indirizzo di consegna:<span id="indirizzo"></span></p>
+			</div>
+
 		</div>
 
-		
 		<div id="offertaPage" hidden>
-		
-		</div>
+			<h1>Articoli presenti nell' asta</h1>
+			<table border="1">
+				<tr>
+					<th>Codice</th>
+					<th>Venditore</th>
+					<th>Nome Articolo</th>
+					<th>Descrizione</th>
+					<th>Prezzo</th>
+				</tr>
+
+			</table>
+			<br><br>
+        <h1>Offerte per l'asta</h1>
+        <table border="1">
+            <tr>
+                <th>Utente</th>
+                <th>Prezzo</th>
+                <th>Data</th>
+                <th>Ora</th>
+            </tr>
+
+        </table>
+        <br><br>
+        <h1>Fai un'offerta</h1>
+        <div hidden>Inserisci un'offerta valido ! </div>
+       
+        <h3>Rialzo minimo:</h3>
+        <p id="rialzoMinimo"></p><br>
+        <div id="formFaiOfferta">
+            <label for="prezzo">Prezzo:</label>
+            <input type="number" id="prezzo" name="prezzo" step="any" required/><br><br>
+            <button id="submitNewOfferta">Inserisci Nuova Offerta</button>
+			</div>
+        </div>
+
 	</body>
 </html>

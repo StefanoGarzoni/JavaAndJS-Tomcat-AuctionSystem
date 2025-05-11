@@ -1,36 +1,74 @@
 package it.polimi.tiw.Servlets;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import it.polimi.tiw.ConnectionManager;
+import it.polimi.tiw.dao.OfferteDAOImpl;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 public class AddOffertaServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private final Gson gson = new Gson();
+    private static final long serialVersionUID = 1L;
+    private OfferteDAOImpl offerteDAO;
 
-  @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response)throws IOException {
-//    response.setContentType("application/json;charset=UTF-8");
-//    PrintWriter out = response.getWriter();
-//    JsonObject jo = new JsonObject();
-//    try {
-//      NewOffertaDto dto = gson.fromJson(request.getReader(), NewOffertaDto.class);
-//      OffertaService.submitOffer(dto);
-//      jo.addProperty("success", true);
-//      out.print(gson.toJson(jo));
-//    } catch (IllegalArgumentException ia) {
-//      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-//      jo.addProperty("error", ia.getMessage());
-//      out.print(gson.toJson(jo));
-//    } catch (Exception e) {
-//      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//      jo.addProperty("error", "Errore inserimento offerta: " + e.getMessage());
-//      out.print(gson.toJson(jo));
-//    }
-//    out.flush();
-  }
+    @Override
+    public void init() throws ServletException {
+        offerteDAO = new OfferteDAOImpl();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        
+      //Verifica sessione
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("username") == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        String username = (String) session.getAttribute("username");
+
+        //Recupera idAsta da sessione (impostato da OfferteServlet) 
+        Integer idAsta = (Integer) session.getAttribute("idAsta");
+        if (idAsta == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\":\"Parametro idAsta mancante in sessione\"}");
+            return;
+        }
+
+        // Legge il prezzo della richiesta
+        String prezzoStr = request.getParameter("prezzo");
+        if (prezzoStr == null || prezzoStr.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\":\"Parametro prezzo mancante\"}");
+            return;
+        }
+
+        //Prova il casting del prezzo
+        double prezzo;
+        try {
+            prezzo = Double.parseDouble(prezzoStr);
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\":\"Parametro prezzo non valido\"}");
+            return;
+        }
+
+        // Inserisce l'offerta sul DB
+        try (Connection conn = ConnectionManager.getConnection()) {
+            offerteDAO.insertNewOfferta(conn, idAsta, username, prezzo);
+        } catch (SQLException e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");
+            return;
+        }
+
+        //Risposta di successo (JS controlla solo post.ok)
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"status\":\"success\"}");
+    }
+
 }
