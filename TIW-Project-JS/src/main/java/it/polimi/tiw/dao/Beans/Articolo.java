@@ -38,9 +38,6 @@ public class Articolo {
         this.descrizione = descrizione;
         this.imgPath = imgPath;
         this.prezzo = prezzo;
-        // this.venditore = venditore;
-        // this.venduto = venduto;
-        // this.idAsta = idAsta;
     }
 
     //GETTERS

@@ -1,8 +1,4 @@
 //Implementazione DAO Tabella Articoli
-
-//package com.example.dao.impl;
-//import com.example.dao.UsernameDAO;
-//import com.example.util.ConnectionManager;
 package it.polimi.tiw.dao;
 
 import java.sql.*;
@@ -41,19 +37,25 @@ public class ArticoliDAOImpl implements ArticoliDAO{
     }
 	
 	@Override
-    public void insertNewArticolo(Connection conn, String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo) {
+    public int insertNewArticolo(Connection conn, String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo) 
+    	throws SQLException {
         String query = "INSERT INTO Articoli (venditore, nome, descrizione, img, prezzo) VALUES (?, ?, ?, ?, ?);";
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-            ps.setString(1, usernameVenditore);
-            ps.setString(2, nomeArticolo);
-            ps.setString(3, descrizione);
-            ps.setString(4, imgPath);
-            ps.setDouble(5, prezzo);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in insertNewArticolo", e);
+
+        PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        ps.setString(1, usernameVenditore);
+        ps.setString(2, nomeArticolo);
+        ps.setString(3, descrizione);
+        ps.setString(4, imgPath);
+        ps.setDouble(5, prezzo);
+        
+        ps.executeUpdate();
+        ResultSet generatedKeys = ps.getGeneratedKeys();
+        
+        if(generatedKeys.next()) {
+        	return generatedKeys.getInt(1);
+        }
+        else {
+        	throw new SQLException("Errore nell'inserimento dell'articolo");
         }
     }
 	

@@ -24,20 +24,6 @@ import jakarta.servlet.http.*;
 public class NewAstaServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private TemplateEngine templateEngine;
-	
-	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
-		
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
-	}
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(request.getSession(false) == null) {	// if a session already exists (the client logged in)
             response.sendRedirect(request.getContextPath() + "/login");
@@ -95,8 +81,7 @@ public class NewAstaServlet extends HttpServlet {
 					data.isBefore(LocalDate.now()) || 
 					(data.isEqual(LocalDate.now()) && ora.isBefore(LocalTime.now())))
 			{
-				response.sendRedirect(redirectPath+"?passedExpirationData=true");
-				// response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La data di scadenza scelta è nel passato");
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La data di scadenza scelta è nel passato");
 				return;
 			}
 		}
@@ -128,8 +113,8 @@ public class NewAstaServlet extends HttpServlet {
 				int startingPrice = articoliDAO.getSumOfPrice(conn, selectedArticlesIds);
 				
 				int newAstaId = asteDAO.insertNewAsta(
-						conn, 
-						username, 
+						conn,
+						username,
 						startingPrice, 
 						rialzoMinimo, 
 						java.sql.Date.valueOf(data),
@@ -141,19 +126,28 @@ public class NewAstaServlet extends HttpServlet {
 				
 				// eseguo le modifiche sul DB se tutti i campi sono stati aggiornati correttamente senza errori
 				conn.commit();
-				response.sendRedirect(redirectPath);
+
+				// FIXME: capire cosa rispondere al client
+			    
+				response.setContentType("application/json");
+			    response.setCharacterEncoding("UTF-8");
+			    
+			    // scrivo il json nella response
+			    PrintWriter out = response.getWriter();
+			    out.print();
+			    out.flush();
 			}
 			catch (SQLException e) {
 				conn.rollback();
-				throw new SQLException("Errore nella creazione dell'asta");
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante l'inserimento");
 			}
 			finally {
 				conn.setAutoCommit(true);
 			}
 		}
 		catch (SQLException e) {
-			e.printStackTrace(System.out);	// stampo su CLI l'errore SQL
-			response.sendRedirect(redirectPath+"?errorWhileCreatingAsta=true");
+			e.printStackTrace(System.out);	// stampo su terminale l'errore SQL
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante l'inserimento");
 		}
 	}
 }

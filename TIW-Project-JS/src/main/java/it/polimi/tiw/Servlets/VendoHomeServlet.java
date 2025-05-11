@@ -14,6 +14,10 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAO;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
@@ -27,24 +31,10 @@ import jakarta.servlet.http.*;
 
 public class VendoHomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
-	private TemplateEngine templateEngine;
 	
-	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
-		
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
-	}
+	private Gson gson = new Gson();
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String vendoPath = "/vendo.html";
-		
 		HttpSession session = request.getSession(false);
 		
 		if(session == null) {	// se un utente non è loggato, lo reindirizza al login
@@ -77,19 +67,27 @@ public class VendoHomeServlet extends HttpServlet {
 			ctx.setVariable("asteChiuse", closedAste);
 			ctx.setVariable("availableArticoli", availableArticoli);
 			
-			// imposta una variabile nel contesto per segnalare che la data inserita nella precedente creazione di un'asta 
-			// è nel passato e perciò non consentita
-			if(request.getParameter("passedExpirationData") != null)
-				ctx.setVariable("passedExpirationData", true);
-			
-			// imposta una variabile nel contesto per segnalare che c'è stato un problema nell'inerimento dell'asta
-			if(request.getParameter("errorWhileCreatingAsta") != null)
-				ctx.setVariable("errorWhileCreatingAsta", true);
-			
-			templateEngine.process(vendoPath, ctx, response.getWriter());
+	        // creo l'oggetto json che contiene le tre liste di elementi
+	        JsonArray jsonArrayOpenAste = gson.toJsonTree(openAste).getAsJsonArray();
+	        JsonArray jsonArrayClosedAste = gson.toJsonTree(closedAste).getAsJsonArray();
+	        JsonArray jsonArrayArticoli = gson.toJsonTree(availableArticoli).getAsJsonArray();
+
+	        // aggiungo le tre liste all'oggetto json finale
+	        JsonObject finalObject = new JsonObject();
+	        finalObject.add("openAste", jsonArrayOpenAste);
+	        finalObject.add("closedAste", jsonArrayClosedAste);
+	        finalObject.add("articoli", jsonArrayArticoli);
+
+	        // Converti in stringa JSON
+	        String finalJson = gson.toJson(finalObject);
+
+	        // scrivo il json nella response
+		    PrintWriter out = response.getWriter();
+		    out.print(finalJson);
+		    out.flush();
 		}
 		catch (SQLException e) {
-			throw new ServletException("Errore di connessione al database", e);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante il recupero delle informazioni");
 		}
 	}
 	

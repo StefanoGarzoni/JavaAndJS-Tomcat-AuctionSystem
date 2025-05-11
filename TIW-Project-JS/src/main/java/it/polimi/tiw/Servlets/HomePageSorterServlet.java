@@ -15,6 +15,6 @@ public class HomePageSorterServlet extends HttpServlet {
 		if(request.getSession(false) == null)
 			response.sendRedirect(request.getContextPath() + "/login");
 		else
-			response.sendRedirect(request.getContextPath() + "/TIW-Project/home");
+			response.sendRedirect(request.getContextPath() + "/TIW-Project-JS/home");
 	}
 }

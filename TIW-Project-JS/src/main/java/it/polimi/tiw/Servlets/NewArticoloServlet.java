@@ -6,16 +6,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
-import org.thymeleaf.web.servlet.JakartaServletWebApplication;
-
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 //Le immagini sono salvate in: eclipse-workspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\TIW-Project\WEB-INF\articlesImages\
@@ -28,24 +22,8 @@ import jakarta.servlet.http.*;
 )
 public class NewArticoloServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
-	private TemplateEngine templateEngine;
 	
-	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
-		
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		this.templateEngine = new TemplateEngine();
-		this.templateEngine.setTemplateResolver(templateResolver);
-		templateResolver.setSuffix(".html");
-	}
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String redirectionPath = "/TIW-Project/vendo";
-		
 		String articleName;
 		String articleDescription;
 		String articlePriceString;
@@ -86,14 +64,26 @@ public class NewArticoloServlet extends HttpServlet {
 		try {
 			String username = (String) request.getSession().getAttribute("username");
 			
+			
+			//FIXME: capire cosa restituire al client
+			
 			Connection conn = ConnectionManager.getConnection(); 
-			new ArticoliDAOImpl().insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
+			int newArticoloId = new ArticoliDAOImpl().insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
+			
+			String jsonResponse = "{ 'codArticolo' : " + newArticoloId + " }";
+		    
+			// imposto content-type e charset della risposta
+		    response.setContentType("application/json");
+		    response.setCharacterEncoding("UTF-8");
+
+		    // scrittura JSON nella response
+		    PrintWriter out = response.getWriter();
+		    out.print(jsonResponse);
+		    out.flush();
 		}
 		catch (SQLException e) {
-			e.printStackTrace(System.out);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
 		}
-		
-		response.sendRedirect(redirectionPath);
 	}	
 	
 	private String saveImage(HttpServletRequest request) throws ServletException, IOException {

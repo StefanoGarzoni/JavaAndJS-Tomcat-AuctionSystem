@@ -155,13 +155,15 @@
 			<h2>Inserisci una parola chiave:</h2>
 			<div>
 				<label for="parolaChiave">Parola chiave:</label>
-				<input type="text" id="parolaChiave" name="parolaChiave" required><br>
+				<input type="text" id="parolaChiave"><br>
 				
 				<button id="sumbitSearchByKeyword">Ricerca aste</button>
 			</div>
 		
-			<div id="listaAsteByKeyword">
-				<table border="1" id="tabellaAsteByKeyword">
+			<div id="listaAsteByKeywordMessage"></div>
+			<div id="listaAsteByKeyword" hidden>
+				<h3>Aste relativa alla parola chiave selezionata</h3>
+				<table border="1">
 					<thead>
 						<tr>
 							<th>IdAsta</th>
@@ -175,7 +177,7 @@
 							<th></th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody id="bodyTabellaAsteByKeyword">
 						<!-- qui vengono aggiunte tutte le aste legate a quella parola chiave, se -->					
 					</tbody>
 				</table>
@@ -189,15 +191,15 @@
 						<!-- td con text = data scadenza asta -->
 						<!-- td con text = ora scadenza asta -->
 						<!-- td con text = offerta massima asta -->
-						<td>
-							<table>
-								<tr>
+						<!-- <td> --> 
+							<!-- <table> --> 
+								<!-- <tr> --> 
 									<!-- td con text = codice articolo -->
 									<!-- td con text = nome articolo -->
-								</tr>
-							</table>
-						</td>
-						<td><button class="dettaglioAstaApertaButton">Dettaglio asta</button></td> <!-- va aggiunto value = id asta -->	
+								<!-- </tr> --> 
+							<!-- </table> --> 
+						<!-- </td> --> 
+						<!-- <td><button class="dettaglioAstaApertaButton">Dettaglio asta</button></td> <!-- va aggiunto value = id asta -->	
 					</tr>
 				</template>
 			</div>

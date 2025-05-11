@@ -1,4 +1,4 @@
-function setup(){
+export function setupPageVendo(){
 	const vendoSection = document.querySelector("#vendoPage");
 	vendoSection.removeAttribute("hidden");
 	
@@ -16,7 +16,7 @@ function setup(){
 	);
 }
 
-function freePage(){
+export function freePageVendo(){
 	document.querySelector("#vendoPage").setAttribute("hidden");
 	
 	// rimozione degli event listeners
@@ -39,7 +39,7 @@ function freePage(){
 	document.querySelector("#newArticoloMessage").textContent = '';
 }
 
-function requireVendoContent(){
+export function requireVendoContent(){
 	const request = new XMLHttpRequest();
 	request.open("GET", "/TIW-Project-JS/vendo");
 	
@@ -50,7 +50,7 @@ function requireVendoContent(){
 function showVendoContent(request){
 	if(request.readyState == 4 && request.status == 200){
 		const vendoContent = JSON.parse(request.responseText);
-		
+			
 		const openAste = vendoContent.openAste;
 		const closedAste = vendoContent.closedAste;
 		const articoli = vendoContent.articoli;
@@ -68,7 +68,7 @@ function showVendoContent(request){
 		});
 	}
 	else if (request.status == 505) {
-		// mostra errore 505
+		alert("Errore "+request.status+" durante il caricamento della pagina");
 	}
 }
 
@@ -83,27 +83,27 @@ function addOpenAstaInTable(asta){
 	newRow.appendChild(idAstaElement);
 	
 	let prezzoInizialeElement = document.createElement("td");
-	prezzoInizialeElement.text = asta.prezzoIniziale;
+	prezzoInizialeElement.text = asta.prezzo_iniziale;
 	newRow.appendChild(prezzoInizialeElement);
-		
+	
 	let offertaMaxElement = document.createElement("td");
-	offertaMaxElement.text = asta.offertaMax;
+	offertaMaxElement.text = asta.offerta_max;
 	newRow.appendChild(offertaMaxElement);
-		
+	
 	let dataScadenzaElement = document.createElement("td");
-	dataScadenzaElement.text = asta.dataScadenza;
+	dataScadenzaElement.text = asta.data_scadenza;
 	newRow.appendChild(dataScadenzaElement);
-			
+	
 	let oraScadenzaElement = document.createElement("td");
-	oraScadenzaElement.text = asta.oraScadenza;
+	oraScadenzaElement.text = asta.ora_scadenza;
 	newRow.appendChild(oraScadenzaElement);
 			
 	let giorniRimanentiElement = document.createElement("td");
-	giorniRimanentiElement.text = asta.giorniRimanenti;
+	giorniRimanentiElement.text = asta.giorni_rimanenti;
 	newRow.appendChild(giorniRimanentiElement);
 
 	let oreRimanentiElement = document.createElement("td");
-	oreRimanentiElement.text = asta.oreRimanenti;
+	oreRimanentiElement.text = asta.ore_rimanenti;
 	newRow.appendChild(oreRimanentiElement);
 	
 	// creazione tabella articoli
@@ -225,8 +225,17 @@ function newArticolo(){	// e è l'evento che ha causato la chiamata della callba
 	request.onreadystatechange = () => {
 		if(request.readyState == 4){
 			if(request.status == 200){
-				const articoloInserito = JSON.parse(request.responseText).id;
-				addArticoloInTable(articoloInserito);
+				const codArticoloInserito = JSON.parse(request.responseText).codArticolo;
+				
+				// creo l'oggetto Articolo da inserire in tabella, aggiungengo l'id creato lato server
+				const newArticoloInserito = {
+					'cod' : codArticoloInserito,
+					'nomeArticolo' : nome,
+					'descrizione' : descrizione,
+					'prezzo' : prezzo 
+				}
+				
+				addArticoloInTable(newArticoloInserito);
 			}
 			else{
 				document.querySelector("#newArticoloMessage").textContent = "Problema con l'aggiunta dell'articolo"
@@ -274,8 +283,14 @@ function newAsta(){
 	request.onreadystatechange = () => {
 		if(request.readyState == 4){
 			if(request.status == 200){
-				const astaInserita = JSON.parse(request.responseText);
-				addOpenAstaInTable(astaInserita);
+				const idAstaInserita = JSON.parse(request.responseText);
+				
+				// creo l'oggetto Asta da inserire in tabella, includento l'id creato lato server
+				const newAstaInserita = {
+					
+				}
+				
+				addOpenAstaInTable(newAstaInserita);
 			}
 			else{
 				document.querySelector("#newAstaMessage").textContent = "Il server ha incontrato un problema durante l'aggiunta dell'articolo";
