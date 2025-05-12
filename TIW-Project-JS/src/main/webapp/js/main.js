@@ -1,4 +1,4 @@
-import { setupPageVendo} from './vendo.js';
+import { renderVendoPage, setupPageVendo} from './vendo.js';
 import { setupPageAscquisto } from './acquisto.js';
 
 // aggiungo gli event listeners
@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const moveToAcquisto = document.getElementById('moveToAcquisto');
 
     moveToVendo.addEventListener('click', () => {
-        showVendo();
+        renderVendoPage();
     });
     moveToAcquisto.addEventListener('click', () => {
-        showAcquisto();
+        renderAcquistoPage();
     });
 	
 	// inizializzazione cookie flag che indicano se è necessario ricaricare le aste nella pagina vendo
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function cookieSetup(){
-	let cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste'];
+	let cookieNames = ['renderTableAsteAperte', 'renderTableAsteChiuse', 'renderArticoli', 'renderTableAsteVisionate'];
 	
 	for (let cookieName of cookieNames) {		
 		// quando viene caricato il main (l'applicazione viene aperta) bisogna inizializzare i flag a true 

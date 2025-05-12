@@ -8,8 +8,8 @@
 	</head>
 	<body>
 		<a href="/TIW-Project/logout">Logout</a><br>
-		<span id="moveToVendo" hidden>Vendo</span><br>
-		<span id="moveToAcquisto" hidden>Acquisto</span><br>
+		<span id="moveToVendo">Vendo</span><br>
+		<span id="moveToAcquisto">Acquisto</span><br>
 		
 		<div id="vendoPage" hidden>
 		
@@ -204,6 +204,7 @@
 				</template>
 			</div>
 			
+			<div id="listaAsteVisionateMessage"></div>
 			<div id="listaAsteVisionate" hidden>
 				<h3>Aste viste in precedenza</h3>
 				<table border="1">
@@ -220,31 +221,10 @@
 							<th></th>
 						</tr>
 					</thead>
-					<tbody id="bodyTabellaAsteByKeyword">
+					<tbody id="bodyTabellaAsteVisionate">
 						<!-- qui vengono aggiunte tutte le aste legate a quella parola chiave, se -->					
 					</tbody>
 				</table>
-				
-				<template id="astaByKeywordRow">
-					<tr>
-						<!-- td con text = id asta -->
-						<!-- td con text = creatore -->
-						<!-- td con text = prezzo iniziale asta -->
-						<!-- td con text = rialzo minimo asta -->
-						<!-- td con text = data scadenza asta -->
-						<!-- td con text = ora scadenza asta -->
-						<!-- td con text = offerta massima asta -->
-						<!-- <td> --> 
-							<!-- <table> --> 
-								<!-- <tr> --> 
-									<!-- td con text = codice articolo -->
-									<!-- td con text = nome articolo -->
-								<!-- </tr> --> 
-							<!-- </table> --> 
-						<!-- </td> --> 
-						<!-- <td><button class="dettaglioAstaApertaButton">Dettaglio asta</button></td> <!-- va aggiunto value = id asta -->	
-					</tr>
-				</template>
 			</div>
 		</div>
 

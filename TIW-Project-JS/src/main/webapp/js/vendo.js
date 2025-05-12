@@ -1,5 +1,5 @@
 import { renderDettaglioAstaPage } from "./dettaglioAsta";
-import { setCookie } from "./main";
+import { getCookie, setCookie } from "./main";
 
 function setupPageVendo(){
 	const vendoSection = document.querySelector("#vendoPage");
@@ -42,13 +42,34 @@ export function freePageVendo(){
 }*/
 
 export function renderVendoPage(){
-	const request = new XMLHttpRequest();
-	request.open("GET", "/TIW-Project-JS/vendo");
+	const tablesToRender = [];
 	
-	request.onreadystatechange = () => { showVendoContent(request); };
-	request.send();
+	if(getCookie("renderTableAsteAperte")){
+		tablesToRender.push("asteAperte");
+		setCookie("renderTableAsteAperte", "false");
+	}
 	
-	setupPageVendo();
+	if(getCookie("renderTableAsteChiuse")){
+		tablesToRender.push("asteChiuse");
+		setCookie("renderTableAsteChiuse", "false");
+	}
+	
+	if(getCookie("renderArticoli")){
+		tablesToRender.push("articoli");
+		setCookie("renderArticoli", "false");
+	}
+	
+	if(tablesToRender.length > 0){	// richiede i dati che eventulmente sono da modificare
+		const formData = new FormData();
+		formData.append("tabelleRichieste", JSON.stringify(tablesToRender));
+		
+		const request = new XMLHttpRequest();
+		request.open("POST", "/TIW-Project-JS/vendo");
+		
+		request.onreadystatechange = () => { showVendoContent(request); };
+		request.send();
+	}
+	setupPageVendo(formData);		
 }
 
 function showVendoContent(request){
@@ -61,19 +82,22 @@ function showVendoContent(request){
 		
 		// aggiorno solo le sezioni che hanno avuto modifiche
 		// se gli array con gli elementi sono vuoti => non ci sono state modifiche
-		if(openAste.length > 0){
+		if(openAste && openAste.length > 0){
+			document.querySelector("#bodyTabellaAsteAperte").innerHTML = '';	// svuota dal contenuto precedente
 			openAste.forEach( (currentAsta) => {
 				addOpenAstaInTable(currentAsta);
 			});
 		}
 			
-		if(closedAste.length > 0){
+		if(closedAste && closedAste.length > 0){
+			document.querySelector("#bodyTabellaAsteChiuse");		// svuota dal contenuto precedente
 			closedAste.forEach((currentAsta) => {
 				addClosedAstaInTable(currentAsta);
 			});			
 		}
 			
-		if(articoli.length > 0){
+		if(articoli && articoli.length > 0){
+			document.querySelector("#bodyTabellaArticoliNewAsta");
 			articoli.forEach((articolo) => {
 				addArticoloInTable(articolo);
 			});
