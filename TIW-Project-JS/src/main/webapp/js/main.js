@@ -1,7 +1,7 @@
 import { setupPageVendo} from './vendo.js';
 import { setupPageAscquisto } from './acquisto.js';
 
-// Navigation elements
+//Navigation elements
 document.addEventListener('DOMContentLoaded', () => {
     const moveToVendo = document.getElementById('moveToVendo');
     const moveToAcquisto = document.getElementById('moveToAcquisto');
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showAcquisto();
     });
 
-    // Initial view based on last action
+    //TODO: NON LOCALSTORAGE MA COOKIE
     const last = localStorage.getItem('lastAction');
     if (last === 'addedAsta') {
         showVendo();
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //CREAZIONE INIZIALE DEI COOKIE
 
 // Dichiaro i tre nomi dei cookie
-var cookieNames = ['lastAction', 'renderTableAsteAperte', 'renderAllTablesAste'];
+var cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste'];
 
 //scadenza di una settimana
 var oneWeek = 7 * 24 * 60 * 60;
@@ -56,14 +56,14 @@ for (var i = 0; i < cookieNames.length; i++) {
         }
     }
 
-    // 4b) Se esiste, rinnovo soltanto la scadenza
+    // Se esiste, rinnovo soltanto la scadenza
     if (exists) {
         // ricreo la stringa di set-cookie mantenendo lo stesso valore
         document.cookie = 
         name + '=' + encodeURIComponent(currentValue) +
         '; path=/; max-age=' + oneWeek;
 
-    // 4c) Se non esiste, lo creo con valore "true"
+    // Se non esiste, lo creo con valore "true"
     } else {
         document.cookie = 
         name + '=true' +
@@ -91,6 +91,7 @@ function showAcquisto() {
 
 
 //funzione per salvare la lista di idAsta visitate
+//TODO: NON LOCALE STORAGE MA COOKIE
 export function saveVisited(idAsta) {
     const key = 'asteLastVisited';
     const stored = localStorage.getItem(key);
