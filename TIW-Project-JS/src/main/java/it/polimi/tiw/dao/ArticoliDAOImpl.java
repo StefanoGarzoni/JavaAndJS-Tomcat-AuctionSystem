@@ -37,7 +37,7 @@ public class ArticoliDAOImpl implements ArticoliDAO{
     }
 	
 	@Override
-    public int insertNewArticolo(Connection conn, String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo) 
+    public Articolo insertNewArticolo(Connection conn, String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo) 
     	throws SQLException {
         String query = "INSERT INTO Articoli (venditore, nome, descrizione, img, prezzo) VALUES (?, ?, ?, ?, ?);";
 
@@ -52,7 +52,8 @@ public class ArticoliDAOImpl implements ArticoliDAO{
         ResultSet generatedKeys = ps.getGeneratedKeys();
         
         if(generatedKeys.next()) {
-        	return generatedKeys.getInt(1);
+        	int newArticoloKey = generatedKeys.getInt(1);
+        	return new Articolo(newArticoloKey, nomeArticolo, descrizione, null, prezzo);
         }
         else {
         	throw new SQLException("Errore nell'inserimento dell'articolo");

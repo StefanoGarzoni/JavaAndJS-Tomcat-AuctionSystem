@@ -1,8 +1,6 @@
-export function setupPageVendo(){
+function setupPageVendo(){
 	const vendoSection = document.querySelector("#vendoPage");
 	vendoSection.removeAttribute("hidden");
-	
-	requireVendoContent();
 	
 	// aggiunta gestione eventi creazione articolo e asta
 	document.querySelector("#submitNewArticolo").addEventListener(
@@ -16,6 +14,7 @@ export function setupPageVendo(){
 	);
 }
 
+/*
 export function freePageVendo(){
 	document.querySelector("#vendoPage").setAttribute("hidden");
 	
@@ -37,35 +36,45 @@ export function freePageVendo(){
 	
 	document.querySelector("#newAstaMessage").textContent = '';
 	document.querySelector("#newArticoloMessage").textContent = '';
-}
+}*/
 
-export function requireVendoContent(){
+export function renderVendoPage(){
 	const request = new XMLHttpRequest();
 	request.open("GET", "/TIW-Project-JS/vendo");
 	
 	request.onreadystatechange = () => { showVendoContent(request); };
 	request.send();
+	
+	setupPageVendo();
 }
 
 function showVendoContent(request){
 	if(request.readyState == 4 && request.status == 200){
 		const vendoContent = JSON.parse(request.responseText);
-			
+		
 		const openAste = vendoContent.openAste;
 		const closedAste = vendoContent.closedAste;
 		const articoli = vendoContent.articoli;
 		
-		openAste.forEach( (currentAsta) => {
-			addOpenAstaInTable(currentAsta);
-		});
-		
-		closedAste.forEach((currentAsta) => {
-			addClosedAstaInTable(currentAsta);
-		});
-		
-		articoli.forEach((articolo) => {
-			addArticoloInTable(articolo);
-		});
+		// aggiorno solo le sezioni che hanno avuto modifiche
+		// se gli array con gli elementi sono vuoti => non ci sono state modifiche
+		if(openAste.length > 0){
+			openAste.forEach( (currentAsta) => {
+				addOpenAstaInTable(currentAsta);
+			});
+		}
+			
+		if(closedAste.length > 0){
+			closedAste.forEach((currentAsta) => {
+				addClosedAstaInTable(currentAsta);
+			});			
+		}
+			
+		if(articoli.length > 0){
+			articoli.forEach((articolo) => {
+				addArticoloInTable(articolo);
+			});
+		}
 	}
 	else if (request.status == 505) {
 		alert("Errore "+request.status+" durante il caricamento della pagina");
@@ -283,14 +292,13 @@ function newAsta(){
 	request.onreadystatechange = () => {
 		if(request.readyState == 4){
 			if(request.status == 200){
-				const idAstaInserita = JSON.parse(request.responseText);
-				
-				// creo l'oggetto Asta da inserire in tabella, includento l'id creato lato server
-				const newAstaInserita = {
-					
-				}
+				const newAstaInserita = JSON.parse(request.responseText);
 				
 				addOpenAstaInTable(newAstaInserita);
+				
+				codiciArticoli.forEach((codiceArticolo) => {
+					removeArticoloFromTable(codiceArticolo);					
+				});
 			}
 			else{
 				document.querySelector("#newAstaMessage").textContent = "Il server ha incontrato un problema durante l'aggiunta dell'articolo";
@@ -299,4 +307,17 @@ function newAsta(){
 	}
 	
 	request.send(formData);
+}
+
+function removeArticoloFromTable(codiceArticolo){
+  const tbody = document.getElementById("bodyTabellaAsteByKeyword");
+  const rows = tbody.getElementsByTagName("tr");
+
+  for (let row of rows) {
+    const firstCell = row.cells[0]; // l'id asta è nel primo td
+    if (firstCell && firstCell.textContent === codiceArticolo.toString()) {		// entra se il text content è uguale all'id dell'articolo da eliminare
+      tbody.removeChild(row);
+      break; // rimuovo solo la prima riga (poichè solo una riga ha l'id specificato)
+    }
+  }
 }

@@ -6,8 +6,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import com.google.gson.Gson;
+
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
+import it.polimi.tiw.dao.Beans.Articolo;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.*;
@@ -22,6 +25,8 @@ import jakarta.servlet.http.*;
 )
 public class NewArticoloServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	private Gson gson = new Gson();
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String articleName;
@@ -68,9 +73,9 @@ public class NewArticoloServlet extends HttpServlet {
 			//FIXME: capire cosa restituire al client
 			
 			Connection conn = ConnectionManager.getConnection(); 
-			int newArticoloId = new ArticoliDAOImpl().insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
+			Articolo newArticolo = new ArticoliDAOImpl().insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
 			
-			String jsonResponse = "{ 'codArticolo' : " + newArticoloId + " }";
+			String finalJson = gson.toJson(newArticolo);
 		    
 			// imposto content-type e charset della risposta
 		    response.setContentType("application/json");
@@ -78,7 +83,7 @@ public class NewArticoloServlet extends HttpServlet {
 
 		    // scrittura JSON nella response
 		    PrintWriter out = response.getWriter();
-		    out.print(jsonResponse);
+		    out.print(finalJson);
 		    out.flush();
 		}
 		catch (SQLException e) {

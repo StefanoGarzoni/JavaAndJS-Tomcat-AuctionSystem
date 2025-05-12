@@ -4,6 +4,9 @@ package it.polimi.tiw.dao;
 
 import java.sql.*;
 import java.sql.Date;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import it.polimi.tiw.dao.Beans.Articolo;
@@ -29,7 +32,7 @@ public class AsteDAOImpl implements AsteDAO{
     }
 	
     @Override
-    public int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException {
+    public Asta insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException {
         String query = "INSERT INTO Aste (creatore, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza) VALUES (?, ?, ?, ?, ?);";
         
         // impostando RETURN_GENERATED_KEYS ci viene restituito l'id dell'asta creato da AUTO_INCREMENT
@@ -47,12 +50,30 @@ public class AsteDAOImpl implements AsteDAO{
         }
 
         ResultSet generatedKeys = ps.getGeneratedKeys();
-        if (generatedKeys.next())
-        	return generatedKeys.getInt(1);		//nuovo id AUTO_INCREMENT generato            	
+        if (generatedKeys.next()) {
+        	int idNewAsta = generatedKeys.getInt(1);		//nuovo id AUTO_INCREMENT generato            	
+        	Asta astaToReturn = new Asta(idNewAsta, usernameCreatore, prezzoIniziale, rialzoMinimo, dataScadenza, oraScadenza, 0, false, null);
+        	return astaToReturn;
+        }
         else
             throw new SQLException("Inserimento riuscito ma nessun ID ottenuto.");
     }
-
+    
+	public static void setTempoRimanenteInAsta(Asta asta, LocalDateTime lastLoginTimestamp) {
+		// conversion from java.sql.Date and java.sql.Time to LocalDateTime
+		LocalDateTime scadenzaAsta = LocalDateTime.of(
+				asta.getDataScadenza().toLocalDate(), 
+				asta.getOraScadenza().toLocalTime()
+		);
+		
+		long giorniRimanentiAsta = ChronoUnit.DAYS.between(lastLoginTimestamp, scadenzaAsta);	// integer days distance
+		LocalDateTime dopoGiorni = lastLoginTimestamp.plusDays(giorniRimanentiAsta);
+		long oreRimanentiAsta = Duration.between(dopoGiorni, scadenzaAsta).toHours();	// integer hours distance
+		
+		asta.setGiorniRimanenti((int)giorniRimanentiAsta);
+		asta.setOreRimanenti((int)oreRimanentiAsta);
+	}
+	
     @Override
     public ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernameCreatore) throws RuntimeException{
     	String query = 
