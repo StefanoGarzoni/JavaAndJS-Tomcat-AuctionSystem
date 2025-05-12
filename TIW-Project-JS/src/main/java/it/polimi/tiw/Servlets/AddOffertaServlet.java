@@ -2,8 +2,12 @@ package it.polimi.tiw.Servlets;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Date;
+import java.sql.Time;
+import com.google.gson.Gson;
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.OfferteDAOImpl;
+import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,16 +17,17 @@ import jakarta.servlet.http.HttpSession;
 public class AddOffertaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private OfferteDAOImpl offerteDAO;
+    Gson gson;
 
     @Override
     public void init() throws ServletException {
         offerteDAO = new OfferteDAOImpl();
+        gson = new Gson();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-      //Verifica sessione
+        // Verifica sessione
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -30,7 +35,7 @@ public class AddOffertaServlet extends HttpServlet {
         }
         String username = (String) session.getAttribute("username");
 
-        //Recupera idAsta da sessione (impostato da OfferteServlet) 
+        // Recupera idAsta da sessione
         Integer idAsta = (Integer) session.getAttribute("idAsta");
         if (idAsta == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -46,7 +51,6 @@ public class AddOffertaServlet extends HttpServlet {
             return;
         }
 
-        //Prova il casting del prezzo
         double prezzo;
         try {
             prezzo = Double.parseDouble(prezzoStr);
@@ -56,19 +60,24 @@ public class AddOffertaServlet extends HttpServlet {
             return;
         }
 
-        // Inserisce l'offerta sul DB
+        // Inserisce l'offerta sul DB e ottiene data e ora in una mappa
+        int result;
+        Date data;
+        Time ora;
         try (Connection conn = ConnectionManager.getConnection()) {
-            offerteDAO.insertNewOfferta(conn, idAsta, username, prezzo);
+            data = new Date(System.currentTimeMillis());
+            ora = new Time(System.currentTimeMillis());
+            result = offerteDAO.insertNewOfferta(conn, idAsta, username, prezzo, data, ora);
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");
             return;
         }
 
-        //Risposta di successo (JS controlla solo post.ok)
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"status\":\"success\"}");
-    }
+        Offerta newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
 
+
+        String jsonString = gson.toJson(newOfferta);
+        response.getWriter().print(jsonString);
+    }
 }
