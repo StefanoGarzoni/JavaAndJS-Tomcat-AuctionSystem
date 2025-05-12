@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,6 +53,40 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             }
             //Chiudo l'asta
             asteDAO.setAstaAsClosed(conn, idAsta, username);
+
+            //set del valore del cookie "lastAction"
+            boolean lastActionCookieFound = false;
+            boolean tablesAsteCookieFound = false;
+            Cookie[] cookies = request.getCookies();
+
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if (c.getName().equals("lastAction")) {
+                        c.setValue("closedAsta");
+                        lastActionCookieFound = true;
+                        response.addCookie(c);
+                    }
+                    else if (c.getName().equals("renderAllTablesAste")) {
+                        c.setValue("true");
+                        tablesAsteCookieFound = true;
+                        response.addCookie(c);
+                    }
+                    if (lastActionCookieFound && tablesAsteCookieFound) {
+                        break;
+                    }
+
+                }
+            }
+            if(!lastActionCookieFound) {
+                Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
+                lastActionCookie.setMaxAge(60*60*24);
+                response.addCookie(lastActionCookie);
+            }
+            if(!tablesAsteCookieFound) {
+                Cookie tableOpenAsteCookie = new Cookie("renderAllTablesAste", "true");
+                tableOpenAsteCookie.setMaxAge(60*60*24);
+                response.addCookie(tableOpenAsteCookie);
+            }
 
         } catch (SQLException e) {
             throw new ServletException("Errore DB chiusura asta", e);

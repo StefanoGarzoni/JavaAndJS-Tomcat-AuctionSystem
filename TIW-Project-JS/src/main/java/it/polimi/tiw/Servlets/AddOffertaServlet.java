@@ -9,6 +9,7 @@ import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -76,6 +77,39 @@ public class AddOffertaServlet extends HttpServlet {
 
         Offerta newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
 
+        //set del valore del cookie "lastAction"
+        boolean lastActionCookieFound = false;
+        boolean tableOpenAsteCookieFound = false;
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("lastAction")) {
+                    c.setValue("addedOfferta");
+                    lastActionCookieFound = true;
+                    response.addCookie(c);
+                }
+                else if (c.getName().equals("renderTableAsteAperte")) {
+                    c.setValue("true");
+                    tableOpenAsteCookieFound = true;
+                    response.addCookie(c);
+                }
+                if (lastActionCookieFound && tableOpenAsteCookieFound) {
+                    break;
+                }
+
+            }
+        }
+        if(!lastActionCookieFound) {
+            Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
+            lastActionCookie.setMaxAge(60*60*24);
+            response.addCookie(lastActionCookie);
+        }
+        if(!tableOpenAsteCookieFound) {
+            Cookie tableOpenAsteCookie = new Cookie("renderTableAsteAperte", "true");
+            tableOpenAsteCookie.setMaxAge(60*60*24);
+            response.addCookie(tableOpenAsteCookie);
+        }
 
         String jsonString = gson.toJson(newOfferta);
         response.getWriter().print(jsonString);

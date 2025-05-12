@@ -1,16 +1,7 @@
-// FUNZIONI PER LA PAGINA DETTAGLIO ASTA
-
-// Nasconde tutte le sezioni
-export function hideAllPages() {
-  ['vendoPage', 'acquistoPage', 'dettaglioAstaPage', 'offertaPage'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) 
-      el.hidden = true;
-  });
-}
+import { hideAllPages } from './main.js';
 
 // Carica e renderizza i dettagli di un'asta
-export function loadDettaglioAsta(idAsta) {
+export function renderDettaglioAstaPage(idAsta) {
   hideAllPages();
   const page = document.getElementById('dettaglioAstaPage');
 
