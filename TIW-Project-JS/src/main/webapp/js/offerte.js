@@ -1,14 +1,6 @@
-// FUNZIONI PER LA PAGINA OFFERTE
+import { hideAllPages } from './main.js';
 
-// funzione comune a tutte le pagine per nascondere tutto
-export function hideAllPages() {
-  document.getElementById('vendoPage').hidden = true;
-  document.getElementById('acquistoPage').hidden = true;
-  document.getElementById('dettaglioAstaPage').hidden = true;
-  document.getElementById('offertaPage').hidden = true;
-}
-
-// rendering della pagina offerta usando XMTHttpRequest
+// rendering della pagina offerta
 export function renderOffertaPage(idAsta) {
   hideAllPages();
   const page = document.getElementById('offertaPage');
