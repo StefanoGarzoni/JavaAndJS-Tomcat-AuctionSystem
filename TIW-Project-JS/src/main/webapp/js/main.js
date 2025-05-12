@@ -1,7 +1,7 @@
 import { setupPageVendo} from './vendo.js';
 import { setupPageAscquisto } from './acquisto.js';
 
-//Navigation elements
+// aggiungo gli event listeners
 document.addEventListener('DOMContentLoaded', () => {
     const moveToVendo = document.getElementById('moveToVendo');
     const moveToAcquisto = document.getElementById('moveToAcquisto');
@@ -12,10 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     moveToAcquisto.addEventListener('click', () => {
         showAcquisto();
     });
+	
+	// inizializzazione cookie flag che indicano se è necessario ricaricare le aste nella pagina vendo
+	cookieSetup();
 
-    //TODO: NON LOCALSTORAGE MA COOKIE
-    const last = localStorage.getItem('lastAction');
-    if (last === 'addedAsta') {
+    // reindirizzamento in base all'ultima azione svolta dall'utente
+    const lastAction = getCookie("lastAction");
+    if (lastAction === 'addedAsta') {
         showVendo();
     } else {
         showAcquisto();
@@ -23,55 +26,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+function cookieSetup(){
+	let cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste'];
+	
+	for (let cookieName of cookieNames) {		
+		// quando viene caricato il main (l'applicazione viene aperta) bisogna inizializzare i flag a true 
+		// poichè la pagina vendo deve per forza richiedere tutte le aste al server
+		setCookie(cookieName, "true", 30);
+	}
+}
 
-//--------------------------------------------------------------------------------------------
-//CREAZIONE INIZIALE DEI COOKIE
+export function setCookie(name, value, days) {
+    const expiration = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString(); 		// calcolo scadenza a days giorni di distanza
+    document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expiration};path=/`;
+}
 
-// Dichiaro i tre nomi dei cookie
-var cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste'];
-
-//scadenza di una settimana
-var oneWeek = 7 * 24 * 60 * 60;
-
-// Leggo tutti i cookie dal browser in un array
-var allCookies = document.cookie ? document.cookie.split('; ') : [];
-
-//scorro tutti i cookie
-for (var i = 0; i < cookieNames.length; i++) {
-    var name = cookieNames[i];
-    var exists = false;
-    var currentValue = '';
-
-    //Cerco tra tutti i cookie se c'è un name che coincide
-    for (var j = 0; j < allCookies.length; j++) {
-        var pair = allCookies[j].split('=');
-        var key = pair[0];
-        var val = pair[1] || '';
-        
+export function getCookie(name) {
+    const cookies = document.cookie.split(';');	// divide tutti i cookies
+    
+	for (const cookie of cookies) {
+        const [key, value] = cookie.trim().split('=');	// divide il nome e il valore del cookies
         if (key === name) {
-            exists = true;
-            // decodifico il valore per sicurezza
-            currentValue = decodeURIComponent(val);
-            break;
+			return JSON.parse(decodeURIComponent(value));	// restituisce il valore corrente del cookie richiesto, come oggetto JSON
         }
     }
-
-    // Se esiste, rinnovo soltanto la scadenza
-    if (exists) {
-        // ricreo la stringa di set-cookie mantenendo lo stesso valore
-        document.cookie = 
-        name + '=' + encodeURIComponent(currentValue) +
-        '; path=/; max-age=' + oneWeek;
-
-    // Se non esiste, lo creo con valore "true"
-    } else {
-        document.cookie = 
-        name + '=true' +
-        '; path=/; max-age=' + oneWeek;
-    }
+    return null;
 }
-//--------------------------------------------------------------------------------------------
-
 
 // Show "Vendo" page
 function showVendo() {
@@ -88,21 +68,6 @@ function showAcquisto() {
     hideAllPages();
     setupPageAscquisto();
 }
-
-
-//funzione per salvare la lista di idAsta visitate
-//TODO: NON LOCALE STORAGE MA COOKIE
-export function saveVisited(idAsta) {
-    const key = 'asteLastVisited';
-    const stored = localStorage.getItem(key);
-    const visits = stored ? JSON.parse(stored) : [];
-    if (!visits.includes(idAsta)) {
-        visits.push(idAsta);
-        localStorage.setItem(key, JSON.stringify(visits));
-    }
-
-}
-
 
 export function hideAllPages() {
     document.getElementById('vendoPage').hidden = true;

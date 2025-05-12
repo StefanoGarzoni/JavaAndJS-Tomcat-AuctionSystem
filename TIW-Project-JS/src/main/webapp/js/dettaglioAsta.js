@@ -1,4 +1,4 @@
-import { hideAllPages } from './main.js';
+import { hideAllPages, setCookie } from './main.js';
 
 // Carica e renderizza i dettagli di un'asta
 export function renderDettaglioAstaPage(idAsta) {
@@ -118,6 +118,9 @@ export function handlerCloseAsta(idAsta) {
       return;
     }
 
+	// imposta ultima azione
+	setCookie("lastAction", "closedAsta", 30);
+	
     // Ricarica dettagli per mostrare stato aggiornato
     loadDettaglioAsta(idAsta);
   };

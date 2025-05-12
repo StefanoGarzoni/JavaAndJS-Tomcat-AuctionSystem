@@ -1,3 +1,6 @@
+import { renderDettaglioAstaPage } from "./dettaglioAsta";
+import { setCookie, getCookie } from "./main";
+
 export function render(){
 	document.querySelector("#acquistoPage").removeAttribute("hidden");
 	
@@ -17,9 +20,7 @@ export function freePageAcquisto(){
 	
 	document.querySelector("#listaAsteByKeyword").setAttribute("hidden");	// nascondo la lista di aste
 	document.querySelector("#bodyTabellaAsteByKeyword").innerHTML = "";		// svuoto la tabella delle aste con la parola chiave precedentemente ricercata
-																			// in questo modo vengono eliminati anche gli event listeners sui bottoni
-
-																			
+																			// in questo modo vengono eliminati anche gli event listeners sui bottoni								
 }
 
 
@@ -57,9 +58,10 @@ function showAsteByKeyword(request){
 			const aste = JSON.parse(request.responseText);
 			
 			if(aste.length > 0){
-				orEach((asta) => {
+				aste.forEach((asta) => {
 					addAstaInTable(asta);
 				});
+				setCookie("lastAction", "addedAsta", 30);
 			}
 			else{
 				document.querySelector("#listaAsteByKeywordMessage").textContent = "Nessuna asta con la parola chiave scelta";
@@ -135,10 +137,22 @@ function addAstaInTable(asta){
 	});
 	
 	dettaglioAstaButton.textContent = "Dettaglio Asta";
-	dettaglioAstaButton.classList.add("dettaglioAstaApertaButton");
-	dettaglioAstaButton.value = asta.idAsta
+	dettaglioAstaButton.addEventListener((idAsta) => {
+		addAstaVisionata(idAsta);	// aggiungo l'asta tra quelle visionate dall'utente
+		renderDettaglioAstaPage(idAsta);
+	});
 	newRow.appendChild(dettaglioAstaButton);
 	
 	// inserisco la nuova riga nella tabella delle aste aperte
 	tbody.appendChild(newRow);
+}
+
+// funzione che aggiunge un'asta tra quelle visionate
+function addAstaVisionata(idAsta) {
+    let aste = getCookie('asteVisionate') || [];
+    
+	if (!aste.includes(idAsta)) {
+        aste.push(idAsta);		// aggiunge l'asta alla lista JSON delle aste visionate
+        setCookie('asteVisionate', aste, 30);
+    }
 }

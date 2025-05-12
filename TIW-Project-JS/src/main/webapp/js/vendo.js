@@ -1,3 +1,6 @@
+import { renderDettaglioAstaPage } from "./dettaglioAsta";
+import { setCookie } from "./main";
+
 function setupPageVendo(){
 	const vendoSection = document.querySelector("#vendoPage");
 	vendoSection.removeAttribute("hidden");
@@ -142,9 +145,10 @@ function addOpenAstaInTable(asta){
 	
 	// creazione bottone per passare al dettaglio asta
 	let dettaglioAstaButton = document.createElement("button");
+	dettaglioAstaButton.addEventListener("click", (idAsta) => {
+		renderDettaglioAstaPage(idAsta);
+	});
 	dettaglioAstaButton.textContent = "Dettaglio Asta";
-	dettaglioAstaButton.classList.add("dettaglioAstaApertaButton");
-	dettaglioAstaButton.value = asta.idAsta
 	newRow.appendChild(dettaglioAstaButton);
 	
 	// inserisco la nuova riga nella tabella delle aste aperte
@@ -234,17 +238,11 @@ function newArticolo(){	// e è l'evento che ha causato la chiamata della callba
 	request.onreadystatechange = () => {
 		if(request.readyState == 4){
 			if(request.status == 200){
-				const codArticoloInserito = JSON.parse(request.responseText).codArticolo;
-				
-				// creo l'oggetto Articolo da inserire in tabella, aggiungengo l'id creato lato server
-				const newArticoloInserito = {
-					'cod' : codArticoloInserito,
-					'nomeArticolo' : nome,
-					'descrizione' : descrizione,
-					'prezzo' : prezzo 
-				}
+				const newArticoloInserito = JSON.parse(request.responseText);
 				
 				addArticoloInTable(newArticoloInserito);
+				
+				setCookie("lastAction", "addedArticolo", 30);
 			}
 			else{
 				document.querySelector("#newArticoloMessage").textContent = "Problema con l'aggiunta dell'articolo"
@@ -299,6 +297,8 @@ function newAsta(){
 				codiciArticoli.forEach((codiceArticolo) => {
 					removeArticoloFromTable(codiceArticolo);					
 				});
+				
+				setCookie("lastAction", "addedAsta", 30);
 			}
 			else{
 				document.querySelector("#newAstaMessage").textContent = "Il server ha incontrato un problema durante l'aggiunta dell'articolo";
@@ -319,31 +319,5 @@ function removeArticoloFromTable(codiceArticolo){
       tbody.removeChild(row);
       break; // rimuovo solo la prima riga (poichè solo una riga ha l'id specificato)
     }
-  }
-}
-
-// funzione per ottenere il cookie
-function getCookie(name) {
-    let match = document.cookie;
-    return match ? JSON.parse(decodeURIComponent(match[2])) : null;
-}
-
-// funzione che aggiunge un'asta tra quelle visionate
-function addAstaVisionata(idAsta) {
-    const expiration = new Date();
-	const expirationDays = 30;
-    expires.setTime(expiration.getTime() + (expirationDays * 24 * 60 * 60 * 1000)); 	// imposta la data di scadenza 30 giorni dopo l'ultimo inserimento
-    document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
-}
-
-// aggiungo l'asta tra quelle visionate
-function saveVisited(idAsta) {
-  const cookieName = 'asteVisionate';
-  const stored = localStorage.getItem(key);
-  const asteVisitate = stored ? JSON.parse(stored) : [];
-  
-  if (!asteVisitate.includes(idAsta)) {
-    asteVisitate.push(idAsta);
-    localStorage.setItem(cookieName, JSON.stringify(asteVisitate));
   }
 }
