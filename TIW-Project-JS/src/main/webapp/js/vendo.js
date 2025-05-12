@@ -321,3 +321,29 @@ function removeArticoloFromTable(codiceArticolo){
     }
   }
 }
+
+// funzione per ottenere il cookie
+function getCookie(name) {
+    let match = document.cookie;
+    return match ? JSON.parse(decodeURIComponent(match[2])) : null;
+}
+
+// funzione che aggiunge un'asta tra quelle visionate
+function addAstaVisionata(idAsta) {
+    const expiration = new Date();
+	const expirationDays = 30;
+    expires.setTime(expiration.getTime() + (expirationDays * 24 * 60 * 60 * 1000)); 	// imposta la data di scadenza 30 giorni dopo l'ultimo inserimento
+    document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
+}
+
+// aggiungo l'asta tra quelle visionate
+function saveVisited(idAsta) {
+  const cookieName = 'asteVisionate';
+  const stored = localStorage.getItem(key);
+  const asteVisitate = stored ? JSON.parse(stored) : [];
+  
+  if (!asteVisitate.includes(idAsta)) {
+    asteVisitate.push(idAsta);
+    localStorage.setItem(cookieName, JSON.stringify(asteVisitate));
+  }
+}

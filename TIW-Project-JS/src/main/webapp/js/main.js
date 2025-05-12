@@ -43,15 +43,3 @@ function showAcquisto() {
   setupPageAscquisto();
   // Optionally, render previously visited auctions if needed
 }
-
-
-// Save visited auctions in client storage (1 month)
-function saveVisited(idAsta) {
-  const key = 'asteLastVisited';
-  const stored = localStorage.getItem(key);
-  const visits = stored ? JSON.parse(stored) : [];
-  if (!visits.includes(idAsta)) {
-    visits.push(idAsta);
-    localStorage.setItem(key, JSON.stringify(visits));
-  }
-}

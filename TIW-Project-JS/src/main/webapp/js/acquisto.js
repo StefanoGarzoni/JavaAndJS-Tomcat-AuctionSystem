@@ -17,7 +17,11 @@ export function freePageAcquisto(){
 	
 	document.querySelector("#listaAsteByKeyword").setAttribute("hidden");	// nascondo la lista di aste
 	document.querySelector("#bodyTabellaAsteByKeyword").innerHTML = "";		// svuoto la tabella delle aste con la parola chiave precedentemente ricercata
+																			// in questo modo vengono eliminati anche gli event listeners sui bottoni
+
+																			
 }
+
 
 function searchAstaByKeyword(){
 	const keyword = document.querySelector("#parolaChiave").value;
@@ -124,6 +128,12 @@ function addAstaInTable(asta){
 	
 	// creazione bottone per passare al dettaglio asta
 	let dettaglioAstaButton = document.createElement("button");
+	
+	// aggiungo l'event listener sul bottone
+	dettaglioAstaButton.addEventListener("click", () => {
+		renderOffertaPage(asta.idAsta);
+	});
+	
 	dettaglioAstaButton.textContent = "Dettaglio Asta";
 	dettaglioAstaButton.classList.add("dettaglioAstaApertaButton");
 	dettaglioAstaButton.value = asta.idAsta
