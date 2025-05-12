@@ -4,6 +4,8 @@ package it.polimi.tiw.dao;
 
 import java.sql.*;
 import java.util.*;
+import java.sql.Date;
+
 import it.polimi.tiw.dao.Beans.Offerta;
 
 public class OfferteDAOImpl implements OfferteDAO{
@@ -57,13 +59,15 @@ public class OfferteDAOImpl implements OfferteDAO{
     }
 
     @Override
-    public int insertNewOfferta(Connection conn, int idAsta, String username, double prezzo) {
-        String sql = "INSERT INTO Offerte (utente, id_asta, prezzo, data_offerta, ora_offerta) VALUES (?, ?, ?, CURDATE(), CURTIME());";
+    public int insertNewOfferta(Connection conn, int idAsta, String username, double prezzo, Date data, Time ora) {
+        String sql = "INSERT INTO Offerte (utente, id_asta, prezzo, data_offerta, ora_offerta) VALUES (?, ?, ?, ?, ?);";
         int idGenerato = -1;
         try (PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) { //Statement.RETURN_GENERATED_KEYS
             pstmt.setString(1, username);
             pstmt.setInt(2, idAsta);
             pstmt.setDouble(3, prezzo);
+            pstmt.setDate(4, data);
+            pstmt.setTime(5, ora);
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {

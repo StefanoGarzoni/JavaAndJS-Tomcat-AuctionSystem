@@ -13,15 +13,11 @@ export function renderOffertaPage(idAsta) {
   hideAllPages();
   const page = document.getElementById('offertaPage');
 
-  // Pulisco i campi dinamici
-  const listaOff = document.getElementById('listaOfferte');
-  if (listaOff) listaOff.innerHTML = '';
-  const listaArt = document.getElementById('articoliAsta');
-  if (listaArt) listaArt.innerHTML = '';
-
-  // Seleziono le due tabelle (prima = articoli, seconda = offerte)
-  const [artTable, offTable] = page.getElementsByTagName('table');
-  page.hidden = false;
+  // Pulisco i campi dinamici (tbody)
+  const offTable = document.getElementById('listaOfferte');
+  if (offTable) offTable.innerHTML = '';
+  const artTable = document.getElementById('articoliAsta');
+  if (artTable) artTable.innerHTML = '';
 
   // Chiamata GET tramite XMTHttpRequest
   const xhr = new XMTHttpRequest();
@@ -62,7 +58,7 @@ export function renderOffertaPage(idAsta) {
     const newBtn = btn.cloneNode(true);
     btn.replaceWith(newBtn);
     newBtn.addEventListener('click', event =>
-      handlerAddOfferta(event, idAsta, prezzo_attuale, rialzo_minimo)
+      handlerAddOfferta(event, prezzo_attuale, rialzo_minimo)
     );
   };
 
@@ -70,11 +66,12 @@ export function renderOffertaPage(idAsta) {
     alert('Impossibile caricare i dati dell\'asta.');
   };
 
+  page.hidden = false;
+
   xhr.send();
 }
 
-// gestione dell'aggiunta di una nuova offerta usando XMTHttpRequest
-export function handlerAddOfferta(event, idAsta, prezzoAttuale, rialzoMinimo) {
+export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
   event.preventDefault();
 
   // Seleziono e valido l'input prezzo
@@ -83,31 +80,52 @@ export function handlerAddOfferta(event, idAsta, prezzoAttuale, rialzoMinimo) {
   const minOfferta = prezzoAttuale + rialzoMinimo;
 
   if (isNaN(prezzoUser) || prezzoUser < minOfferta) {
-    alert('Offerta minima: ' + minOfferta.toFixed(2) + '€');
+    alert(`Offerta minima: ${minOfferta.toFixed(2)}€`);
     return;
   }
 
   // Costruisco body URL-encoded
-  const params = new URLSearchParams();
-  params.set('prezzo', prezzoUser);
+  const formData = new FormData();
+  formData.append('prezzo', inputPrezzo.value);
 
-  // Chiamata POST tramite XMTHttpRequest
-  const xhr = new XMTHttpRequest();
+  // Chiamata POST tramite XMLHttpRequest
+  const xhr = new XMLHttpRequest();
   xhr.open('POST', 'AddOffertaServlet');
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  //imposto gli header??
 
   xhr.onload = function() {
     if (xhr.status < 200 || xhr.status >= 300) {
-      alert(xhr.status);
+      alert(`Errore: ${xhr.status}`);
       return;
     }
-    // Al successo, ricarico la pagina offerta
-    renderOffertaPage(idAsta);
+
+    try {
+      // Parsing dell'oggetto Offerta restituito dalla servlet
+      const newOfferta = JSON.parse(xhr.responseText);
+      const table = document.getElementById('listaOfferte');
+
+      // Approccio meno verbose: insertRow + insertCell
+      const row = table.insertRow();
+      row.insertCell().textContent = newOfferta.username;
+      row.insertCell().textContent = parseFloat(newOfferta.prezzo).toFixed(2) + '€';
+      row.insertCell().textContent = newOfferta.data;
+      row.insertCell().textContent = newOfferta.ora;
+      row.insertCell().textContent = newOfferta.id;
+
+      // Ripulisco input
+      inputPrezzo.value = '';
+      //inputPrezzo.focus();
+
+    } catch (e) {
+      console.error('Errore parsing risposta JSON', e);
+      alert('Risposta non valida dal server.');
+    }
   };
 
   xhr.onerror = function() {
-    alert('Errore durante l\'invio dell\'offerta.');
+    alert("Errore durante l'invio dell'offerta.");
   };
 
-  xhr.send(params.toString());
+  xhr.send(formData);
 }
+

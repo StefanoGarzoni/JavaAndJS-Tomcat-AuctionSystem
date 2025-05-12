@@ -53,11 +53,6 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             //Chiudo l'asta
             asteDAO.setAstaAsClosed(conn, idAsta, username);
 
-            //Risposta di successo
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"status\":\"success\"}");
-
         } catch (SQLException e) {
             throw new ServletException("Errore DB chiusura asta", e);
         }

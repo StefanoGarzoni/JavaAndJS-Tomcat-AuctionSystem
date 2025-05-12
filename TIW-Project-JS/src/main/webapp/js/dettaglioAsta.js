@@ -1,108 +1,106 @@
-//funzione comune a tutte le pagine per nascondere tutto
+// FUNZIONI PER LA PAGINA DETTAGLIO ASTA
+
+// Nasconde tutte le sezioni
 export function hideAllPages() {
-  document.getElementById('vendoPage').hidden = true;
-  document.getElementById('acquistoPage').hidden = true;
-  document.getElementById('dettaglioAstaPage').hidden = true;
-  document.getElementById('offertaPage').hidden = true;
+  ['vendoPage', 'acquistoPage', 'dettaglioAstaPage', 'offertaPage'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) 
+      el.hidden = true;
+  });
 }
 
+// Carica e renderizza i dettagli di un'asta
 export function loadDettaglioAsta(idAsta) {
   hideAllPages();
   const page = document.getElementById('dettaglioAstaPage');
-  
-  //pulisco solo i campi dinamici
-  ['creatore','prezzo','rialzo','dataScadenza','oraScadenza'].forEach(id => {
-    const el = page.querySelector(`#astaAperta #${id}`);
-    if (el) el.textContent = '';
-  });
 
+  // Pulisce campi dinamici in entrambe le sezioni
+  ['creatore','prezzo','rialzo','dataScadenza','oraScadenza']
+    .forEach(field => {
+      const el = page.querySelector(`#astaAperta #${field}`);
+      if (el) el.textContent = '';
+    });
   ['creatore','prezzoIniziale','rialzoMinimo','dataScadenza','oraScadenza',
-   'prezzo','nomeAcquirente','indirizzo'
-  ].forEach(id => {
-    const el = page.querySelector(`#astaChiusa #${id}`);
-    if (el) el.textContent = '';
-  });
+   'prezzo','nomeAcquirente','indirizzo']
+    .forEach(field => {
+      const el = page.querySelector(`#astaChiusa #${field}`);
+      if (el) el.textContent = '';
+    });
 
-  const lista = document.getElementById('listaOfferte');
-  if (lista) lista.innerHTML = '';
+  // Pulisce la tabella offerte
+  const offTable = document.getElementById('listaOfferte');
+  if (offTable) offTable.innerHTML = '';
 
-  
-  //mostro la pagina
-  page.hidden = false;
-
+  // Richiesta GET alla servlet
   const xhr = new XMLHttpRequest();
   xhr.open('GET', `/TIW-Project/DettaglioAstaPageServlet?idAsta=${encodeURIComponent(idAsta)}`, true);
   xhr.responseType = 'json';
 
   xhr.onload = function() {
     if (xhr.status < 200 || xhr.status >= 300) {
-      alert(xhr.status + ' Errore nel caricamento della pagina');
+      alert(`Errore ${xhr.status} nel caricamento della pagina`);
       return;
     }
     const result = xhr.response;
+    const openSec = page.querySelector('#astaAperta');
+    const closedSec = page.querySelector('#astaChiusa');
 
     if (result.openAsta) {
-      // Asta aperta
-      document.getElementById('astaAperta').hidden = false;
-      document.getElementById('astaChiusa').hidden = true;
+      // Mostra sezione asta aperta
+      openSec.hidden = false;
+      closedSec.hidden = true;
+      const { creatore, prezzoIniziale, rialzoMinimo, dataScadenza, oraScadenza } = result.openAsta;
 
-      // Popola i campi dell'asta aperta
-      document.querySelector('#astaAperta #creatore').textContent = result.openAsta.creatore;
-      document.querySelector('#astaAperta #prezzo').textContent = result.openAsta.prezzoIniziale;
-      document.querySelector('#astaAperta #rialzo').textContent = result.openAsta.rialzoMinimo;
-      document.querySelector('#astaAperta #dataScadenza').textContent = result.openAsta.dataScadenza;
-      document.querySelector('#astaAperta #oraScadenza').textContent = result.openAsta.oraScadenza;
+      openSec.querySelector('#creatore').textContent = creatore;
+      openSec.querySelector('#prezzo').textContent = prezzoIniziale.toFixed(2);
+      openSec.querySelector('#rialzo').textContent = rialzoMinimo.toFixed(2);
+      openSec.querySelector('#dataScadenza').textContent = dataScadenza;
+      openSec.querySelector('#oraScadenza').textContent = oraScadenza;
 
-      // Tabella offerte
-      const tbody = document.querySelector('#astaAperta table tbody');
-      tbody.innerHTML = '';
-      for (const offerta of result.offerte) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${offerta.username}</td>
-          <td>${offerta.prezzo}</td>
-          <td>${offerta.data}</td>
-          <td>${offerta.ora}</td>
-        `;
-        tbody.appendChild(tr);
-      }
+      // Popola tabella offerte (tbody)
+      const tbody = openSec.querySelector('table tbody');
+      result.offerte.forEach(o => {
+        const row = tbody.insertRow();
+        row.insertCell().textContent = o.username;
+        row.insertCell().textContent = o.prezzo.toFixed(2);
+        row.insertCell().textContent = o.dataOfferta;
+        row.insertCell().textContent = o.oraOfferta;
+      });
 
       // Gestione bottone "Chiudi Asta"
-      const canBeClosedDiv = document.getElementById('canBeClosed');
-      const oldButton = canBeClosedDiv.querySelector('button');
+      const canDiv = page.getElementById('canBeClosed');
+      const btn = canDiv.querySelector('button');
       if (result.canBeClosed) {
-        canBeClosedDiv.hidden = false;
+        canDiv.hidden = false;
 
-        // Clone del bottone 
-        const newButton = oldButton.cloneNode(true);
-        // Sostituisce il vecchio con il clone per eliminare vecchi event collegati (prevenzione)
-        oldButton.replaceWith(newButton);
 
-        // Aggancia il bottone all'evento
-        newButton.addEventListener('click', function(e) {
+        btn.addEventListener('click', e => {
           e.preventDefault();
-          closeAsta(idAsta);
+          handlerCloseAsta(idAsta);
+          btn.removeEventListener('click', handlerCloseAsta);
         });
-
       } else {
-        canBeClosedDiv.hidden = true;
+        canDiv.hidden = true;
       }
 
     } else {
-      // Asta chiusa
-      document.getElementById('astaAperta').hidden = true;
-      document.getElementById('astaChiusa').hidden = false;
+      // Mostra sezione asta chiusa
+      openSec.hidden  = true;
+      closedSec.hidden = false;
+      const ac = result.astaChiusa;
 
-      // Popola i campi dell'asta chiusa
-      document.querySelector('#astaChiusa #creatore').textContent = result.astaChiusa.creatore;
-      document.querySelector('#astaChiusa #prezzoIniziale').textContent = result.astaChiusa.prezzoIniziale;
-      document.querySelector('#astaChiusa #rialzoMinimo').textContent = result.astaChiusa.rialzoMinimo;
-      document.querySelector('#astaChiusa #dataScadenza').textContent = result.astaChiusa.dataScadenza;
-      document.querySelector('#astaChiusa #oraScadenza').textContent = result.astaChiusa.oraScadenza;
-      document.querySelector('#astaChiusa #prezzo').textContent = result.prezzo;
-      document.querySelector('#astaChiusa #nomeAcquirente').textContent = result.nomeAcquirente;
-      document.querySelector('#astaChiusa #indirizzo').textContent = result.indirizzo;
+      closedSec.querySelector('#creatore').textContent = ac.creatore;
+      closedSec.querySelector('#prezzoIniziale').textContent = ac.prezzoIniziale.toFixed(2);
+      closedSec.querySelector('#rialzoMinimo').textContent = ac.rialzoMinimo.toFixed(2);
+      closedSec.querySelector('#dataScadenza').textContent = ac.dataScadenza;
+      closedSec.querySelector('#oraScadenza').textContent = ac.oraScadenza;
+      closedSec.querySelector('#prezzo').textContent = result.prezzo.toFixed(2);
+      closedSec.querySelector('#nomeAcquirente').textContent = result.nomeAcquirente;
+      closedSec.querySelector('#indirizzo').textContent = result.indirizzo;
     }
+
+    // Mostra la pagina solo dopo il rendering
+    page.hidden = false;
   };
 
   xhr.onerror = function() {
@@ -112,8 +110,8 @@ export function loadDettaglioAsta(idAsta) {
   xhr.send();
 }
 
-export function closeAsta(idAsta) {
-  // Chiama DettaglioAstaChiudiAstaServlet
+// Richiama la servlet per chiudere un'asta
+export function handlerCloseAsta(idAsta) {
   const xhr = new XMLHttpRequest();
   xhr.open('POST', '/TIW-Project/DettaglioAstaChiudiAstaServlet', true);
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -129,7 +127,7 @@ export function closeAsta(idAsta) {
       return;
     }
 
-    // Ricarica i dettagli per mostrare lo stato "chiusa"
+    // Ricarica dettagli per mostrare stato aggiornato
     loadDettaglioAsta(idAsta);
   };
 
@@ -137,5 +135,6 @@ export function closeAsta(idAsta) {
     alert('Errore nella chiusura dell\'asta.');
   };
 
-  xhr.send();
+  // Invia parametro
+  xhr.send(`idAsta=${encodeURIComponent(idAsta)}`);
 }
