@@ -55,17 +55,13 @@ public class VendoHomeServlet extends HttpServlet {
 		
 		try(Connection conn = ConnectionManager.getConnection()){
 			ArrayList<Asta> openAste = asteDAO.getAllOpenAsteInfoByCreator(conn, username);
-			setTempoRimanenteInAste(openAste, lastLoginTimestamp);
+			
+			for(Asta asta : openAste)
+				AsteDAOImpl.setTempoRimanenteInAsta(asta, lastLoginTimestamp);
 			
 			ArrayList<Asta> closedAste = asteDAO.getAllClosedAsteInfoByCreator(conn, username);
 			
 			ArrayList<Articolo> availableArticoli = articoliDAO.getMyArticoli(conn, username);
-			
-			JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
-			WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
-			ctx.setVariable("asteAperte", openAste);
-			ctx.setVariable("asteChiuse", closedAste);
-			ctx.setVariable("availableArticoli", availableArticoli);
 			
 	        // creo l'oggetto json che contiene le tre liste di elementi
 	        JsonArray jsonArrayOpenAste = gson.toJsonTree(openAste).getAsJsonArray();
@@ -88,24 +84,6 @@ public class VendoHomeServlet extends HttpServlet {
 		}
 		catch (SQLException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante il recupero delle informazioni");
-		}
-	}
-	
-	private void setTempoRimanenteInAste(ArrayList<Asta> aste, LocalDateTime lastLoginTimestamp) {
-		for(Asta asta : aste) {
-			
-			// conversion from java.sql.Date and java.sql.Time to LocalDateTime
-			LocalDateTime scadenzaAsta = LocalDateTime.of(
-					asta.getDataScadenza().toLocalDate(), 
-					asta.getOraScadenza().toLocalTime()
-			);
-			
-			long giorniRimanentiAsta = ChronoUnit.DAYS.between(lastLoginTimestamp, scadenzaAsta);	// integer days distance
-			LocalDateTime dopoGiorni = lastLoginTimestamp.plusDays(giorniRimanentiAsta);
-			long oreRimanentiAsta = Duration.between(dopoGiorni, scadenzaAsta).toHours();	// integer hours distance
-			
-			asta.setGiorniRimanenti((int)giorniRimanentiAsta);
-			asta.setOreRimanenti((int)oreRimanentiAsta);
 		}
 	}
 }

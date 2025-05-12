@@ -1,7 +1,5 @@
-export function setupPageAscquisto(){
+export function render(){
 	document.querySelector("#acquistoPage").removeAttribute("hidden");
-	
-	// aggiunta gestione eventi reicerca per parola chiave
 	
 	document.querySelector("#sumbitSearchByKeyword").addEventListener(
 		"click",
