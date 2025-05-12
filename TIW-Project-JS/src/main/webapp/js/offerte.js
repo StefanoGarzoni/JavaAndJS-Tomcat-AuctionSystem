@@ -101,7 +101,7 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
 
     try {
       // Parsing dell'oggetto Offerta restituito dalla servlet
-      const newOfferta = JSON.parse(xhr.responseText);
+      const newOfferta = JSON.parse(xhr.response);
       const table = document.getElementById('listaOfferte');
 
       // Approccio meno verbose: insertRow + insertCell
