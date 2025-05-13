@@ -1,7 +1,7 @@
 import { setupPageVendo} from './vendo.js';
 import { setupPageAscquisto } from './acquisto.js';
 
-//Navigation elements
+//"Menu"
 document.addEventListener('DOMContentLoaded', () => {
     const moveToVendo = document.getElementById('moveToVendo');
     const moveToAcquisto = document.getElementById('moveToAcquisto');
@@ -13,9 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showAcquisto();
     });
 
-    //TODO: NON LOCALSTORAGE MA COOKIE
-    const last = localStorage.getItem('lastAction');
-    if (last === 'addedAsta') {
+
+    if (getCookie('lastAction') === 'addedAsta') {
         showVendo();
     } else {
         showAcquisto();
@@ -33,47 +32,17 @@ var cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste'];
 //scadenza di una settimana
 var oneWeek = 7 * 24 * 60 * 60;
 
-// Leggo tutti i cookie dal browser in un array
-var allCookies = document.cookie ? document.cookie.split('; ') : [];
-
 //scorro tutti i cookie
 for (var i = 0; i < cookieNames.length; i++) {
-    var name = cookieNames[i];
-    var exists = false;
-    var currentValue = '';
-
-    //Cerco tra tutti i cookie se c'è un name che coincide
-    for (var j = 0; j < allCookies.length; j++) {
-        var pair = allCookies[j].split('=');
-        var key = pair[0];
-        var val = pair[1] || '';
-        
-        if (key === name) {
-            exists = true;
-            // decodifico il valore per sicurezza
-            currentValue = decodeURIComponent(val);
-            break;
-        }
-    }
-
-    // Se esiste, rinnovo soltanto la scadenza
-    if (exists) {
-        // ricreo la stringa di set-cookie mantenendo lo stesso valore
-        document.cookie = 
-        name + '=' + encodeURIComponent(currentValue) +
-        '; path=/; max-age=' + oneWeek;
-
-    // Se non esiste, lo creo con valore "true"
-    } else {
-        document.cookie = 
-        name + '=true' +
-        '; path=/; max-age=' + oneWeek;
-    }
+    document.cookie = 
+        cookieNames[i] + '=' + encodeURIComponent("True") +
+        '; max-age=' + oneWeek +
+        '; path=/';
 }
 //--------------------------------------------------------------------------------------------
 
 
-// Show "Vendo" page
+// Show "Vendo" pages
 function showVendo() {
     moveToAcquisto.removeAttribute('hidden');
     moveToVendo.setAttribute('hidden', true);
@@ -91,16 +60,21 @@ function showAcquisto() {
 
 
 //funzione per salvare la lista di idAsta visitate
-//TODO: NON LOCALE STORAGE MA COOKIE
 export function saveVisited(idAsta) {
     const key = 'asteLastVisited';
-    const stored = localStorage.getItem(key);
+    var oneWeek = 7 * 24 * 60 * 60;
+    // Leggi il cookie e parsa l'array, oppure crea uno vuoto
+    const stored = getCookie(key);
     const visits = stored ? JSON.parse(stored) : [];
+
+    // Se non c'è già, aggiungi l'id e riscrivi il cookie
     if (!visits.includes(idAsta)) {
         visits.push(idAsta);
-        localStorage.setItem(key, JSON.stringify(visits));
+        document.cookie = 
+            key + '=' + encodeURIComponent(visits) +
+            '; max-age=' + oneWeek +
+            '; path=/';
     }
-
 }
 
 
@@ -109,4 +83,25 @@ export function hideAllPages() {
     document.getElementById('acquistoPage').hidden = true;
     document.getElementById('dettaglioAstaPage').hidden = true;
     document.getElementById('offertaPage').hidden = true;
+}
+
+export function getCookie(name) {
+  // Prendi tutti i cookie come stringa e spezzali in array di "nome=valore"
+    const cookieArray = document.cookie.split('; ');
+    
+    // Scorri l’array fino a trovare quello giusto
+    for (let i = 0; i < cookieArray.length; i++) {
+        const cookiePair = cookieArray[i].split('=');
+        const key = cookiePair[0];
+        // Riassembla eventuali '=' nel valore
+        const value = cookiePair.slice(1).join('=');
+        
+        if (key === name) {
+            
+            return decodeURIComponent(value);
+        }
+    }
+  
+  // Se non trovato, restituisci null
+  return null;
 }
