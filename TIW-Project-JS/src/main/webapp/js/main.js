@@ -1,33 +1,20 @@
-import { renderVendoPage, setupPageVendo} from './vendo.js';
-import { renderAcquistoPage, setupPageAscquisto } from './acquisto.js';
+import { setupPageVendo} from './vendo.js';
+import { setupPageAscquisto } from './acquisto.js';
 
-<<<<<<< HEAD
 //"Menu"
-=======
-// aggiungo gli event listeners
->>>>>>> 0579f4cdeb4135d3d81edf6790382af89e1b31f8
 document.addEventListener('DOMContentLoaded', () => {
     const moveToVendo = document.getElementById('moveToVendo');
     const moveToAcquisto = document.getElementById('moveToAcquisto');
 
     moveToVendo.addEventListener('click', () => {
-        renderVendoPage();
+        showVendo();
     });
     moveToAcquisto.addEventListener('click', () => {
-        renderAcquistoPage();
+        showAcquisto();
     });
-	
-	// inizializzazione cookie flag che indicano se è necessario ricaricare le aste nella pagina vendo
-	cookieSetup();
 
-<<<<<<< HEAD
 
     if (getCookie('lastAction') === 'addedAsta') {
-=======
-    // reindirizzamento in base all'ultima azione svolta dall'utente
-    const lastAction = getCookie("lastAction").value;
-    if (lastAction === 'addedAsta') {
->>>>>>> 0579f4cdeb4135d3d81edf6790382af89e1b31f8
         showVendo();
     } else {
         showAcquisto();
@@ -35,22 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-function cookieSetup(){
-	let cookieNames = ['renderTableAsteAperte', 'renderTableAsteChiuse', 'renderArticoli', 'renderTableAsteVisionate'];
-	
-	for (let cookieName of cookieNames) {
-		// quando viene caricato il main (l'applicazione viene aperta) bisogna inizializzare i flag a true 
-		// poichè la pagina vendo deve per forza richiedere tutte le aste al server
-		setCookie(cookieName, {"value" : true}, 30);
-	}
-}
 
-export function setCookie(name, value, days) {
-    const expiration = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString(); 		// calcolo scadenza a days giorni di distanza
-    document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expiration};path=/`;
-}
+//--------------------------------------------------------------------------------------------
+//CREAZIONE INIZIALE DEI COOKIE
 
-<<<<<<< HEAD
 // Dichiaro i tre nomi dei cookie
 var cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste'];
 
@@ -63,26 +38,16 @@ for (var i = 0; i < cookieNames.length; i++) {
         cookieNames[i] + '=' + encodeURIComponent("True") +
         '; max-age=' + oneWeek +
         '; path=/';
-=======
-export function getCookie(name) {
-    const cookies = document.cookie.split(';');	// divide tutti i cookies
-    
-	for (const cookie of cookies) {
-        const [key, value] = cookie.trim().split('=');	// divide il nome e il valore del cookies
-        if (key === name) {
-			return JSON.parse(decodeURIComponent(value));	// restituisce il valore corrente del cookie richiesto, come oggetto JSON
-        }
-    }
-    return null;
->>>>>>> 0579f4cdeb4135d3d81edf6790382af89e1b31f8
 }
+//--------------------------------------------------------------------------------------------
+
 
 // Show "Vendo" pages
 function showVendo() {
     moveToAcquisto.removeAttribute('hidden');
     moveToVendo.setAttribute('hidden', true);
     hideAllPages();
-    renderVendoPage();
+    setupPageVendo();
 }
 
 // Show "Acquisto" page
@@ -90,10 +55,9 @@ function showAcquisto() {
     moveToVendo.removeAttribute('hidden');
     moveToAcquisto.setAttribute('hidden', true);
     hideAllPages();
-    renderAcquistoPage();
+    setupPageAscquisto();
 }
 
-<<<<<<< HEAD
 
 //funzione per salvare la lista di idAsta visitate
 export function saveVisited(idAsta) {
@@ -114,8 +78,6 @@ export function saveVisited(idAsta) {
 }
 
 
-=======
->>>>>>> 0579f4cdeb4135d3d81edf6790382af89e1b31f8
 export function hideAllPages() {
     document.getElementById('vendoPage').hidden = true;
     document.getElementById('acquistoPage').hidden = true;
