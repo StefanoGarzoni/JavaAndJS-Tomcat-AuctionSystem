@@ -35,9 +35,11 @@ public class HomeServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = "/home.html";
 		
-		if(request.getSession(false) == null)	// se non esiste una sessione, indirizza al login
+		if(request.getSession(false) == null) {	// se non esiste una sessione, indirizza al login
             response.sendRedirect(request.getContextPath() + "/login");
-		
+            return;
+		}
+            
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		

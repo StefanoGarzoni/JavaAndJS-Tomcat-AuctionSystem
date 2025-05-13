@@ -39,8 +39,10 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = "/login.html";
 		
-		if(request.getSession(false) != null)	// if a session already exists (the client logged in)
+		if(request.getSession(false) != null) {	// if a session already exists (the client logged in)
 			response.sendRedirect(request.getContextPath() + "/home");
+			return;
+		}
 		
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
