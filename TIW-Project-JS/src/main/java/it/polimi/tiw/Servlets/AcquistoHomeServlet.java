@@ -30,41 +30,48 @@ public class AcquistoHomeServlet extends HttpServlet {
 			return;
 		}
 		
-		String asteVisionateJson = request.getParameter("asteVisionate");
-		if(asteVisionateJson == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
-			return;
+		String asteVisionateJsonCookie = "";
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie cookie : cookies) {
+			if(cookie.getName().equals("asteVisionate")) {
+				asteVisionateJsonCookie = cookie.getValue();
+			}
 		}
 		
-		JsonArray idAsteVisionate = JsonParser.parseString(asteVisionateJson).getAsJsonArray();
-		ArrayList<Integer> idAste = new ArrayList<>();
-		for (JsonElement idAsta : idAsteVisionate) {
-            try {
-            	idAste.add(idAsta.getAsInt());
-            }
-            catch(NumberFormatException e) {
-            	response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Format of parameters not accepted");
-    			return;
-            }
-        }
-		
-		try(Connection conn = ConnectionManager.getConnection()){
-			ArrayList<Asta> asteVisionate = new AsteDAOImpl().getAsteById(conn, idAste);
+		// se sono state visionate delle aste, le trasmetto. In caso contrario, non trasmetto niente
+		if(!asteVisionateJsonCookie.equals("")) {
+			// estraggo gli id delle aste visionate dal json
+			JsonArray idAsteVisionate = JsonParser.parseString(asteVisionateJsonCookie).getAsJsonArray();
+			ArrayList<Integer> idAste = new ArrayList<>();
+			for (JsonElement idAsta : idAsteVisionate) {
+				try {
+					idAste.add(idAsta.getAsInt());
+				}
+				catch(NumberFormatException e) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Format of parameters not accepted");
+					return;
+				}
+			}
 			
-			String jsonResponse = gson.toJson(asteVisionate);			
-			
-		    // impostazione content-type e charset della risposta
-		    response.setContentType("application/json");
-		    response.setCharacterEncoding("UTF-8");
-		    
-		    // scrivo il json nella response
-		    PrintWriter out = response.getWriter();
-		    out.print(jsonResponse);
-		    out.flush();
-		}
-		catch (SQLException e) {
-			e.printStackTrace(System.out);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
+			try(Connection conn = ConnectionManager.getConnection()){
+				ArrayList<Asta> asteVisionate = new AsteDAOImpl().getAsteById(conn, idAste);
+				
+				String jsonResponse = gson.toJson(asteVisionate);			
+				
+				// impostazione content-type e charset della risposta
+				response.setContentType("application/json");
+				response.setCharacterEncoding("UTF-8");
+				
+				// scrivo il json nella response
+				PrintWriter out = response.getWriter();
+				out.print(jsonResponse);
+				out.flush();
+			}
+			catch (SQLException e) {
+				e.printStackTrace(System.out);
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
+			}			
 		}
 	}
 	

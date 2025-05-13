@@ -39,34 +39,13 @@ export function freePageVendo(){
 }*/
 
 export function renderVendoPage(){
-	const tablesToRender = [];
+	const request = new XMLHttpRequest();
+	request.open("POST", "/TIW-Project-JS/vendo");
 	
-	if(getCookie("renderTableAsteAperte").value == true){
-		tablesToRender.push("asteAperte");
-		setCookie("renderTableAsteAperte", {"value" : false}, 30);
-	}
+	request.onreadystatechange = () => { showVendoContent(request); };
+	request.send();
 	
-	if(getCookie("renderTableAsteChiuse").value == true){
-		tablesToRender.push("asteChiuse");
-		setCookie("renderTableAsteChiuse", {"value" : false}, 30);
-	}
-	
-	if(getCookie("renderArticoli").value == true){
-		tablesToRender.push("articoli");
-		setCookie("renderArticoli", {"value" : false}, 30);
-	}
-	
-	if(tablesToRender.length > 0){	// richiede i dati che eventulmente sono da modificare
-		const formData = new FormData();
-		formData.append("tabelleRichieste", JSON.stringify(tablesToRender));
-		
-		const request = new XMLHttpRequest();
-		request.open("POST", "/TIW-Project-JS/vendo");
-		
-		request.onreadystatechange = () => { showVendoContent(request); };
-		request.send();
-	}
-	setupPageVendo(formData);		
+	setupPageVendo();		
 }
 
 function showVendoContent(request){
@@ -77,8 +56,8 @@ function showVendoContent(request){
 		const closedAste = vendoContent.closedAste;
 		const articoli = vendoContent.articoli;
 		
-		// aggiorno solo le sezioni che hanno avuto modifiche
-		// se gli array con gli elementi sono vuoti => non ci sono state modifiche
+		// aggiorno solo le sezioni che hanno avuto modifiche (quindi di cui la servlet ha inviato gli oggetti)
+		// se gli array con gli elementi non esistono => non ci sono state modifiche e non bisogna renderizzare la sezione
 		if(openAste && openAste.length > 0){
 			document.querySelector("#bodyTabellaAsteAperte").innerHTML = '';	// svuota dal contenuto precedente
 			openAste.forEach( (currentAsta) => {
@@ -262,8 +241,6 @@ function newArticolo(){	// e è l'evento che ha causato la chiamata della callba
 				const newArticoloInserito = JSON.parse(request.responseText);
 				
 				addArticoloInTable(newArticoloInserito);
-				
-				setCookie("lastAction", {"value":"addedArticolo"} , 30);
 			}
 			else{
 				document.querySelector("#newArticoloMessage").textContent = "Problema con l'aggiunta dell'articolo"
@@ -318,8 +295,6 @@ function newAsta(){
 				codiciArticoli.forEach((codiceArticolo) => {
 					removeArticoloFromTable(codiceArticolo);					
 				});
-				
-				setCookie("lastAction", {"value":"addedAsta"} , 30);
 			}
 			else{
 				document.querySelector("#newAstaMessage").textContent = "Il server ha incontrato un problema durante l'aggiunta dell'articolo";

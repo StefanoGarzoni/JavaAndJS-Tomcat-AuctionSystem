@@ -7,41 +7,37 @@ export function renderAcquistoPage(){
 		searchAstaByKeyword
 	);
 	
-	if(getCookie("renderTableAsteVisionate").value == true){
-		document.querySelector("#bodyTabellaAsteVisionate").innerHTML = "";		// rimuovo la lista precedente
+	if(getCookie("renderTableAsteVisionate") === "true"){
+		document.querySelector("#bodyTabellaAsteVisionate").innerHTML = '';
 		renderAsteVisionate();
 	}
 }
 
 function renderAsteVisionate(){
-	const asteVisionate = getCookie("asteVisionate");
+	// richiedi al server le aste visionate (la servlet analizzerà la lista di cookie e restituirà la lista delle rispettive aste)
+	let request = new XMLHttpRequest();
+	request.open("GET", "/TIW-project/acquisto");
 	
-	if(asteVisionate.length > 0){
-		document.querySelector("#listaAsteVisionate").removeAttribute("hidden");
-		
-		let formData = new FormData();
-		formData.append("asteVisionate", asteVisionate);
-		
-		// richiedi al server le aste visionate
-		let request = new XMLHttpRequest();
-		request.open("GET", "/TIW-project/asteVisionate");
-		
-		request.onreadystatechange = (request) => {
-			if(request.readyState == 4){
-				if(request.status == 200){
+	request.onreadystatechange = (request) => {
+		if(request.readyState == 4){
+			if(request.status == 200){
+				// se è presente del contenuto nella risposta => sono le aste visitate da mostrare
+				if(request.responseText != ""){
 					const asteVisionate = JSON.parse(request.responseText);
+				
+					document.querySelector("#listaAsteVisionate").removeAttribute("hidden");
 					
 					for(const asta of asteVisionate){
 						addAstaInTable(asta, "bodyTabellaAsteVisionate");
 					}
 				}
-				else
-					document.querySelector("#listaAsteVisionateMessage").textContent = "Errore interno al server";
 			}
+			else
+				document.querySelector("#listaAsteVisionateMessage").textContent = "Errore interno al server";
 		}
-		
-		request.send(formData);
 	}
+	
+	request.send();
 }
 
 export function freePageAcquisto(){
@@ -54,7 +50,7 @@ export function freePageAcquisto(){
 	
 	document.querySelector("#listaAsteByKeyword").setAttribute("hidden");	// nascondo la lista di aste
 	document.querySelector("#bodyTabellaAsteByKeyword").innerHTML = "";		// svuoto la tabella delle aste con la parola chiave precedentemente ricercata
-																			// in questo modo vengono eliminati anche gli event listeners sui bottoni																
+	document.querySelector("#listaAsteVisionate").setAttribute("hidden");																		// in questo modo vengono eliminati anche gli event listeners sui bottoni																
 }
 
 function searchAstaByKeyword(){
@@ -171,22 +167,10 @@ function addAstaInTable(asta, tableBodyQuerySelector){
 	
 	dettaglioAstaButton.textContent = "Dettaglio Asta";
 	dettaglioAstaButton.addEventListener((idAsta) => {
-		addAstaVisionata(idAsta);	// aggiungo l'asta tra quelle visionate dall'utente
-		setCookie("renderTableAsteVisionate",  {"value" : true}, 30);	// la prossima volta acquisto dovrà ri-renderizzare la tabella delle pagine da renderizzare
 		renderDettaglioAstaPage(idAsta);
 	});
 	newRow.appendChild(dettaglioAstaButton);
 	
 	// inserisco la nuova riga nella tabella delle aste aperte
 	tbody.appendChild(newRow);
-}
-
-// funzione che aggiunge un'asta tra quelle visionate
-function addAstaVisionata(idAsta) {
-    let aste = getCookie('asteVisionate') || [];
-    
-	if (!aste.includes(idAsta)) {
-        aste.push(idAsta);		// aggiunge l'asta alla lista JSON delle aste visionate
-        setCookie('asteVisionate', aste, 30);
-    }
 }

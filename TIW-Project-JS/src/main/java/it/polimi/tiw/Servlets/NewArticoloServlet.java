@@ -69,13 +69,15 @@ public class NewArticoloServlet extends HttpServlet {
 		try {
 			String username = (String) request.getSession().getAttribute("username");
 			
-			
-			//FIXME: capire cosa restituire al client
-			
 			Connection conn = ConnectionManager.getConnection(); 
 			Articolo newArticolo = new ArticoliDAOImpl().insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
 			
 			String finalJson = gson.toJson(newArticolo);
+			
+			// imposto il cookie con la nuova azione
+			Cookie lastAction = new Cookie("lastAction", "addedArticolo");
+			lastAction.setMaxAge(30*60*60*24);	// scadenza a 30gg
+            response.addCookie(lastAction);
 		    
 			// imposto content-type e charset della risposta
 		    response.setContentType("application/json");

@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //CREAZIONE INIZIALE DEI COOKIE
 
 // Dichiaro i tre nomi dei cookie
-var cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste'];
+var cookieNames = ['renderTableAsteAperte', 'renderAllTablesAste', ];
 
 //scadenza di una settimana
 var oneWeek = 7 * 24 * 60 * 60;
@@ -86,7 +86,7 @@ export function hideAllPages() {
 }
 
 export function getCookie(name) {
-  // Prendi tutti i cookie come stringa e spezzali in array di "nome=valore"
+  	// Prendi tutti i cookie come stringa e spezzali in array di "nome=valore"
     const cookieArray = document.cookie.split('; ');
     
     // Scorri l’array fino a trovare quello giusto
@@ -97,7 +97,6 @@ export function getCookie(name) {
         const value = cookiePair.slice(1).join('=');
         
         if (key === name) {
-            
             return decodeURIComponent(value);
         }
     }

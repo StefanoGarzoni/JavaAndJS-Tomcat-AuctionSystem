@@ -32,8 +32,6 @@ public class NewAstaServlet extends HttpServlet {
 			return;
 		}
 		
-		String redirectPath = "/TIW-Project/vendo";
-		
 		// parameters sanitise
 		String[] selectedArticlesStrings = request.getParameterValues("codiceArticolo");
 		String rialzoMinimoString = request.getParameter("rialzoMinimo");
@@ -130,6 +128,11 @@ public class NewAstaServlet extends HttpServlet {
 				
 				// eseguo le modifiche sul DB se tutti i campi sono stati aggiornati correttamente senza errori
 				conn.commit();
+				
+				// imposto il cookie con la nuova azione
+				Cookie lastAction = new Cookie("lastAction", "addedAsta");
+				lastAction.setMaxAge(30*60*60*24);	// scadenza a 30gg
+	            response.addCookie(lastAction);
 			    
 				response.setContentType("application/json");
 			    response.setCharacterEncoding("UTF-8");

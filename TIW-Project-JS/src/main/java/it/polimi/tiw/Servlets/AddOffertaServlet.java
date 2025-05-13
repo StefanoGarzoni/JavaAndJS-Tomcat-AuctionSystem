@@ -97,9 +97,9 @@ public class AddOffertaServlet extends HttpServlet {
                 if (lastActionCookieFound && tableOpenAsteCookieFound) {
                     break;
                 }
-
             }
         }
+        
         if(!lastActionCookieFound) {
             Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
             lastActionCookie.setMaxAge(60*60*24);
