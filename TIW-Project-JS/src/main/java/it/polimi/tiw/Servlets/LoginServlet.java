@@ -58,8 +58,6 @@ public class LoginServlet extends HttpServlet {
 			session.invalidate();	
 			// faccio questo e non un redirect alla home per evitare la seguente situazione: un utente precedentemente loggato invia nuovamente 
 			// delle credenziali (anche sbagliate) e riesce ad accedere alla home perchè viene fatta una redirect 
-			
-			return;
 		}
 		
 		String username = request.getParameter("username");
