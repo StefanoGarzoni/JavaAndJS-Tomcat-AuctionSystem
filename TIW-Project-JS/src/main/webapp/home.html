@@ -3,10 +3,14 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Aste Online</title>
-		<script th:src="@{/js/script.js}" defer></script>
+		<script type="module" th:src="@{/js/main.js}" defer></script>
+		<script type="module" th:src="@{/js/acquisto.js}" defer></script>
+		<script type="module" th:src="@{/js/dettaglioAsta.js}" defer></script>
+		<script type="module" th:src="@{/js/offerte.js}" defer></script>
+		<script type="module" th:src="@{/js/vendo.js}" defer></script>
 	</head>
 	<body>
-		<a href="/TIW-Project/logout">Logout</a><br>
+		<a href="/TIW-Project-JS/logout">Logout</a><br>
 		<span id="moveToVendo" hidden>Vendo</span><br>
 		<span id="moveToAcquisto" hidden>Acquisto</span><br>
 		

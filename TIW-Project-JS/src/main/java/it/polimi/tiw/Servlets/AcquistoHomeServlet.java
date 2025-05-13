@@ -14,9 +14,10 @@ import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.Beans.Asta;
 import jakarta.servlet.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.*;
 
-
+@MultipartConfig
 public class AcquistoHomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -30,7 +31,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 			return;
 		}
 		
-		String asteVisionateJsonCookie = "";
+		String asteVisionateJsonCookie = null;
 		Cookie[] cookies = request.getCookies();
 		
 		for(Cookie cookie : cookies) {
@@ -39,8 +40,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 			}
 		}
 		
-		// se sono state visionate delle aste, le trasmetto. In caso contrario, non trasmetto niente
-		if(!asteVisionateJsonCookie.equals("")) {
+		if(asteVisionateJsonCookie != null) {	// se è presente il cookie
 			// estraggo gli id delle aste visionate dal json
 			JsonArray idAsteVisionate = JsonParser.parseString(asteVisionateJsonCookie).getAsJsonArray();
 			ArrayList<Integer> idAste = new ArrayList<>();
@@ -71,7 +71,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 			catch (SQLException e) {
 				e.printStackTrace(System.out);
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
-			}			
+			}
 		}
 	}
 	
@@ -85,6 +85,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 		}
 		
 		String keyword = request.getParameter("parolaChiave");
+		
 		if(keyword == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
 			return;

@@ -1,30 +1,29 @@
-import { renderDettaglioAstaPage } from "./dettaglioAsta";
-import { setCookie, getCookie } from "./main";
+import { renderDettaglioAstaPage } from "./dettaglioAsta.js";
 
 export function renderAcquistoPage(){	
+	document.querySelector("#acquistoPage").removeAttribute("hidden");
+	
 	document.querySelector("#sumbitSearchByKeyword").addEventListener(
 		"click",
 		searchAstaByKeyword
 	);
 	
-	if(getCookie("renderTableAsteVisionate") === "true"){
-		document.querySelector("#bodyTabellaAsteVisionate").innerHTML = '';
-		renderAsteVisionate();
-	}
+	renderAsteVisionate();
 }
 
 function renderAsteVisionate(){
 	// richiedi al server le aste visionate (la servlet analizzerà la lista di cookie e restituirà la lista delle rispettive aste)
 	let request = new XMLHttpRequest();
-	request.open("GET", "/TIW-project/acquisto");
+	request.open("GET", "/TIW-Project-JS/acquisto");
 	
 	request.onreadystatechange = (request) => {
 		if(request.readyState == 4){
 			if(request.status == 200){
 				// se è presente del contenuto nella risposta => sono le aste visitate da mostrare
-				if(request.responseText != ""){
+					document.querySelector("#bodyTabellaAsteVisionate").innerHTML = '';	// svuoto la tabella precedente per far spazio ai dati aggiornati
 					const asteVisionate = JSON.parse(request.responseText);
 				
+				if(asteVisionate.length > 0){
 					document.querySelector("#listaAsteVisionate").removeAttribute("hidden");
 					
 					for(const asta of asteVisionate){
@@ -90,7 +89,6 @@ function showAsteByKeyword(request){
 				aste.forEach((asta) => {
 					addAstaInTable(asta, "#bodyTabellaAsteByKeyword");
 				});
-				setCookie("lastAction", {"value":"addedAsta"}, 30);
 			}
 			else{
 				document.querySelector("#listaAsteByKeywordMessage").textContent = "Nessuna asta con la parola chiave scelta";
@@ -106,34 +104,34 @@ function addAstaInTable(asta, tableBodyQuerySelector){
 	const tbody = document.querySelector(tableBodyQuerySelector);
 	
 	const template = document.querySelector("#astaByKeywordRow");
-	const newRow = template.content.clone(true);
+	const newRow = template.content.cloneNode(true);
 	
 	let idAstaElement = document.createElement("td");
-	idAstaElement.text = asta.idAsta;
+	idAstaElement.textContent = asta.idAsta;
 	newRow.appendChild(idAstaElement);
 	
 	let creatoreElement = document.createElement("td");
-	creatoreElement.text = asta.creatore;
+	creatoreElement.textContent = asta.creatore;
 	newRow.appendChild(creatoreElement);
 	
 	let prezzoInizialeElement = document.createElement("td");
-	prezzoInizialeElement.text = asta.prezzo_iniziale;
+	prezzoInizialeElement.textContent = asta.prezzo_iniziale;
 	newRow.appendChild(prezzoInizialeElement);
 	
 	let rialzoMinimoElement = document.createElement("td");
-	rialzoMinimoElement.text = asta.rialzo_minimo;
+	rialzoMinimoElement.textContent = asta.rialzo_minimo;
 	newRow.appendChild(rialzoMinimoElement);
 		
 	let dataScadenzaElement = document.createElement("td");
-	dataScadenzaElement.text = asta.data_scadenza;
+	dataScadenzaElement.textContent = asta.data_scadenza;
 	newRow.appendChild(dataScadenzaElement);
 	
 	let oraScadenzaElement = document.createElement("td");
-	oraScadenzaElement.text = asta.ora_scadenza;
+	oraScadenzaElement.textContent = asta.ora_scadenza;
 	newRow.appendChild(oraScadenzaElement);
 	
 	let offertaMaxElement = document.createElement("td");
-	offertaMaxElement.text = asta.offerta_max;
+	offertaMaxElement.textContent = asta.offerta_max;
 	newRow.appendChild(offertaMaxElement);
 	
 	// creazione tabella articoli
@@ -166,7 +164,7 @@ function addAstaInTable(asta, tableBodyQuerySelector){
 	});
 	
 	dettaglioAstaButton.textContent = "Dettaglio Asta";
-	dettaglioAstaButton.addEventListener((idAsta) => {
+	dettaglioAstaButton.addEventListener("click", (idAsta) => {
 		renderDettaglioAstaPage(idAsta);
 	});
 	newRow.appendChild(dettaglioAstaButton);

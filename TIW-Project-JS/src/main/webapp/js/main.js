@@ -1,5 +1,5 @@
-import { setupPageVendo} from './vendo.js';
-import { setupPageAscquisto } from './acquisto.js';
+import {renderAcquistoPage} from "./acquisto.js";
+import {renderVendoPage} from "./vendo.js";
 
 //"Menu"
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,7 +27,7 @@ function showVendo() {
     moveToAcquisto.removeAttribute('hidden');
     moveToVendo.setAttribute('hidden', true);
     hideAllPages();
-    setupPageVendo();
+    renderVendoPage();
 }
 
 // Show "Acquisto" page
@@ -35,7 +35,7 @@ function showAcquisto() {
     moveToVendo.removeAttribute('hidden');
     moveToAcquisto.setAttribute('hidden', true);
     hideAllPages();
-    setupPageAscquisto();
+    renderAcquistoPage();
 }
 
 export function hideAllPages() {

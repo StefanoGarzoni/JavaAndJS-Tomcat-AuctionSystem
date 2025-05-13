@@ -1,4 +1,4 @@
-import { hideAllPages, setCookie } from './main.js';
+import { hideAllPages } from './main.js';
 
 // rendering della pagina offerta
 export function renderOffertaPage(idAsta) {

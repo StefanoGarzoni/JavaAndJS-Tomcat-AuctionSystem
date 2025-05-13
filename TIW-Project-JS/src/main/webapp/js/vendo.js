@@ -1,5 +1,4 @@
-import { renderDettaglioAstaPage } from "./dettaglioAsta";
-import { getCookie, setCookie } from "./main";
+import { renderDettaglioAstaPage } from "./dettaglioAsta.js";
 
 function setupPageVendo(){	
 	// aggiunta gestione eventi creazione articolo e asta
@@ -40,7 +39,7 @@ export function freePageVendo(){
 
 export function renderVendoPage(){
 	const request = new XMLHttpRequest();
-	request.open("POST", "/TIW-Project-JS/vendo");
+	request.open("GET", "/TIW-Project-JS/vendo");
 	
 	request.onreadystatechange = () => { showVendoContent(request); };
 	request.send();
@@ -91,31 +90,31 @@ function addOpenAstaInTable(asta){
 	const newRow = template.content.clone(true);
 	
 	let idAstaElement = document.createElement("td");
-	idAstaElement.text = asta.idAsta;
+	idAstaElement.textContent = asta.idAsta;
 	newRow.appendChild(idAstaElement);
 	
 	let prezzoInizialeElement = document.createElement("td");
-	prezzoInizialeElement.text = asta.prezzo_iniziale;
+	prezzoInizialeElement.textContent = asta.prezzo_iniziale;
 	newRow.appendChild(prezzoInizialeElement);
 	
 	let offertaMaxElement = document.createElement("td");
-	offertaMaxElement.text = asta.offerta_max;
+	offertaMaxElement.textContent = asta.offerta_max;
 	newRow.appendChild(offertaMaxElement);
 	
 	let dataScadenzaElement = document.createElement("td");
-	dataScadenzaElement.text = asta.data_scadenza;
+	dataScadenzaElement.textContent = asta.data_scadenza;
 	newRow.appendChild(dataScadenzaElement);
 	
 	let oraScadenzaElement = document.createElement("td");
-	oraScadenzaElement.text = asta.ora_scadenza;
+	oraScadenzaElement.textContent = asta.ora_scadenza;
 	newRow.appendChild(oraScadenzaElement);
 			
 	let giorniRimanentiElement = document.createElement("td");
-	giorniRimanentiElement.text = asta.giorni_rimanenti;
+	giorniRimanentiElement.textContent = asta.giorni_rimanenti;
 	newRow.appendChild(giorniRimanentiElement);
 
 	let oreRimanentiElement = document.createElement("td");
-	oreRimanentiElement.text = asta.ore_rimanenti;
+	oreRimanentiElement.textContent = asta.ore_rimanenti;
 	newRow.appendChild(oreRimanentiElement);
 	
 	// creazione tabella articoli
@@ -195,19 +194,19 @@ function addArticoloInTable(articolo){
 	newRow.querySelector('input[name="codiceArticolo"]').value = articolo.cod;
 	
 	let codiceArticoloElement = document.createElement("td");
-	codiceArticoloElement.text = articolo.cod;
+	codiceArticoloElement.textContent = articolo.cod;
 	newRow.appendChild(codiceArticoloElement);
 	
 	let nomeArticoloElement = document.createElement("td");
-	nomeArticoloElement.text = articolo.nomeArticolo;
+	nomeArticoloElement.textContent = articolo.nomeArticolo;
 	newRow.appendChild(nomeArticoloElement);
 	
 	let descrizioneArticoloElement = document.createElement("td");
-	descrizioneArticoloElement.text = articolo.descrizione;
+	descrizioneArticoloElement.textContent = articolo.descrizione;
 	newRow.appendChild(descrizioneArticoloElement);
 	
 	let prezzoArticoloElement = document.createElement("td");
-	prezzoArticoloElement.text = articolo.prezzo;
+	prezzoArticoloElement.textContent = articolo.prezzo;
 	newRow.appendChild(prezzoArticoloElement);
 	
 	tbody.appendChild(newRow);

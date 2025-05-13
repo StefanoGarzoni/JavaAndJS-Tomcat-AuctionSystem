@@ -1,4 +1,4 @@
-import { hideAllPages, setCookie } from './main.js';
+import { hideAllPages} from './main.js';
 
 // Carica e renderizza i dettagli di un'asta
 export function renderDettaglioAstaPage(idAsta) {
