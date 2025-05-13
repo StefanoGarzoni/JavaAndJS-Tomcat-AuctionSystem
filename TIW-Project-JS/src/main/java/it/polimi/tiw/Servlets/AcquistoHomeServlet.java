@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.AsteDAOImpl;
@@ -18,6 +21,52 @@ public class AcquistoHomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private Gson gson = new Gson();
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
+		HttpSession session = request.getSession(false);
+		
+		if(session == null) {	// verify if the client is authenticated
+            response.sendRedirect(request.getContextPath() + "/login");
+			return;
+		}
+		
+		String asteVisionateJson = request.getParameter("asteVisionate");
+		if(asteVisionateJson == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			return;
+		}
+		
+		JsonArray idAsteVisionate = JsonParser.parseString(asteVisionateJson).getAsJsonArray();
+		ArrayList<Integer> idAste = new ArrayList<>();
+		for (JsonElement idAsta : idAsteVisionate) {
+            try {
+            	idAste.add(idAsta.getAsInt());
+            }
+            catch(NumberFormatException e) {
+            	response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Format of parameters not accepted");
+    			return;
+            }
+        }
+		
+		try(Connection conn = ConnectionManager.getConnection()){
+			ArrayList<Asta> asteVisionate = new AsteDAOImpl().getAsteById(conn, idAste);
+			
+			String jsonResponse = gson.toJson(asteVisionate);			
+			
+		    // impostazione content-type e charset della risposta
+		    response.setContentType("application/json");
+		    response.setCharacterEncoding("UTF-8");
+		    
+		    // scrivo il json nella response
+		    PrintWriter out = response.getWriter();
+		    out.print(jsonResponse);
+		    out.flush();
+		}
+		catch (SQLException e) {
+			e.printStackTrace(System.out);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
+		}
+	}
 	
 	// mostra la pagina con in aggiunta la tabella delle aste con la parola chiave
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
@@ -51,6 +100,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 		    out.flush();
 		}
 		catch (SQLException e) {
+			e.printStackTrace(System.out);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
 		}
 	}

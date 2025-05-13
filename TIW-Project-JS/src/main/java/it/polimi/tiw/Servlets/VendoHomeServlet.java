@@ -53,6 +53,7 @@ public class VendoHomeServlet extends HttpServlet {
 		String tabelleRichieste = request.getParameter("tabelleRichieste");
 		if(tabelleRichieste == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			return;
 		}
 		
 		JsonArray tablesToRetrieve = new JsonArray();
