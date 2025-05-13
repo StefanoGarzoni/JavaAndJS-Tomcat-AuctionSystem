@@ -1,5 +1,5 @@
 import { renderVendoPage, setupPageVendo} from './vendo.js';
-import { setupPageAscquisto } from './acquisto.js';
+import { renderAcquistoPage, setupPageAscquisto } from './acquisto.js';
 
 // aggiungo gli event listeners
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	cookieSetup();
 
     // reindirizzamento in base all'ultima azione svolta dall'utente
-    const lastAction = getCookie("lastAction");
+    const lastAction = getCookie("lastAction").value;
     if (lastAction === 'addedAsta') {
         showVendo();
     } else {
@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function cookieSetup(){
 	let cookieNames = ['renderTableAsteAperte', 'renderTableAsteChiuse', 'renderArticoli', 'renderTableAsteVisionate'];
 	
-	for (let cookieName of cookieNames) {		
+	for (let cookieName of cookieNames) {
 		// quando viene caricato il main (l'applicazione viene aperta) bisogna inizializzare i flag a true 
 		// poichè la pagina vendo deve per forza richiedere tutte le aste al server
-		setCookie(cookieName, "true", 30);
+		setCookie(cookieName, {"value" : true}, 30);
 	}
 }
 
@@ -58,7 +58,7 @@ function showVendo() {
     moveToAcquisto.removeAttribute('hidden');
     moveToVendo.setAttribute('hidden', true);
     hideAllPages();
-    setupPageVendo();
+    renderVendoPage();
 }
 
 // Show "Acquisto" page
@@ -66,7 +66,7 @@ function showAcquisto() {
     moveToVendo.removeAttribute('hidden');
     moveToAcquisto.setAttribute('hidden', true);
     hideAllPages();
-    setupPageAscquisto();
+    renderAcquistoPage();
 }
 
 export function hideAllPages() {

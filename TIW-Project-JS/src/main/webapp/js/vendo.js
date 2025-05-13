@@ -1,10 +1,7 @@
 import { renderDettaglioAstaPage } from "./dettaglioAsta";
 import { getCookie, setCookie } from "./main";
 
-function setupPageVendo(){
-	const vendoSection = document.querySelector("#vendoPage");
-	vendoSection.removeAttribute("hidden");
-	
+function setupPageVendo(){	
 	// aggiunta gestione eventi creazione articolo e asta
 	document.querySelector("#submitNewArticolo").addEventListener(
 		"click",
@@ -44,19 +41,19 @@ export function freePageVendo(){
 export function renderVendoPage(){
 	const tablesToRender = [];
 	
-	if(getCookie("renderTableAsteAperte")){
+	if(getCookie("renderTableAsteAperte").value == true){
 		tablesToRender.push("asteAperte");
-		setCookie("renderTableAsteAperte", "false");
+		setCookie("renderTableAsteAperte", {"value" : false}, 30);
 	}
 	
-	if(getCookie("renderTableAsteChiuse")){
+	if(getCookie("renderTableAsteChiuse").value == true){
 		tablesToRender.push("asteChiuse");
-		setCookie("renderTableAsteChiuse", "false");
+		setCookie("renderTableAsteChiuse", {"value" : false}, 30);
 	}
 	
-	if(getCookie("renderArticoli")){
+	if(getCookie("renderArticoli").value == true){
 		tablesToRender.push("articoli");
-		setCookie("renderArticoli", "false");
+		setCookie("renderArticoli", {"value" : false}, 30);
 	}
 	
 	if(tablesToRender.length > 0){	// richiede i dati che eventulmente sono da modificare
@@ -97,7 +94,7 @@ function showVendoContent(request){
 		}
 			
 		if(articoli && articoli.length > 0){
-			document.querySelector("#bodyTabellaArticoliNewAsta");
+			document.querySelector("#bodyTabellaArticoliNewAsta");	// svuota dal contenuto precedentes
 			articoli.forEach((articolo) => {
 				addArticoloInTable(articolo);
 			});
@@ -266,7 +263,7 @@ function newArticolo(){	// e è l'evento che ha causato la chiamata della callba
 				
 				addArticoloInTable(newArticoloInserito);
 				
-				setCookie("lastAction", "addedArticolo", 30);
+				setCookie("lastAction", {"value":"addedArticolo"} , 30);
 			}
 			else{
 				document.querySelector("#newArticoloMessage").textContent = "Problema con l'aggiunta dell'articolo"
@@ -322,7 +319,7 @@ function newAsta(){
 					removeArticoloFromTable(codiceArticolo);					
 				});
 				
-				setCookie("lastAction", "addedAsta", 30);
+				setCookie("lastAction", {"value":"addedAsta"} , 30);
 			}
 			else{
 				document.querySelector("#newAstaMessage").textContent = "Il server ha incontrato un problema durante l'aggiunta dell'articolo";

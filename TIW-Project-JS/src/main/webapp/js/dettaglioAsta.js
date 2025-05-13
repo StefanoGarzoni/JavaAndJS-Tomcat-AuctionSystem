@@ -119,7 +119,7 @@ export function handlerCloseAsta(idAsta) {
     }
 
 	// imposta ultima azione
-	setCookie("lastAction", "closedAsta", 30);
+	setCookie("lastAction",  {"value" : "closedAsta"} , 30);
 	
     // Ricarica dettagli per mostrare stato aggiornato
     loadDettaglioAsta(idAsta);
