@@ -57,7 +57,7 @@ public class OfferteDAOImpl implements OfferteDAO{
     }
 
     @Override
-    public int insertNewOfferta(Connection conn, int idAsta, String username, double prezzo, Date) {
+    public int insertNewOfferta(Connection conn, int idAsta, String username, double prezzo) {
         String sql = "INSERT INTO Offerte (utente, id_asta, prezzo, data_offerta, ora_offerta) VALUES (?, ?, ?, CURDATE(), CURTIME());";
         int idGenerato = -1;
         try (PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) { //Statement.RETURN_GENERATED_KEYS

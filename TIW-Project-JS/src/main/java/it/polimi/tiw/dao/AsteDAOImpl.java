@@ -74,8 +74,45 @@ public class AsteDAOImpl implements AsteDAO{
 		asta.setOreRimanenti((int)oreRimanentiAsta);
 	}
 	
+	public ArrayList<Asta> getAsteById(Connection conn, ArrayList<Integer> idAste) throws SQLException{
+		ArrayList<Asta> asteToReturn = new ArrayList<>();
+		
+		// creazione della query
+		String query = "SELECT * FROM Aste WHERE id_asta IN (";
+		for (int i = 0; i < idAste.size(); i++) {	// non si rischia SQL injection perché gli id delle aste sono state sanificate in precedenza
+		    query += idAste.get(i);
+		    if (i < idAste.size() - 1) {
+		        query += ", ";
+		    }
+		}
+		query += ")";
+		
+		// eseguo la query
+		PreparedStatement ps = conn.prepareStatement(query);
+        ResultSet result = ps.executeQuery();
+        
+        while (result.next()) {
+        	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
+        	
+            Asta asta = new Asta(
+                result.getInt("id_asta"),
+                result.getString("creatore"),
+                result.getDouble("prezzo_iniziale"),
+                result.getDouble("rialzo_minimo"),
+                result.getDate("data_scadenza"),
+                result.getTime("ora_scadenza"),
+                result.getInt("offerta_max"),
+                true,
+                articoli
+            );
+            asteToReturn.add(asta);
+        }
+		
+		return asteToReturn;
+	}
+	
     @Override
-    public ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernameCreatore) throws RuntimeException{
+    public ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernameCreatore) throws SQLException{
     	String query = 
         		"SELECT id_asta, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza, offerta_max "
         		+ "FROM Aste "
@@ -83,36 +120,33 @@ public class AsteDAOImpl implements AsteDAO{
         		+ "ORDER BY data_scadenza, ora_scadenza";
         
         ArrayList<Asta> aste = new ArrayList<>();
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-            ps.setString(1, usernameCreatore);
-            
-            ResultSet result = ps.executeQuery();
-            while (result.next()) {
-            	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
-            	
-                Asta asta = new Asta(
-                    result.getInt("id_asta"),
-                    usernameCreatore,
-                    result.getDouble("prezzo_iniziale"),
-                    result.getDouble("rialzo_minimo"),
-                    result.getDate("data_scadenza"),
-                    result.getTime("ora_scadenza"),
-                    result.getInt("offerta_max"),
-                    true,
-                    articoli
-                );
-                aste.add(asta);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getAllClosedAsteInfoByCreator", e);
+        
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, usernameCreatore);
+        
+        ResultSet result = ps.executeQuery();
+        while (result.next()) {
+        	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
+        	
+            Asta asta = new Asta(
+                result.getInt("id_asta"),
+                usernameCreatore,
+                result.getDouble("prezzo_iniziale"),
+                result.getDouble("rialzo_minimo"),
+                result.getDate("data_scadenza"),
+                result.getTime("ora_scadenza"),
+                result.getInt("offerta_max"),
+                true,
+                articoli
+            );
+            aste.add(asta);
         }
+        
         return aste;
     }
 
     @Override
-    public ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernameCreatore) {
+    public ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernameCreatore) throws SQLException {
         String query = 
         		"SELECT id_asta, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza, offerta_max "
         		+ "FROM Aste "
@@ -120,36 +154,33 @@ public class AsteDAOImpl implements AsteDAO{
         		+ "ORDER BY data_scadenza, ora_scadenza;";
         
         ArrayList<Asta> aste = new ArrayList<>();
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-            ps.setString(1, usernameCreatore);
-            
-            ResultSet result = ps.executeQuery();
-            while (result.next()) {
-            	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
-            	
-                Asta asta = new Asta(
-                    result.getInt("id_asta"),
-                    usernameCreatore,
-                    result.getDouble("prezzo_iniziale"),
-                    result.getDouble("rialzo_minimo"),
-                    result.getDate("data_scadenza"),
-                    result.getTime("ora_scadenza"),
-                    result.getInt("offerta_max"),
-                    false,
-                    articoli
-                );
-                aste.add(asta);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getAllOpenAsteInfoByCreator", e);
+        
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, usernameCreatore);
+        
+        ResultSet result = ps.executeQuery();
+        while (result.next()) {
+        	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
+        	
+            Asta asta = new Asta(
+                result.getInt("id_asta"),
+                usernameCreatore,
+                result.getDouble("prezzo_iniziale"),
+                result.getDouble("rialzo_minimo"),
+                result.getDate("data_scadenza"),
+                result.getTime("ora_scadenza"),
+                result.getInt("offerta_max"),
+                false,
+                articoli
+            );
+            aste.add(asta);
         }
+        
         return aste;
     }
     
     @Override
-    public ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca, String username) {
+    public ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca, String username) throws SQLException {
         String query = "SELECT Aste.*"
         		+ "FROM Aste "
         		+ "WHERE creatore NOT IN (?) AND"
@@ -163,32 +194,28 @@ public class AsteDAOImpl implements AsteDAO{
         		+ "		) "
         		+ "ORDER BY data_scadenza DESC, ora_scadenza DESC;";
         ArrayList<Asta> aste = new ArrayList<>();
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-        	ps.setString(1, username);
-            ps.setString(2, "%" + stringaDiRicerca + "%");
-            ps.setString(3, "%" + stringaDiRicerca + "%");
-            
-            ResultSet result = ps.executeQuery();
-            while (result.next()) {
-            	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
-            	
-                Asta asta = new Asta(
-                    result.getInt("id_asta"),
-                    result.getString("creatore"),
-                    result.getDouble("prezzo_iniziale"),
-                    result.getDouble("rialzo_minimo"),
-                    result.getDate("data_scadenza"),
-                    result.getTime("ora_scadenza"),
-                    result.getInt("offerta_max"),
-                    result.getBoolean("chiusa"),
-                    articoli
-                );
-                aste.add(asta);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getAsteByStringInArticoli", e);
+        
+        PreparedStatement ps = conn.prepareStatement(query);
+    	ps.setString(1, username);
+        ps.setString(2, "%" + stringaDiRicerca + "%");
+        ps.setString(3, "%" + stringaDiRicerca + "%");
+        
+        ResultSet result = ps.executeQuery();
+        while (result.next()) {
+        	ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, result.getInt("id_asta"));
+        	
+            Asta asta = new Asta(
+                result.getInt("id_asta"),
+                result.getString("creatore"),
+                result.getDouble("prezzo_iniziale"),
+                result.getDouble("rialzo_minimo"),
+                result.getDate("data_scadenza"),
+                result.getTime("ora_scadenza"),
+                result.getInt("offerta_max"),
+                result.getBoolean("chiusa"),
+                articoli
+            );
+            aste.add(asta);
         }
         return aste;
     }
@@ -418,5 +445,4 @@ public class AsteDAOImpl implements AsteDAO{
         }
         return false;
     }
-
 }

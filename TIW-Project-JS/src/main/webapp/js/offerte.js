@@ -1,4 +1,4 @@
-import { hideAllPages } from './main.js';
+import { hideAllPages, setCookie } from './main.js';
 
 // rendering della pagina offerta
 export function renderOffertaPage(idAsta) {
@@ -107,6 +107,8 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
       // Ripulisco input
       inputPrezzo.value = '';
       //inputPrezzo.focus();
+	  
+	  setCookie("lastAction", "addedOfferta", 30);
 
     } catch (e) {
       console.error('Errore parsing risposta JSON', e);

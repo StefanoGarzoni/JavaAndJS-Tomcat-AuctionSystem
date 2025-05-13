@@ -12,12 +12,12 @@ import java.sql.SQLException;
 
 public interface AsteDAO{
 	Asta insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException;
-	ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernamaCreatore); 
-	ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernamaCreatore);
-    ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca, String username); 
+	ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernamaCreatore) throws SQLException; 
+	ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernamaCreatore) throws SQLException;
+    ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca, String username) throws SQLException; 
     void setOffertaMax(Connection conn, int idAsta, int idOfferta);
     Map<Double,Double> getPrezzoOffertaMaxANDRialzoMinimo(Connection conn, int idAsta);
-    Asta getOpenAstaById(Connection conn, int idAsta);
+    Asta getOpenAstaById(Connection conn, int idAsta) throws SQLException;
     Asta getClosedAstaById(Connection conn, int idAsta);
     boolean astaCanBeClosed(Connection conn, int idAsta);
     void setAstaAsClosed(Connection conn, int idAsta, String username);

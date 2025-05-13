@@ -1,7 +1,7 @@
-function setupPageVendo(){
-	const vendoSection = document.querySelector("#vendoPage");
-	vendoSection.removeAttribute("hidden");
-	
+import { renderDettaglioAstaPage } from "./dettaglioAsta";
+import { getCookie, setCookie } from "./main";
+
+function setupPageVendo(){	
 	// aggiunta gestione eventi creazione articolo e asta
 	document.querySelector("#submitNewArticolo").addEventListener(
 		"click",
@@ -39,13 +39,34 @@ export function freePageVendo(){
 }*/
 
 export function renderVendoPage(){
-	const request = new XMLHttpRequest();
-	request.open("GET", "/TIW-Project-JS/vendo");
+	const tablesToRender = [];
 	
-	request.onreadystatechange = () => { showVendoContent(request); };
-	request.send();
+	if(getCookie("renderTableAsteAperte").value == true){
+		tablesToRender.push("asteAperte");
+		setCookie("renderTableAsteAperte", {"value" : false}, 30);
+	}
 	
-	setupPageVendo();
+	if(getCookie("renderTableAsteChiuse").value == true){
+		tablesToRender.push("asteChiuse");
+		setCookie("renderTableAsteChiuse", {"value" : false}, 30);
+	}
+	
+	if(getCookie("renderArticoli").value == true){
+		tablesToRender.push("articoli");
+		setCookie("renderArticoli", {"value" : false}, 30);
+	}
+	
+	if(tablesToRender.length > 0){	// richiede i dati che eventulmente sono da modificare
+		const formData = new FormData();
+		formData.append("tabelleRichieste", JSON.stringify(tablesToRender));
+		
+		const request = new XMLHttpRequest();
+		request.open("POST", "/TIW-Project-JS/vendo");
+		
+		request.onreadystatechange = () => { showVendoContent(request); };
+		request.send();
+	}
+	setupPageVendo(formData);		
 }
 
 function showVendoContent(request){
@@ -58,19 +79,22 @@ function showVendoContent(request){
 		
 		// aggiorno solo le sezioni che hanno avuto modifiche
 		// se gli array con gli elementi sono vuoti => non ci sono state modifiche
-		if(openAste.length > 0){
+		if(openAste && openAste.length > 0){
+			document.querySelector("#bodyTabellaAsteAperte").innerHTML = '';	// svuota dal contenuto precedente
 			openAste.forEach( (currentAsta) => {
 				addOpenAstaInTable(currentAsta);
 			});
 		}
 			
-		if(closedAste.length > 0){
+		if(closedAste && closedAste.length > 0){
+			document.querySelector("#bodyTabellaAsteChiuse");		// svuota dal contenuto precedente
 			closedAste.forEach((currentAsta) => {
 				addClosedAstaInTable(currentAsta);
 			});			
 		}
 			
-		if(articoli.length > 0){
+		if(articoli && articoli.length > 0){
+			document.querySelector("#bodyTabellaArticoliNewAsta");	// svuota dal contenuto precedentes
 			articoli.forEach((articolo) => {
 				addArticoloInTable(articolo);
 			});
@@ -142,9 +166,10 @@ function addOpenAstaInTable(asta){
 	
 	// creazione bottone per passare al dettaglio asta
 	let dettaglioAstaButton = document.createElement("button");
+	dettaglioAstaButton.addEventListener("click", (idAsta) => {
+		renderDettaglioAstaPage(idAsta);
+	});
 	dettaglioAstaButton.textContent = "Dettaglio Asta";
-	dettaglioAstaButton.classList.add("dettaglioAstaApertaButton");
-	dettaglioAstaButton.value = asta.idAsta
 	newRow.appendChild(dettaglioAstaButton);
 	
 	// inserisco la nuova riga nella tabella delle aste aperte
@@ -234,17 +259,11 @@ function newArticolo(){	// e è l'evento che ha causato la chiamata della callba
 	request.onreadystatechange = () => {
 		if(request.readyState == 4){
 			if(request.status == 200){
-				const codArticoloInserito = JSON.parse(request.responseText).codArticolo;
-				
-				// creo l'oggetto Articolo da inserire in tabella, aggiungengo l'id creato lato server
-				const newArticoloInserito = {
-					'cod' : codArticoloInserito,
-					'nomeArticolo' : nome,
-					'descrizione' : descrizione,
-					'prezzo' : prezzo 
-				}
+				const newArticoloInserito = JSON.parse(request.responseText);
 				
 				addArticoloInTable(newArticoloInserito);
+				
+				setCookie("lastAction", {"value":"addedArticolo"} , 30);
 			}
 			else{
 				document.querySelector("#newArticoloMessage").textContent = "Problema con l'aggiunta dell'articolo"
@@ -299,6 +318,8 @@ function newAsta(){
 				codiciArticoli.forEach((codiceArticolo) => {
 					removeArticoloFromTable(codiceArticolo);					
 				});
+				
+				setCookie("lastAction", {"value":"addedAsta"} , 30);
 			}
 			else{
 				document.querySelector("#newAstaMessage").textContent = "Il server ha incontrato un problema durante l'aggiunta dell'articolo";
