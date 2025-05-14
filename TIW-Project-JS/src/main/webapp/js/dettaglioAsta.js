@@ -24,7 +24,7 @@ export function renderDettaglioAstaPage(idAsta) {
 
   // Richiesta GET alla servlet
   const xhr = new XMLHttpRequest();
-  xhr.open('GET', `/TIW-Project/DettaglioAstaPageServlet?idAsta=${encodeURIComponent(idAsta)}`, true);
+  xhr.open('GET', `/TIW-Project-JS/dettaglioAstaPage?idAsta=${encodeURIComponent(idAsta)}`, true);
   xhr.responseType = 'json';
 
   xhr.onload = function() {
@@ -43,8 +43,8 @@ export function renderDettaglioAstaPage(idAsta) {
       const { creatore, prezzoIniziale, rialzoMinimo, dataScadenza, oraScadenza } = result.openAsta;
 
       openSec.querySelector('#creatore').textContent = creatore;
-      openSec.querySelector('#prezzo').textContent = prezzoIniziale.toFixed(2);
-      openSec.querySelector('#rialzo').textContent = rialzoMinimo.toFixed(2);
+      openSec.querySelector('#prezzo').textContent = prezzoIniziale;
+      openSec.querySelector('#rialzo').textContent = rialzoMinimo;
       openSec.querySelector('#dataScadenza').textContent = dataScadenza;
       openSec.querySelector('#oraScadenza').textContent = oraScadenza;
 
@@ -53,13 +53,13 @@ export function renderDettaglioAstaPage(idAsta) {
       result.offerte.forEach(o => {
         const row = tbody.insertRow();
         row.insertCell().textContent = o.username;
-        row.insertCell().textContent = o.prezzo.toFixed(2);
+        row.insertCell().textContent = o.prezzo;
         row.insertCell().textContent = o.dataOfferta;
         row.insertCell().textContent = o.oraOfferta;
       });
 
       // Gestione bottone "Chiudi Asta"
-      const canDiv = page.getElementById('canBeClosed');
+      const canDiv = page.getElementById('#canBeClosed');
       const btn = canDiv.querySelector('button');
       if (result.canBeClosed) {
         canDiv.hidden = false;
@@ -81,11 +81,11 @@ export function renderDettaglioAstaPage(idAsta) {
       const ac = result.astaChiusa;
 
       closedSec.querySelector('#creatore').textContent = ac.creatore;
-      closedSec.querySelector('#prezzoIniziale').textContent = ac.prezzoIniziale.toFixed(2);
-      closedSec.querySelector('#rialzoMinimo').textContent = ac.rialzoMinimo.toFixed(2);
+      closedSec.querySelector('#prezzoIniziale').textContent = ac.prezzoIniziale;
+      closedSec.querySelector('#rialzoMinimo').textContent = ac.rialzoMinimo;
       closedSec.querySelector('#dataScadenza').textContent = ac.dataScadenza;
       closedSec.querySelector('#oraScadenza').textContent = ac.oraScadenza;
-      closedSec.querySelector('#prezzo').textContent = result.prezzo.toFixed(2);
+      closedSec.querySelector('#prezzo').textContent = result.prezzo;
       closedSec.querySelector('#nomeAcquirente').textContent = result.nomeAcquirente;
       closedSec.querySelector('#indirizzo').textContent = result.indirizzo;
     }

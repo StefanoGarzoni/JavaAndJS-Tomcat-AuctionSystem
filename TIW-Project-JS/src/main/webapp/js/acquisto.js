@@ -165,9 +165,9 @@ function addAstaInTable(asta, tableBodyQuerySelector){
 		renderOffertaPage(asta.idAsta);
 	});
 	
-	dettaglioAstaButton.textContent = "Dettaglio Asta";
-	dettaglioAstaButton.addEventListener("click", (idAsta) => {
-		renderDettaglioAstaPage(idAsta);
+	dettaglioAstaButton.textContent = "Inserisci offerta";
+	dettaglioAstaButton.addEventListener("click", () => {
+		renderOffertaPage(asta.idAsta);
 	});
 	newRow.appendChild(dettaglioAstaButton);
 	

@@ -146,8 +146,8 @@ function addOpenAstaInTable(asta){
 	
 	// creazione bottone per passare al dettaglio asta
 	let dettaglioAstaButton = document.createElement("button");
-	dettaglioAstaButton.addEventListener("click", (idAsta) => {
-		renderDettaglioAstaPage(idAsta);
+	dettaglioAstaButton.addEventListener("click", () => {
+		renderDettaglioAstaPage(asta.idAsta);
 	});
 	dettaglioAstaButton.textContent = "Dettaglio Asta";
 	newRow.appendChild(dettaglioAstaButton);
