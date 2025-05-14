@@ -7,33 +7,51 @@ import it.polimi.tiw.dao.Beans.Articolo;
 
 public class ArticoliDAOImpl implements ArticoliDAO{
 
-    public boolean areAllArticlesOfUser(Connection conn, String usernameVenditore, ArrayList<Integer> idArticoli) {
+    public boolean areAllArticlesOfUser(Connection conn, String usernameVenditore, ArrayList<Integer> idArticoli) throws SQLException {
     	String query = "SELECT cod FROM Articoli WHERE venditore = ?";
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-           ps.setString(1, usernameVenditore);
-           ResultSet resultSet = ps.executeQuery();
-           
-           // trasformo il result set in un'array di integer (lista di codici dell'utente)
-           Set<Integer> userArticles = new HashSet<>();
-           while (resultSet.next()) {
-        	   userArticles.add(resultSet.getInt("cod"));
-           }
+        
+        PreparedStatement ps = conn.prepareStatement(query);
+    
+       ps.setString(1, usernameVenditore);
+       ResultSet resultSet = ps.executeQuery();
+       
+       // trasformo il result set in un'array di integer (lista di codici dell'utente)
+       Set<Integer> userArticles = new HashSet<>();
+       while (resultSet.next()) {
+    	   userArticles.add(resultSet.getInt("cod"));
+       }
 
-           // appena uno degli articoli da inserire non è tra quelli dell'utente, restituisce false
-           for (int idArticolo : idArticoli) {
-               if (!userArticles.contains(idArticolo)) {
-                   return false;
-               }
+       // appena uno degli articoli da inserire non è tra quelli dell'utente, restituisce false
+       for (int idArticolo : idArticoli) {
+           if (!userArticles.contains(idArticolo)) {
+               return false;
            }
-           return true;
-
-           
-           
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in insertNewArticolo", e);
-        }
+       }
+       return true;
+    }
+    
+    // restituisce true se tutti gli articoli non sono ancora in un'asta
+    public boolean areAllArticlesFree(Connection conn, ArrayList<Integer> idArticoliToInsertInAsta) throws SQLException {
+    	String query = "SELECT count(*) AS notFreeArticles "
+    			+ "FROM Articoli "
+    			+ "WHERE id_asta IS NOT NULL "
+    			+ "AND cod IN (";
+    	for(int i = 0; i < idArticoliToInsertInAsta.size(); i++) {		// i dati presenti in idArticoliToInsertInAsta sono sanificati e non si rischia SQL injection
+    		query += idArticoliToInsertInAsta.get(i);
+    		if(i < idArticoliToInsertInAsta.size() - 1) {
+    			query += ", ";
+    		}
+    	}
+    	query += ")";
+    	
+    	PreparedStatement ps = conn.prepareStatement(query);
+    	ResultSet resultSet = ps.executeQuery();
+       
+    	
+    	if (resultSet.next() && resultSet.getInt("notFreeArticles") > 0) {	// false se almeno un articolo non è libero
+    		return false;
+    	}
+    	return true;
     }
 	
 	@Override

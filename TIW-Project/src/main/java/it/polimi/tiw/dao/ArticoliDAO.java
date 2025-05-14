@@ -3,6 +3,7 @@
 package it.polimi.tiw.dao;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import it.polimi.tiw.dao.Beans.Articolo;
 
@@ -13,4 +14,5 @@ public interface ArticoliDAO{
 	boolean areAllArticlesOfUser(Connection conn, String usernameVenditore, ArrayList<Integer> idArticoli);
 	int getSumOfPrice(Connection conn, ArrayList<Integer> articles);
 	public void updateIdAstaInArticles(Connection conn, ArrayList<Integer> articles, int idAsta);
+	public boolean areAllArticlesFree(Connection conn, ArrayList<Integer> idArticoliToInsertInAsta) throws SQLException;
 }

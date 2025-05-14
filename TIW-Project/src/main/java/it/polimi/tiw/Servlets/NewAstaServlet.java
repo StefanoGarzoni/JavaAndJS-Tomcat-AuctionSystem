@@ -123,6 +123,12 @@ public class NewAstaServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only your own articles");
 				return;
 			}
+			
+			// controllo che gli articoli che si vogliono inserire non siano già in un'altra asta
+			if(!articoliDAO.areAllArticlesFree(conn, selectedArticlesIds)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only articles that are not in an asta yet");
+				return;
+			}
 		
 			conn.setAutoCommit(false);
 			try {
