@@ -32,7 +32,7 @@ public class AsteDAOImpl implements AsteDAO{
     }
 	
     @Override
-    public Asta insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException {
+    public int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException {
         String query = "INSERT INTO Aste (creatore, prezzo_iniziale, rialzo_minimo, data_scadenza, ora_scadenza) VALUES (?, ?, ?, ?, ?);";
         
         // impostando RETURN_GENERATED_KEYS ci viene restituito l'id dell'asta creato da AUTO_INCREMENT
@@ -51,9 +51,8 @@ public class AsteDAOImpl implements AsteDAO{
 
         ResultSet generatedKeys = ps.getGeneratedKeys();
         if (generatedKeys.next()) {
-        	int idNewAsta = generatedKeys.getInt(1);		//nuovo id AUTO_INCREMENT generato            	
-        	Asta astaToReturn = new Asta(idNewAsta, usernameCreatore, prezzoIniziale, rialzoMinimo, dataScadenza, oraScadenza, 0, false, null);
-        	return astaToReturn;
+        	int idNewAsta = generatedKeys.getInt(1);		//nuovo id AUTO_INCREMENT generato
+        	return idNewAsta;
         }
         else
             throw new SQLException("Inserimento riuscito ma nessun ID ottenuto.");

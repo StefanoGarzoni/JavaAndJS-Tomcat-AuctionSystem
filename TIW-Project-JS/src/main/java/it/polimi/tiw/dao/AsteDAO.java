@@ -11,7 +11,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 
 public interface AsteDAO{
-	Asta insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException;
+	int insertNewAsta(Connection conn, String usernameCreatore, double prezzoIniziale, double rialzoMinimo, Date dataScadenza, Time oraScadenza) throws SQLException;
 	ArrayList<Asta> getAllClosedAsteInfoByCreator(Connection conn, String usernamaCreatore) throws SQLException; 
 	ArrayList<Asta> getAllOpenAsteInfoByCreator(Connection conn, String usernamaCreatore) throws SQLException;
     ArrayList<Asta> getAsteByStringInArticoli(Connection conn, String stringaDiRicerca, String username) throws SQLException; 

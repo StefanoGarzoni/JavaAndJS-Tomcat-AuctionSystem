@@ -3,12 +3,13 @@ package it.polimi.tiw.Servlets;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-
+import java.sql.Date;
 
 import com.google.gson.Gson;
 
@@ -17,10 +18,13 @@ import it.polimi.tiw.dao.ArticoliDAO;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
 import it.polimi.tiw.dao.AsteDAO;
 import it.polimi.tiw.dao.AsteDAOImpl;
+import it.polimi.tiw.dao.Beans.Articolo;
 import it.polimi.tiw.dao.Beans.Asta;
 import jakarta.servlet.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.*;
 
+@MultipartConfig
 public class NewAstaServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -34,6 +38,7 @@ public class NewAstaServlet extends HttpServlet {
 		
 		// parameters sanitise
 		String[] selectedArticlesStrings = request.getParameterValues("codiceArticolo");
+		
 		String rialzoMinimoString = request.getParameter("rialzoMinimo");
 		String dataScadenzaString = request.getParameter("dataScadenza");
 		String oraScadenzaString = request.getParameter("oraScadenza");
@@ -107,26 +112,40 @@ public class NewAstaServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only your own articles");
 				return;
 			}
+			
+			// controllo che gli articoli che si vogliono inserire non siano già in un'altra asta
+			if(!articoliDAO.areAllArticlesFree(conn, selectedArticlesIds)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only articles that are not in an asta yet");
+				return;
+			}
+			
+			Date dataScadenza = java.sql.Date.valueOf(data);
+			Time oraScadenza = java.sql.Time.valueOf(ora);
 		
 			conn.setAutoCommit(false);
 			try {
 				int startingPrice = articoliDAO.getSumOfPrice(conn, selectedArticlesIds);
 				
-				Asta newAsta = asteDAO.insertNewAsta(
+				// inserisce un'asta e restituisce l'id generato
+				int idNewAsta = asteDAO.insertNewAsta(
 						conn,
 						username,
 						startingPrice, 
 						rialzoMinimo, 
-						java.sql.Date.valueOf(data),
-						java.sql.Time.valueOf(ora)
+						dataScadenza,
+						oraScadenza
 						);
 				
-				AsteDAOImpl.setTempoRimanenteInAsta(newAsta, LocalDateTime.now());
-				
 				// aggiornamento degli id_asta negli articoli in essa presenti
-				articoliDAO.updateIdAstaInArticles(conn, selectedArticlesIds, newAsta.getIdAsta());
+				articoliDAO.updateIdAstaInArticles(conn, selectedArticlesIds, idNewAsta);
 				
-				// eseguo le modifiche sul DB se tutti i campi sono stati aggiornati correttamente senza errori
+				// estraggo gli articoli dell'asta e creo l'oggetto asta da inviare al client
+				ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, idNewAsta);
+	        	
+				Asta newAsta = new Asta(idNewAsta, username, startingPrice, rialzoMinimo, dataScadenza, oraScadenza, 0, false, articoli);
+	        	AsteDAOImpl.setTempoRimanenteInAsta(newAsta, LocalDateTime.now());
+				
+	        	// eseguo le modifiche sul DB se tutti i campi sono stati aggiornati correttamente senza errori
 				conn.commit();
 				
 				// imposto il cookie con la nuova azione
@@ -138,6 +157,8 @@ public class NewAstaServlet extends HttpServlet {
 			    response.setCharacterEncoding("UTF-8");
 			    
 			    String finalJson = gson.toJson(newAsta);
+			    
+			    System.out.println(finalJson);
 			    
 			    // scrivo il json nella response
 			    PrintWriter out = response.getWriter();

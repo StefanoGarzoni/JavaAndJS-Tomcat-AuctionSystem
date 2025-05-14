@@ -22,13 +22,14 @@ import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.Beans.Articolo;
 import it.polimi.tiw.dao.Beans.Asta;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 public class VendoHomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private Gson gson = new Gson();
+	AsteDAO asteDAO = new AsteDAOImpl();
+	ArticoliDAO articoliDAO = new ArticoliDAOImpl();
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
@@ -43,57 +44,67 @@ public class VendoHomeServlet extends HttpServlet {
 			session.removeAttribute("idAsta");
 		}
 		
-		AsteDAO asteDAO = new AsteDAOImpl();
-		ArticoliDAO articoliDAO = new ArticoliDAOImpl();
-		
 		String username = (String) session.getAttribute("username");
 		LocalDateTime lastLoginTimestamp = (LocalDateTime) session.getAttribute("lastLoginTimestamp");
 		
 		// in base ai flag presenti nei cookie, carico dal db e invio al client solo le sezioni necessarie
 		Cookie[] cookies = request.getCookies();
 		
-		setUnsetCookies(cookies, response);
+		Cookie renderAllAsteCookie = null;
+		Cookie renderOpenAsteCookie = null;
+		Cookie renderArticoliCookie = null;
+		
+		// estraggo i cookie che mi servono
+		for (Cookie cookie : cookies) {
+			if(cookie.getName().equals("renderAllTablesAste"))
+				renderAllAsteCookie = cookie;
+			else if(cookie.getName().equals("renderTableAsteAperte")) {
+				renderOpenAsteCookie = cookie;
+			}
+			else if(cookie.getName().equals("renderArticoli")) {
+				renderArticoliCookie = cookie;
+			}
+		}
 		
 		// creo l'oggetto json che conterrà le tre liste di elementi
 		JsonObject finalObject = new JsonObject();
 		
 		try(Connection conn = ConnectionManager.getConnection()){
-			
-			for (Cookie cookie : cookies) {
+			// imposto a true quelli non presenti (dovrò renderizzare le sezioni)
+			if(renderAllAsteCookie == null || ( renderAllAsteCookie.getName().equals("renderAllTablesAste") && renderAllAsteCookie.getValue().equals("true") )) {
+				// aggiungo aste aperte
+				ArrayList<Asta> openAste = asteDAO.getAllOpenAsteInfoByCreator(conn, username);
+				for(Asta asta : openAste)
+					AsteDAOImpl.setTempoRimanenteInAsta(asta, lastLoginTimestamp);
+				JsonArray jsonArrayOpenAste = gson.toJsonTree(openAste).getAsJsonArray();
+				finalObject.add("openAste", jsonArrayOpenAste);
 				
-				if(cookie.getName().equals("renderAllTablesAste") && cookie.getValue().equals("true") ) {
-					// aggiungo aste aperte
-					ArrayList<Asta> openAste = asteDAO.getAllOpenAsteInfoByCreator(conn, username);
-					for(Asta asta : openAste)
-						AsteDAOImpl.setTempoRimanenteInAsta(asta, lastLoginTimestamp);
-					JsonArray jsonArrayOpenAste = gson.toJsonTree(openAste).getAsJsonArray();
-					finalObject.add("openAste", jsonArrayOpenAste);
-					
-					// aggiungo aste chiuse
-					ArrayList<Asta> closedAste = asteDAO.getAllClosedAsteInfoByCreator(conn, username);
-					JsonArray jsonArrayClosedAste = gson.toJsonTree(closedAste).getAsJsonArray();
-					finalObject.add("closedAste", jsonArrayClosedAste);
-					
-					// imposto a false il cookie => se non avvengono modifiche tra una visualizzazione di vendo e l'altra, 
-					// questa sezione non andrà richiesta
-					setCookie(response, "renderAllTablesAste", "false", 30);
-				}
-				else if(cookie.getName().equals("renderTableAsteAperte") && cookie.getValue().equals("true")) {
-					// aggiungo aste chiuse
-					ArrayList<Asta> closedAste = asteDAO.getAllClosedAsteInfoByCreator(conn, username);
-					JsonArray jsonArrayClosedAste = gson.toJsonTree(closedAste).getAsJsonArray();
-					finalObject.add("closedAste", jsonArrayClosedAste);
-					
-					setCookie(response, "renderTableAsteAperte", "false", 30);
-				}
-				else if(cookie.getName().equals("renderArticoli") && cookie.getValue().equals("true")) {
-					// aggiungo gli articoli
-					ArrayList<Articolo> availableArticoli = articoliDAO.getMyArticoli(conn, username);
-					JsonArray jsonArrayArticoli = gson.toJsonTree(availableArticoli).getAsJsonArray();
-					finalObject.add("articoli", jsonArrayArticoli);
-					
-					setCookie(response, "renderArticoli", "false", 30);
-				}
+				// aggiungo aste chiuse
+				ArrayList<Asta> closedAste = asteDAO.getAllClosedAsteInfoByCreator(conn, username);
+				JsonArray jsonArrayClosedAste = gson.toJsonTree(closedAste).getAsJsonArray();
+				finalObject.add("closedAste", jsonArrayClosedAste);
+				
+				// imposto a false il cookie => se non avvengono modifiche tra una visualizzazione di vendo e l'altra, 
+				// questa sezione non andrà richiesta
+				setCookie(response, "renderAllTablesAste", "false", 30);
+			}
+			
+			if(renderOpenAsteCookie == null || (renderOpenAsteCookie.getName().equals("renderTableAsteAperte") && renderOpenAsteCookie.getValue().equals("true"))) {
+				// aggiungo aste chiuse
+				ArrayList<Asta> closedAste = asteDAO.getAllClosedAsteInfoByCreator(conn, username);
+				JsonArray jsonArrayClosedAste = gson.toJsonTree(closedAste).getAsJsonArray();
+				finalObject.add("closedAste", jsonArrayClosedAste);
+				
+				setCookie(response, "renderTableAsteAperte", "false", 30);
+			}
+			
+			if(renderArticoliCookie == null || (renderArticoliCookie.getName().equals("renderArticoli") && renderArticoliCookie.getValue().equals("true"))) {
+				// aggiungo gli articoli
+				ArrayList<Articolo> availableArticoli = articoliDAO.getMyArticoli(conn, username);
+				JsonArray jsonArrayArticoli = gson.toJsonTree(availableArticoli).getAsJsonArray();
+				finalObject.add("articoli", jsonArrayArticoli);
+				
+				setCookie(response, "renderArticoli", "false", 30);
 			}
 			
 			// Converti in stringa JSON
@@ -106,35 +117,6 @@ public class VendoHomeServlet extends HttpServlet {
 		}
 		catch (SQLException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante il recupero delle informazioni");
-		}
-	}
-	
-	private void setUnsetCookies(Cookie[] cookies, HttpServletResponse response) {
-		boolean renderAllAsteCookieFound = false;
-		boolean renderOpenAsteCookieFound = false;
-		boolean renderArticoliCookieFound = false;
-		
-		// controllo che tutti i cookie siano impostati
-		for (Cookie cookie : cookies) {
-			if(cookie.getName().equals("renderAllTablesAste"))
-				renderAllAsteCookieFound = true;
-			else if(cookie.getName().equals("renderAllTablesAste")) {
-				renderOpenAsteCookieFound = true;
-			}
-			else if(cookie.getName().equals("renderArticoli")) {
-				renderArticoliCookieFound = true;
-			}
-		}
-		
-		// imposto a true quelli non presenti (dovrò renderizzare le sezioni)
-		if(!renderAllAsteCookieFound) {
-			setCookie(response, "renderAllTablesAste", "true", 30);
-		}
-		if(!renderOpenAsteCookieFound) {
-			setCookie(response, "renderTableAsteAperte", "true", 30);
-		}
-		if(!renderArticoliCookieFound) {
-			setCookie(response, "renderArticoli", "true", 30);
 		}
 	}
 
