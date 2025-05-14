@@ -1,4 +1,5 @@
 import { renderDettaglioAstaPage } from "./dettaglioAsta.js";
+import { renderOffertaPage } from "./offerte.js";
 
 export function renderAcquistoPage(){	
 	document.querySelector("#acquistoPage").removeAttribute("hidden");
@@ -47,9 +48,9 @@ export function freePageAcquisto(){
 		searchAstaByKeyword
 	);
 	
-	document.querySelector("#listaAsteByKeyword").setAttribute("hidden");	// nascondo la lista di aste
+	document.querySelector("#listaAsteByKeyword").hidden = true;	// nascondo la lista di aste
 	document.querySelector("#bodyTabellaAsteByKeyword").innerHTML = "";		// svuoto la tabella delle aste con la parola chiave precedentemente ricercata
-	document.querySelector("#listaAsteVisionate").setAttribute("hidden");																		// in questo modo vengono eliminati anche gli event listeners sui bottoni																
+	document.querySelector("#listaAsteVisionate").hidden = true;																		// in questo modo vengono eliminati anche gli event listeners sui bottoni																
 }
 
 function searchAstaByKeyword(){
@@ -61,6 +62,7 @@ function searchAstaByKeyword(){
 	}
 	
 	document.querySelector("#listaAsteByKeywordMessage").textContent = "";
+	document.querySelector("#listaAsteByKeyword").hidden = true;
 	
 	// creazione parametri da passare con la richiesta
 	const formData = new FormData();
@@ -80,12 +82,12 @@ function searchAstaByKeyword(){
 function showAsteByKeyword(request){
 	if(request.readyState == 4){
 		if(request.status == 200){
-			document.querySelector("#listaAsteByKeyword").removeAttribute("hidden");
 			document.querySelector("#bodyTabellaAsteByKeyword").innerHTML = "";		// svuoto la tabella delle aste con la parola chiave precedentemente ricercata
 			
 			const aste = JSON.parse(request.responseText);
 			
 			if(aste.length > 0){
+				document.querySelector("#listaAsteByKeyword").removeAttribute("hidden");
 				aste.forEach((asta) => {
 					addAstaInTable(asta, "#bodyTabellaAsteByKeyword");
 				});

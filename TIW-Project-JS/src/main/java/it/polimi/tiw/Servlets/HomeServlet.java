@@ -39,10 +39,21 @@ public class HomeServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
 		}
+		
+		// alla prima interazione, imposta i cookie per ricaricare le tabelle
+		setCookie(response, "renderAllTablesAste", "true", 30);
+		setCookie(response, "renderTableAsteAperte", "true", 30);
+		setCookie(response, "renderArticoli", "true", 30);
             
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		
 		templateEngine.process(path, ctx, response.getWriter());
+	}
+	
+	private void setCookie(HttpServletResponse response, String name, String value, int days) {
+		Cookie cookie = new Cookie(name, value);
+		cookie.setMaxAge(days*60*60*24);
+        response.addCookie(cookie);
 	}
 }
