@@ -33,6 +33,35 @@ public class OfferteDAOImpl implements OfferteDAO{
         }
         return offerte;
     }
+    
+	public ArrayList<Offerta> getAsteAggiudicateByUsername(Connection conn, String username) throws SQLException{
+		String query = "SELECT O.id_asta AS id_asta, O.prezzo AS prezzo "
+				+ "FROM Aste A"
+				+ "		JOIN Offerte O ON A.id_asta = O.id_asta "
+				+ "WHERE A.chiusa = 1 AND "
+				+ "		A.offerta_max = O.id_offerta "
+				+ "		AND O.utente = ?";
+		
+		ArrayList<Offerta> offerteAggiudicate = new ArrayList<>();
+	        
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, username);
+        
+        ResultSet result = ps.executeQuery();
+        while (result.next()) {
+            Offerta offerta = new Offerta(
+            	-1,
+            	null,
+            	result.getInt("id_asta"),
+            	result.getDouble("prezzo"),
+            	null,
+            	null
+            );
+            offerteAggiudicate.add(offerta);
+        }
+        
+        return offerteAggiudicate;
+	}
 
     @Override
     public ArrayList<Offerta> getOfferteByIdAsta(Connection conn, int idAsta) {

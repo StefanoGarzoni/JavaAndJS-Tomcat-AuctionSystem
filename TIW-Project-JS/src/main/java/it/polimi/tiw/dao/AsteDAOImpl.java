@@ -11,6 +11,7 @@ import java.util.*;
 
 import it.polimi.tiw.dao.Beans.Articolo;
 import it.polimi.tiw.dao.Beans.Asta;
+import it.polimi.tiw.dao.Beans.Offerta;
 
 public class AsteDAOImpl implements AsteDAO{
 	

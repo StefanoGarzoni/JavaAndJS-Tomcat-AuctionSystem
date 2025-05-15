@@ -5,6 +5,7 @@ package it.polimi.tiw.dao;
 import java.sql.Time;
 import java.util.*;
 import it.polimi.tiw.dao.Beans.Asta;
+import it.polimi.tiw.dao.Beans.Offerta;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -24,5 +25,4 @@ public interface AsteDAO{
     Map<Asta, ArrayList<String>> getInfoFromAClosedAsta(Connection conn, int idAsta);
     boolean checkCreatorOfAsta(Connection conn, String username, int idAsta);
     public Double getRialzoMinimo(Connection conn, int idAsta);
-
 }

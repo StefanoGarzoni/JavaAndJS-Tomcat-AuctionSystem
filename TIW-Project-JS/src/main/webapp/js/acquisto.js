@@ -1,4 +1,3 @@
-import { renderDettaglioAstaPage } from "./dettaglioAsta.js";
 import { renderOffertaPage } from "./offerte.js";
 
 export function renderAcquistoPage(){	
@@ -9,27 +8,47 @@ export function renderAcquistoPage(){
 		searchAstaByKeyword
 	);
 	
-	renderAsteVisionate();
+	renderAsteVisionateEAggiudicate();
 }
 
-function renderAsteVisionate(){
+function renderAsteVisionateEAggiudicate(){
 	// richiedi al server le aste visionate (la servlet analizzerà la lista di cookie e restituirà la lista delle rispettive aste)
 	let request = new XMLHttpRequest();
 	request.open("GET", "/TIW-Project-JS/acquisto");
 	
-	request.onreadystatechange = (request) => {
+	request.onreadystatechange = () => {
 		if(request.readyState == 4){
 			if(request.status == 200){
 				// se è presente del contenuto nella risposta => sono le aste visitate da mostrare
-					document.querySelector("#bodyTabellaAsteVisionate").innerHTML = '';	// svuoto la tabella precedente per far spazio ai dati aggiornati
-					const asteVisionate = JSON.parse(request.responseText);
+				document.querySelector("#bodyTabellaAsteVisionate").innerHTML = '';	// svuoto la tabella precedente per far spazio ai dati aggiornati
 				
-				if(asteVisionate.length > 0){
+				const jsonResponse = JSON.parse(request.responseText);
+				
+				// mostro le aste visionate
+				const asteVisionate = jsonResponse.asteVisionate;
+				
+				if(asteVisionate && asteVisionate.length > 0){
 					document.querySelector("#listaAsteVisionate").removeAttribute("hidden");
 					
 					for(const asta of asteVisionate){
 						addAstaInTable(asta, "bodyTabellaAsteVisionate");
 					}
+				}
+				else{
+					document.querySelector("#listaAsteVisionateMessage").textContent = "Non hai ancora visionato un'asta";
+				}
+				
+				// aste "custom" poichè il server non trasmette un'oggetto Asta ma un oggetto che contiene idAsta, lista di articoli e prezzo finale
+				const asteCustomAggiudicate = jsonResponse.asteCustomAggiudicate;
+				if(asteCustomAggiudicate && asteCustomAggiudicate.length > 0){
+					document.querySelector("#listaAsteAggiudicate").removeAttribute("hidden");
+					
+					for(const astaCustom of asteCustomAggiudicate){
+						addAstaAggiudicataInTable(astaCustom);
+					}
+				}
+				else{
+					document.querySelector("#listaAsteAggiudicateMessage").textContent = "Non ti sei ancora aggiudicato nessuna asta";
 				}
 			}
 			else
@@ -38,6 +57,42 @@ function renderAsteVisionate(){
 	}
 	
 	request.send();
+}
+
+function addAstaAggiudicataInTable(astaCustom){
+	const tbody = document.querySelector("#bodyTabellaAsteAggiudicate");
+	
+	const newRow = document.createElement("tr");
+	
+	let idAstaElement = document.createElement("td");
+	idAstaElement.textContent = astaCustom.idAsta;
+	newRow.appendChild(idAstaElement);
+	
+	// creazione tabella articoli
+	let articlesTable = document.createElement("table");
+	
+	astaCustom.articoli.forEach((articolo) => {
+		let tr = document.createElement("tr");
+		
+		let codiceTd = document.createElement("td");
+		codiceTd.textContent = articolo.cod;
+		tr.appendChild(codiceTd);
+		
+		let nomeTd = document.createElement("td");
+		nomeTd.textContent = articolo.nomeArticolo;
+		tr.appendChild(nomeTd);
+		
+		articlesTable.appendChild(tr);
+	});
+	let articlesTableElement = document.createElement("td");
+	articlesTableElement.appendChild(articlesTable);
+	newRow.appendChild(articlesTableElement);
+	
+	let prezzoFinaleElement = document.createElement("td");
+	prezzoFinaleElement.textContent = astaCustom.prezzoFinale;
+	newRow.appendChild(prezzoFinaleElement);
+	
+	tbody.appendChild(newRow);
 }
 
 export function freePageAcquisto(){
