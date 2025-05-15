@@ -41,7 +41,7 @@ export function renderDettaglioAstaPage(idAsta) {
       openSec.hidden = false;
       closedSec.hidden = true;
       const { creatore, prezzoIniziale, rialzoMinimo, dataScadenza, oraScadenza } = result.openAsta;
-
+		
       openSec.querySelector('#creatore').textContent = creatore;
       openSec.querySelector('#prezzo').textContent = prezzoIniziale;
       openSec.querySelector('#rialzo').textContent = rialzoMinimo;
@@ -52,14 +52,15 @@ export function renderDettaglioAstaPage(idAsta) {
       const tbody = openSec.querySelector('table tbody');
       result.offerte.forEach(o => {
         const row = tbody.insertRow();
-        row.insertCell().textContent = o.username;
+        row.insertCell().textContent = o.utente;
         row.insertCell().textContent = o.prezzo;
         row.insertCell().textContent = o.dataOfferta;
         row.insertCell().textContent = o.oraOfferta;
       });
 
       // Gestione bottone "Chiudi Asta"
-      const canDiv = page.getElementById('#canBeClosed');
+	  
+      const canDiv = page.querySelector('#canBeClosed');
       const btn = canDiv.querySelector('button');
       if (result.canBeClosed) {
         canDiv.hidden = false;

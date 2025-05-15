@@ -6,14 +6,14 @@ export function renderOffertaPage(idAsta) {
   const page = document.getElementById('offertaPage');
 
   // Pulisco i campi dinamici (tbody)
-  const offTable = document.getElementById('listaOfferte');
+  const offTable = document.getElementById('listaOffertePage');
   if (offTable) offTable.innerHTML = '';
   const artTable = document.getElementById('articoliAsta');
   if (artTable) artTable.innerHTML = '';
 
-  // Chiamata GET tramite XMTHttpRequest
-  const xhr = new XMTHttpRequest();
-  xhr.open('GET', `OfferteServlet?idAsta=${encodeURIComponent(idAsta)}`);
+  // Chiamata GET tramite XMLHttpRequest
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', `offertePage?idAsta=${encodeURIComponent(idAsta)}`);
   xhr.responseType = 'json';
 
   xhr.onload = function() {
@@ -26,24 +26,24 @@ export function renderOffertaPage(idAsta) {
     // Popolo la tabella degli articoli
     articoli.forEach(a => {
       const row = artTable.insertRow();
-      row.insertCell().textContent = a.codice;
+      row.insertCell().textContent = a.cod;
       row.insertCell().textContent = a.venditore;
       row.insertCell().textContent = a.nomeArticolo;
       row.insertCell().textContent = a.descrizione;
-      row.insertCell().textContent = a.prezzo.toFixed(2);
+      row.insertCell().textContent = a.prezzo;
     });
 
     // Popolo la tabella delle offerte
     offerte.forEach(o => {
       const row = offTable.insertRow();
-      row.insertCell().textContent = o.username;
-      row.insertCell().textContent = o.prezzo.toFixed(2);
+      row.insertCell().textContent = o.utente;
+      row.insertCell().textContent = o.prezzo;
       row.insertCell().textContent = o.dataOfferta;
       row.insertCell().textContent = o.oraOfferta;
     });
 
     // Mostro il rialzo minimo
-    document.getElementById('rialzoMinimo').textContent = rialzo_minimo.toFixed(2);
+    document.getElementById('rialzoMinimo').textContent = rialzo_minimo;
 
     // Aggancio il bottone per l'inserimento dell'offerta (riclonandolo per rimuovere listener)
     const btn = document.getElementById('submitNewOfferta');
@@ -72,7 +72,7 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
   const minOfferta = prezzoAttuale + rialzoMinimo;
 
   if (isNaN(prezzoUser) || prezzoUser < minOfferta) {
-    alert(`Offerta minima: ${minOfferta.toFixed(2)}€`);
+    alert(`Offerta minima: ${minOfferta}€`);
     return;
   }
 
@@ -82,7 +82,7 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
 
   // Chiamata POST tramite XMLHttpRequest
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'AddOffertaServlet');
+  xhr.open('POST', 'offertaAdd');
   //imposto gli header??
 
   xhr.onload = function() {
@@ -94,15 +94,15 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
     try {
       // Parsing dell'oggetto Offerta restituito dalla servlet
       const newOfferta = JSON.parse(xhr.response);
-      const table = document.getElementById('listaOfferte');
+      const table = document.getElementById('listaOffertePage');
 
       // Approccio meno verbose: insertRow + insertCell
       const row = table.insertRow();
-      row.insertCell().textContent = newOfferta.username;
-      row.insertCell().textContent = parseFloat(newOfferta.prezzo).toFixed(2) + '€';
-      row.insertCell().textContent = newOfferta.data;
-      row.insertCell().textContent = newOfferta.ora;
-      row.insertCell().textContent = newOfferta.id;
+      row.insertCell().textContent = newOfferta.utente;
+      row.insertCell().textContent = newOfferta.prezzo;
+      row.insertCell().textContent = newOfferta.dataOfferta;
+      row.insertCell().textContent = newOfferta.oraOfferta;
+      row.insertCell().textContent = newOfferta.idOfferta;
 
       // Ripulisco input
       inputPrezzo.value = '';
