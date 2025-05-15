@@ -68,7 +68,7 @@ public class OfferteServlet extends HttpServlet {
         }
 
         //controllo cookie per lista aste già visitate
-        int oneWeek = 7 * 24 * 60 * 60;
+        int oneWeek = 30 * 24 * 60 * 60; //un mese
         List<Integer> visits = new ArrayList<>();
         boolean renderTableAsteVisionateFound = false;
         boolean listaAsteFound = false;

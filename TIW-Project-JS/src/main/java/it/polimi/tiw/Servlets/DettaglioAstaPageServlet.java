@@ -70,22 +70,22 @@ public class DettaglioAstaPageServlet extends HttpServlet {
             Asta openAsta = asteDAO.getOpenAstaById(conn, idAsta);
             if (openAsta != null) {
                 // Asta aperta: invio dati asta + offerte
-                boolean canBeClosed     = asteDAO.astaCanBeClosed(conn, idAsta);
-                List<Offerta> offerte   = offerteDAO.getOfferteInOpenAsta(conn, idAsta);
+                boolean canBeClosed = asteDAO.astaCanBeClosed(conn, idAsta);
+                List<Offerta> offerte = offerteDAO.getOfferteInOpenAsta(conn, idAsta);
 
-                result.put("openAsta",    openAsta);
-                result.put("canBeClosed", canBeClosed);
-                result.put("offerte",     offerte);
+                result.put("openAsta", openAsta);
+                result.put("canBeClosed",canBeClosed);
+                result.put("offerte", offerte);
             } else {
                 // Asta chiusa: invio dati asta chiusa + info acquirente
                 Map<Asta, ArrayList<String>> closedInfo = asteDAO.getInfoFromAClosedAsta(conn, idAsta);
                 Asta astaChiusa = closedInfo.keySet().iterator().next();
                 ArrayList<String> info = closedInfo.get(astaChiusa);
 
-                result.put("astaChiusa",    astaChiusa);
+                result.put("astaChiusa", astaChiusa);
                 result.put("nomeAcquirente", info.get(0));
-                result.put("prezzo",         info.get(1));
-                result.put("indirizzo",      info.get(2));
+                result.put("prezzo", info.get(1));
+                result.put("indirizzo", info.get(2));
             }
 
             // 5) Serializzo e invio JSON

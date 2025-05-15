@@ -102,12 +102,12 @@ public class AddOffertaServlet extends HttpServlet {
         
         if(!lastActionCookieFound) {
             Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
-            lastActionCookie.setMaxAge(60*60*24);
+            lastActionCookie.setMaxAge(60*60*24*30);
             response.addCookie(lastActionCookie);
         }
         if(!tableOpenAsteCookieFound) {
             Cookie tableOpenAsteCookie = new Cookie("renderTableAsteAperte", "true");
-            tableOpenAsteCookie.setMaxAge(60*60*24);
+            tableOpenAsteCookie.setMaxAge(60*60*24*30);
             response.addCookie(tableOpenAsteCookie);
         }
 
