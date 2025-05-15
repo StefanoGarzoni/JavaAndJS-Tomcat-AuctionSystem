@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import it.polimi.tiw.ConnectionManager;
@@ -17,6 +20,7 @@ import it.polimi.tiw.dao.ArticoliDAOImpl;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.dao.Beans.Articolo;
+import it.polimi.tiw.dao.Beans.Asta;
 import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -68,71 +72,50 @@ public class OfferteServlet extends HttpServlet {
         }
 
         //controllo cookie per lista aste già visitate
-        int oneWeek = 30 * 24 * 60 * 60; //un mese
-        List<Integer> visits = new ArrayList<>();
-        boolean renderTableAsteVisionateFound = false;
-        boolean listaAsteFound = false;
+        int oneMonth = 30 * 24 * 60 * 60; //un mese
+        JsonArray asteVisionateJsonArray = null;
 
         //cerco se cookie esiste
         Cookie[] cookies = request.getCookies();
-        Cookie listaAste = null;
-        Cookie renderTableAsteVisionate = null;
 
+        // cerco il cookie "asteVisionate"
         if (cookies != null) {
             for (Cookie c : cookies) {
-
-                if (c.getName().equals("asteLastVisited")) {
-                    listaAste = c;
-                    String json = URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8.name());
-                    visits = new Gson().fromJson(json, new TypeToken<List<Integer>>() {}.getType());
-                    listaAsteFound = true;
-
-                } else if(c.getName().equals("renderTableAsteVisionate")){
-                    renderTableAsteVisionateFound = true;
-                    //se c'è lo salvo in una variabile in modo che poi nel caso posso modificarlo
-                    renderTableAsteVisionate = c;
-                    renderTableAsteVisionate.setValue(URLEncoder.encode("false", StandardCharsets.UTF_8.name()));
-                }
-
-                if(listaAsteFound && renderTableAsteVisionateFound){
+                if (c.getName().equals("asteVisionate")) {
+                	// dal cookie estraggo un JsonArray contente gli id delle aste
+                    String decodedAsteVisionateJsonCookie = URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8);
+                    asteVisionateJsonArray = JsonParser.parseString(decodedAsteVisionateJsonCookie).getAsJsonArray();
                     break;
                 }
             }
         }
-
-        if(!renderTableAsteVisionateFound){
-            renderTableAsteVisionate = new Cookie("renderTableAsteVisionate", URLEncoder.encode("false", StandardCharsets.UTF_8.name()));
-        }
         
-        if(!listaAsteFound){
-            String emptyJson = new Gson().toJson(visits); // "[]"
-            listaAste = new Cookie("asteLastVisited", URLEncoder.encode(emptyJson, StandardCharsets.UTF_8.name()));
+        boolean astaAlreadyVisited = false;
+        if(asteVisionateJsonArray != null) {
+    		// controllo se l'asta è già stata visionata
+	    	for(JsonElement astaVisionata : asteVisionateJsonArray) {
+	    		if(astaVisionata.getAsInt() == idAsta)
+	    			astaAlreadyVisited = true;
+	    	}
+    	}
+        else {
+        	// se il cookie non era già presente, creo un JsonArray vuoto
+			asteVisionateJsonArray = new JsonArray();
         }
-
-        // prende il parametro idAsta dalla richiesta
-        try {
-            if (!visits.contains(idAsta)) {
-                visits.add(idAsta);
-                //aggiorno il cookie e imposto il cookie renderTableAsteVisionate a true
-                listaAste.setValue(URLEncoder.encode(gson.toJson(visits), StandardCharsets.UTF_8.name()));
-
-                renderTableAsteVisionate.setValue(URLEncoder.encode("true", StandardCharsets.UTF_8.name()));
-            }
-
-            listaAste.setMaxAge(oneWeek);
-            listaAste.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
-            renderTableAsteVisionate.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
-            renderTableAsteVisionate.setMaxAge(oneWeek);
-
-            response.addCookie(listaAste);
-            response.addCookie(renderTableAsteVisionate);
-
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"problemi con i cookies\"}");
-            return;
+    	
+    	// se non è stata visionata (cookie non esistente o non contiene l'id), la aggiungo
+        if (!astaAlreadyVisited) {
+        	asteVisionateJsonArray.add(idAsta);
+            
+        	//creo il cookie aggiornato
+        	String encodedAsteVisionate = URLEncoder.encode(gson.toJson(asteVisionateJsonArray), StandardCharsets.UTF_8);
+        	
+        	Cookie updatedCookie = new Cookie("asteVisionate", encodedAsteVisionate);
+            updatedCookie.setMaxAge(oneMonth);
+            updatedCookie.setPath(request.getContextPath());
+            
+            response.addCookie(updatedCookie);
         }
-        
 
         //Recupero dati dal DB
         try (Connection conn = ConnectionManager.getConnection()) {

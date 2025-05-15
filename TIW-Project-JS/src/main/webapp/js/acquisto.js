@@ -21,6 +21,7 @@ function renderAsteVisionateEAggiudicate(){
 			if(request.status == 200){
 				// se è presente del contenuto nella risposta => sono le aste visitate da mostrare
 				document.querySelector("#bodyTabellaAsteVisionate").innerHTML = '';	// svuoto la tabella precedente per far spazio ai dati aggiornati
+				document.querySelector("#bodyTabellaAsteAggiudicate").innerHTML = '';
 				
 				const jsonResponse = JSON.parse(request.responseText);
 				
@@ -31,7 +32,7 @@ function renderAsteVisionateEAggiudicate(){
 					document.querySelector("#listaAsteVisionate").removeAttribute("hidden");
 					
 					for(const asta of asteVisionate){
-						addAstaInTable(asta, "bodyTabellaAsteVisionate");
+						addAstaInTable(asta, "#bodyTabellaAsteVisionate");
 					}
 				}
 				else{
@@ -172,23 +173,23 @@ function addAstaInTable(asta, tableBodyQuerySelector){
 	newRow.appendChild(creatoreElement);
 	
 	let prezzoInizialeElement = document.createElement("td");
-	prezzoInizialeElement.textContent = asta.prezzo_iniziale;
+	prezzoInizialeElement.textContent = asta.prezzoIniziale;
 	newRow.appendChild(prezzoInizialeElement);
 	
 	let rialzoMinimoElement = document.createElement("td");
-	rialzoMinimoElement.textContent = asta.rialzo_minimo;
+	rialzoMinimoElement.textContent = asta.rialzoMinimo;
 	newRow.appendChild(rialzoMinimoElement);
 		
 	let dataScadenzaElement = document.createElement("td");
-	dataScadenzaElement.textContent = asta.data_scadenza;
+	dataScadenzaElement.textContent = asta.dataScadenza;
 	newRow.appendChild(dataScadenzaElement);
 	
 	let oraScadenzaElement = document.createElement("td");
-	oraScadenzaElement.textContent = asta.ora_scadenza;
+	oraScadenzaElement.textContent = asta.oraScadenza;
 	newRow.appendChild(oraScadenzaElement);
 	
 	let offertaMaxElement = document.createElement("td");
-	offertaMaxElement.textContent = asta.offerta_max;
+	offertaMaxElement.textContent = asta.offertaMax;
 	newRow.appendChild(offertaMaxElement);
 	
 	// creazione tabella articoli

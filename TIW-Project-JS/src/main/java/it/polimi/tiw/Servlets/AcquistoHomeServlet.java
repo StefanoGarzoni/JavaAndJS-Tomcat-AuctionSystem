@@ -1,6 +1,9 @@
 package it.polimi.tiw.Servlets;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -52,7 +55,10 @@ public class AcquistoHomeServlet extends HttpServlet {
 			// se è presente il cookie, invio le aste visionate
 			if(asteVisionateJsonCookie != null) {
 				// estraggo gli id delle aste visionate dal json
-				JsonArray idAsteVisionate = JsonParser.parseString(asteVisionateJsonCookie).getAsJsonArray();
+				String decodedAsteVisionateJsonCookie = URLDecoder.decode(asteVisionateJsonCookie, StandardCharsets.UTF_8);
+				System.out.println(decodedAsteVisionateJsonCookie);
+				JsonArray idAsteVisionate = JsonParser.parseString(decodedAsteVisionateJsonCookie).getAsJsonArray();
+				
 				ArrayList<Integer> idAste = new ArrayList<>();
 				for (JsonElement idAsta : idAsteVisionate) {
 					try {
@@ -63,12 +69,15 @@ public class AcquistoHomeServlet extends HttpServlet {
 						return;
 					}
 				}
-			
-				// carico le aste visionate
-				ArrayList<Asta> asteVisionate = new AsteDAOImpl().getAsteById(conn, idAste);
 				
-				JsonArray jsonArrayAsteVisionate = gson.toJsonTree(asteVisionate).getAsJsonArray();
-				finalObject.add("asteVisionate", jsonArrayAsteVisionate);
+				if(idAste.size() > 0) {
+					// carico le aste visionate
+					ArrayList<Asta> asteVisionate = new AsteDAOImpl().getAsteById(conn, idAste);
+					removeClosedAsteFromCookieAndList(request, response, asteVisionate);
+					
+					JsonArray jsonArrayAsteVisionate = gson.toJsonTree(asteVisionate).getAsJsonArray();
+					finalObject.add("asteVisionate", jsonArrayAsteVisionate);					
+				}
 			}	
 			
 			// carico le offerte aggiudicate dall'utente (in ogni caso)
@@ -141,5 +150,23 @@ public class AcquistoHomeServlet extends HttpServlet {
 			e.printStackTrace(System.out);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
 		}
+	}
+	
+	private void removeClosedAsteFromCookieAndList(HttpServletRequest request, HttpServletResponse response, ArrayList<Asta> aste) {		
+		// rimuovo l'asta se è chiusa
+		aste.removeIf(asta -> asta.isChiusa());		
+		
+		// aggiorno il cookie con le aste visionate e aperte
+		JsonArray newAsteVisionateJsonArray = new JsonArray();
+		for(Asta a: aste) {
+			newAsteVisionateJsonArray.add(a.getIdAsta());
+		}
+		
+		String encodedAsteVisionate = URLEncoder.encode(gson.toJson(newAsteVisionateJsonArray), StandardCharsets.UTF_8);
+		
+		String newAsteVisionateCookieJson = gson.toJson(encodedAsteVisionate);
+		Cookie updatedCookie = new Cookie("asteVisionate", newAsteVisionateCookieJson);
+		
+		response.addCookie(updatedCookie);
 	}
 }

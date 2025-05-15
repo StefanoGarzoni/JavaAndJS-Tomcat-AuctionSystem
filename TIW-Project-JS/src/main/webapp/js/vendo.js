@@ -96,27 +96,27 @@ function addOpenAstaInTable(asta){
 	newRow.appendChild(idAstaElement);
 	
 	let prezzoInizialeElement = document.createElement("td");
-	prezzoInizialeElement.textContent = asta.prezzo_iniziale;
+	prezzoInizialeElement.textContent = asta.prezzoIniziale;
 	newRow.appendChild(prezzoInizialeElement);
 	
 	let offertaMaxElement = document.createElement("td");
-	offertaMaxElement.textContent = asta.offerta_max;
+	offertaMaxElement.textContent = asta.offertaMax;
 	newRow.appendChild(offertaMaxElement);
 	
 	let dataScadenzaElement = document.createElement("td");
-	dataScadenzaElement.textContent = asta.data_scadenza;
+	dataScadenzaElement.textContent = asta.dataScadenza;
 	newRow.appendChild(dataScadenzaElement);
 	
 	let oraScadenzaElement = document.createElement("td");
-	oraScadenzaElement.textContent = asta.ora_scadenza;
+	oraScadenzaElement.textContent = asta.oraScadenza;
 	newRow.appendChild(oraScadenzaElement);
 			
 	let giorniRimanentiElement = document.createElement("td");
-	giorniRimanentiElement.textContent = asta.giorni_rimanenti;
+	giorniRimanentiElement.textContent = asta.giorniRimanenti;
 	newRow.appendChild(giorniRimanentiElement);
 
 	let oreRimanentiElement = document.createElement("td");
-	oreRimanentiElement.textContent = asta.ore_rimanenti;
+	oreRimanentiElement.textContent = asta.oreRimanenti;
 	newRow.appendChild(oreRimanentiElement);
 	
 	// creazione tabella articoli
@@ -167,19 +167,19 @@ function addClosedAstaInTable(asta){
 	newRow.appendChild(idAstaElement);
 	
 	let prezzoInizialeElement = document.createElement("td");
-	prezzoInizialeElement.textContent = asta.prezzo_iniziale;
+	prezzoInizialeElement.textContent = asta.prezzoIniziale;
 	newRow.appendChild(prezzoInizialeElement);
 	
 	let offertaMaxElement = document.createElement("td");
-	offertaMaxElement.textContent = asta.offerta_max;
+	offertaMaxElement.textContent = asta.offertaMax;
 	newRow.appendChild(offertaMaxElement);
 	
 	let dataScadenzaElement = document.createElement("td");
-	dataScadenzaElement.textContent = asta.data_scadenza;
+	dataScadenzaElement.textContent = asta.dataScadenza;
 	newRow.appendChild(dataScadenzaElement);
 	
 	let oraScadenzaElement = document.createElement("td");
-	oraScadenzaElement.textContent = asta.ora_scadenza;
+	oraScadenzaElement.textContent = asta.oraScadenza;
 	newRow.appendChild(oraScadenzaElement);
 				
 	tbody.appendChild(newRow);

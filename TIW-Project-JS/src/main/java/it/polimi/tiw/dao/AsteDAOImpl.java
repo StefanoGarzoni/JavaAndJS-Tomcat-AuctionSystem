@@ -102,7 +102,7 @@ public class AsteDAOImpl implements AsteDAO{
                 result.getDate("data_scadenza"),
                 result.getTime("ora_scadenza"),
                 result.getInt("offerta_max"),
-                true,
+                result.getBoolean("chiusa"),
                 articoli
             );
             asteToReturn.add(asta);

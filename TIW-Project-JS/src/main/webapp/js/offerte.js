@@ -67,7 +67,7 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
   event.preventDefault();
 
   // Seleziono e valido l'input prezzo
-  const inputPrezzo = document.getElementById('prezzo');
+  const inputPrezzo = document.getElementById('prezzoOffertaAsta');
   const prezzoUser = parseFloat(inputPrezzo.value);
   const minOfferta = prezzoAttuale + rialzoMinimo;
 
