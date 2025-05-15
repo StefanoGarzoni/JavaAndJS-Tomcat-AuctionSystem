@@ -123,7 +123,7 @@ export function handlerCloseAsta(idAsta) {
 	setCookie("lastAction",  {"value" : "closedAsta"} , 30);
 	
     // Ricarica dettagli per mostrare stato aggiornato
-    loadDettaglioAsta(idAsta);
+    loadDettaglioAsta(idAsta);	
   };
 
   xhr.onerror = function() {
