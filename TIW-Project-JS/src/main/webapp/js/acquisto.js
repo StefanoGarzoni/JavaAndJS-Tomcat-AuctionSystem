@@ -30,6 +30,7 @@ function renderAsteVisionateEAggiudicate(){
 				
 				if(asteVisionate && asteVisionate.length > 0){
 					document.querySelector("#listaAsteVisionate").removeAttribute("hidden");
+					document.querySelector("#listaAsteVisionateMessage").innerHTML = '';
 					
 					for(const asta of asteVisionate){
 						addAstaInTable(asta, "#bodyTabellaAsteVisionate");
@@ -43,6 +44,7 @@ function renderAsteVisionateEAggiudicate(){
 				const asteCustomAggiudicate = jsonResponse.asteCustomAggiudicate;
 				if(asteCustomAggiudicate && asteCustomAggiudicate.length > 0){
 					document.querySelector("#listaAsteAggiudicate").removeAttribute("hidden");
+					document.querySelector("#listaAsteAggiudicateMessage").innerHTML = '';
 					
 					for(const astaCustom of asteCustomAggiudicate){
 						addAstaAggiudicataInTable(astaCustom);
@@ -217,10 +219,6 @@ function addAstaInTable(asta, tableBodyQuerySelector){
 	let dettaglioAstaButton = document.createElement("button");
 	
 	// aggiungo l'event listener sul bottone
-	dettaglioAstaButton.addEventListener("click", () => {
-		renderOffertaPage(asta.idAsta);
-	});
-	
 	dettaglioAstaButton.textContent = "Inserisci offerta";
 	dettaglioAstaButton.addEventListener("click", () => {
 		renderOffertaPage(asta.idAsta);
