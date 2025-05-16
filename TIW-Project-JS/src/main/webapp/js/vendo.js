@@ -134,7 +134,7 @@ function addOpenAstaInTable(asta){
 		tr.appendChild(nomeTd);
 		
 		let prezzoTd = document.createElement("td");
-		prezzoTd.textContent = articolo.nomeArticolo;
+		prezzoTd.textContent = articolo.prezzo + " €";
 		tr.appendChild(prezzoTd);
 		
 		articlesTable.appendChild(tr);
@@ -248,6 +248,7 @@ function newArticolo(){	// e è l'evento che ha causato la chiamata della callba
 				const newArticoloInserito = JSON.parse(request.responseText);
 				
 				addArticoloInTable(newArticoloInserito);
+				emptyArticoloInputs();
 			}
 			else{
 				document.querySelector("#newArticoloMessage").textContent = "Problema con l'aggiunta dell'articolo"
@@ -256,6 +257,13 @@ function newArticolo(){	// e è l'evento che ha causato la chiamata della callba
 	}
 	
 	request.send(formData);
+}
+
+function emptyArticoloInputs(){
+	document.getElementById("nomeNewArticolo").value = "";
+	   document.getElementById("descrizioneNewArticolo").value = "";
+	   document.getElementById("immagineNewArticolo").value = ""; // reset input file
+	   document.getElementById("prezzoNewArticolo").value = "";
 }
 
 function newAsta(){
@@ -307,6 +315,7 @@ function newAsta(){
 				codiciArticoli.forEach((codiceArticolo) => {
 					removeArticoloFromTable(codiceArticolo);					
 				});
+				emptyAstaInputs();
 			}
 			else{
 				document.querySelector("#newAstaMessage").textContent = "Il server ha incontrato un problema durante l'aggiunta dell'articolo";
@@ -315,6 +324,12 @@ function newAsta(){
 	}
 	
 	request.send(formData);
+}
+
+function emptyAstaInputs() {
+    document.getElementById("rialzoMinimoNewAsta").value = "";
+    document.getElementById("dataScadenzaNewAsta").value = "";
+    document.getElementById("oraScadenzaNewAsta").value = "";
 }
 
 function removeArticoloFromTable(codiceArticolo){
