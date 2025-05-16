@@ -43,14 +43,14 @@ export function renderOffertaPage(idAsta) {
     });
 
     // Mostro il rialzo minimo
-    document.getElementById('rialzoMinimo').textContent = rialzo_minimo;
+    document.getElementById('showRialzoMinimo').textContent = rialzo_minimo;
 
     // Aggancio il bottone per l'inserimento dell'offerta (riclonandolo per rimuovere listener)
     const btn = document.getElementById('submitNewOfferta');
     const newBtn = btn.cloneNode(true);
     btn.replaceWith(newBtn);
     newBtn.addEventListener('click', event =>
-      handlerAddOfferta(event, prezzo_attuale, rialzo_minimo)
+      handlerAddOfferta(event, prezzo_attuale, rialzo_minimo, idAsta)
     );
   };
 
@@ -63,7 +63,7 @@ export function renderOffertaPage(idAsta) {
   xhr.send();
 }
 
-export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
+export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo, idAsta) {
   event.preventDefault();
 
   // Seleziono e valido l'input prezzo
@@ -82,7 +82,7 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
 
   // Chiamata POST tramite XMLHttpRequest
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'offertaAdd');
+  xhr.open('POST', 'offertaAdd?idAsta='+idAsta);
   //imposto gli header??
 
   xhr.onload = function() {
