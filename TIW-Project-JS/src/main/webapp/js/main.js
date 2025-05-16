@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Show "Vendo" pages
-function showVendo() {
+export function showVendo() {
     moveToAcquisto.removeAttribute('hidden');
     moveToVendo.setAttribute('hidden', true);
     hideAllPages();
@@ -31,7 +31,7 @@ function showVendo() {
 }
 
 // Show "Acquisto" page
-function showAcquisto() {
+export function showAcquisto() {
     moveToVendo.removeAttribute('hidden');
     moveToAcquisto.setAttribute('hidden', true);
     hideAllPages();
@@ -43,6 +43,7 @@ export function hideAllPages() {
     document.getElementById('acquistoPage').hidden = true;
     document.getElementById('dettaglioAstaPage').hidden = true;
     document.getElementById('offertaPage').hidden = true;
+    document.getElementById('back').hidden = true;
 }
 
 export function getCookie(name) {

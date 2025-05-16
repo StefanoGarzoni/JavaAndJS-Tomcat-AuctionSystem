@@ -1,8 +1,19 @@
-import { hideAllPages } from './main.js';
+import { hideAllPages, showAcquisto } from './main.js';
 
 // rendering della pagina offerta
 export function renderOffertaPage(idAsta) {
   hideAllPages();
+  
+  const back = document.getElementById('back');
+ 
+  back.addEventListener('click', e => {
+    e.preventDefault();
+    showAcquisto();
+    back.removeEventListener('click', showAcquisto);
+  });
+  
+  back.hidden=false;
+  
   const page = document.getElementById('offertaPage');
 
   // Pulisco i campi dinamici (tbody)
@@ -43,15 +54,16 @@ export function renderOffertaPage(idAsta) {
     });
 
     // Mostro il rialzo minimo
-    document.getElementById('rialzoMinimo').textContent = rialzo_minimo;
+    document.getElementById('showRialzoMinimo').textContent = rialzo_minimo;
 
     // Aggancio il bottone per l'inserimento dell'offerta (riclonandolo per rimuovere listener)
     const btn = document.getElementById('submitNewOfferta');
     const newBtn = btn.cloneNode(true);
     btn.replaceWith(newBtn);
-    newBtn.addEventListener('click', event =>
-      handlerAddOfferta(event, prezzo_attuale, rialzo_minimo)
-    );
+    newBtn.addEventListener('click', event =>{
+		event.preventDefault();
+      handlerAddOfferta(prezzo_attuale, rialzo_minimo);
+    });
   };
 
   xhr.onerror = function() {
@@ -63,9 +75,8 @@ export function renderOffertaPage(idAsta) {
   xhr.send();
 }
 
-export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
-  event.preventDefault();
-
+export function handlerAddOfferta(prezzoAttuale, rialzoMinimo) {
+  
   // Seleziono e valido l'input prezzo
   const inputPrezzo = document.getElementById('prezzoOffertaAsta');
   const prezzoUser = parseFloat(inputPrezzo.value);
@@ -78,11 +89,11 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
 
   // Costruisco body URL-encoded
   const formData = new FormData();
-  formData.append('prezzo', inputPrezzo.value);
+  formData.append('prezzo', prezzoUser);
 
   // Chiamata POST tramite XMLHttpRequest
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', 'offertaAdd');
+  xhr.open('POST', '/TIW-Project-JS/offertaAdd');
   //imposto gli header??
 
   xhr.onload = function() {
@@ -102,13 +113,13 @@ export function handlerAddOfferta(event, prezzoAttuale, rialzoMinimo) {
       row.insertCell().textContent = newOfferta.prezzo;
       row.insertCell().textContent = newOfferta.dataOfferta;
       row.insertCell().textContent = newOfferta.oraOfferta;
-      row.insertCell().textContent = newOfferta.idOfferta;
+      //row.insertCell().textContent = newOfferta.idOfferta;
 
       // Ripulisco input
       inputPrezzo.value = '';
       //inputPrezzo.focus();
 	  
-	  setCookie("lastAction", "addedOfferta", 30);
+	  //setCookie("lastAction", "addedOfferta", 30);
 
     } catch (e) {
       console.error('Errore parsing risposta JSON', e);

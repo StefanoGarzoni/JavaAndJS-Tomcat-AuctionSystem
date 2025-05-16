@@ -14,6 +14,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.annotation.MultipartConfig;
+
+
+@MultipartConfig(
+	    fileSizeThreshold = 1024 * 1024 * 100,      // 100MB in RAM
+	    maxFileSize = 1024 * 1024 * 100,       // 100MB per file
+	    maxRequestSize = 1024 * 1024 * 500     // 500MB in totale
+	)
 
 public class AddOffertaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
