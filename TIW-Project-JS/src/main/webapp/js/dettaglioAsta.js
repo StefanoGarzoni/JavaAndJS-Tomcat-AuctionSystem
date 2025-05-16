@@ -1,8 +1,19 @@
-import { hideAllPages} from './main.js';
+import { hideAllPages, showVendo} from './main.js';
 
 // Carica e renderizza i dettagli di un'asta
 export function renderDettaglioAstaPage(idAsta) {
   hideAllPages();
+  
+  const back = document.getElementById('back');
+  
+  back.addEventListener('click', e => {
+    e.preventDefault();
+    showVendo();
+    back.removeEventListener('click', showVendo);
+  });
+  
+  back.hidden=false;
+  
   const page = document.getElementById('dettaglioAstaPage');
 
   // Pulisce campi dinamici in entrambe le sezioni
@@ -105,8 +116,8 @@ export function renderDettaglioAstaPage(idAsta) {
 // Richiama la servlet per chiudere un'asta
 export function handlerCloseAsta(idAsta) {
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/TIW-Project/DettaglioAstaChiudiAstaServlet', true);
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.open('POST', '/TIW-Project-JS/chiudiAsta', true);
+  //xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
   xhr.onload = function() {
     if (xhr.status < 200 || xhr.status >= 300) {
@@ -118,12 +129,9 @@ export function handlerCloseAsta(idAsta) {
       alert(msg);
       return;
     }
-
-	// imposta ultima azione
-	setCookie("lastAction",  {"value" : "closedAsta"} , 30);
 	
     // Ricarica dettagli per mostrare stato aggiornato
-    loadDettaglioAsta(idAsta);	
+    renderDettaglioAstaPage(idAsta);	
   };
 
   xhr.onerror = function() {

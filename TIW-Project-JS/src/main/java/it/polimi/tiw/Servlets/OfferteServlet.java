@@ -65,6 +65,7 @@ public class OfferteServlet extends HttpServlet {
         int idAsta;
         try {
             idAsta = Integer.parseInt(idParam);
+            session.setAttribute("idAsta", idAsta);
         } catch (NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\":\"idAsta non valido\"}");

@@ -10,9 +10,13 @@
 		<script type="module" th:src="@{/js/vendo.js}" defer></script>
 	</head>
 	<body>
+		<h5>Menu:</h5>
 		<a href="/TIW-Project-JS/logout">Logout</a><br>
+		
+		<span id="back" hidden>Indietro</span><br>
 		<span id="moveToVendo" hidden>Vendo</span><br>
 		<span id="moveToAcquisto" hidden>Acquisto</span><br>
+		<br>
 		
 		<div id="vendoPage" hidden>
 		
@@ -150,10 +154,7 @@
 				</template>
 			</div>
 		</div>
-		
-		
-		
-		
+
 		<div id="acquistoPage" hidden>
 			<h2>Inserisci una parola chiave:</h2>
 			<div>
@@ -330,7 +331,7 @@
         <p id="showRialzoMinimo"></p><br>
         <div id="formFaiOfferta">
             <label for="prezzoOffertaAsta">Prezzo:</label>
-            <input type="number" id="prezzoOffertaAsta" name="prezzo" step="any" required/><br><br>
+            <input type="number" id="prezzoOffertaAsta" name="prezzoOffertaAsta" step="any" required/><br><br>
             <button id="submitNewOfferta">Inserisci Nuova Offerta</button>
 			</div>
         </div>
