@@ -181,6 +181,14 @@ function addClosedAstaInTable(asta){
 	let oraScadenzaElement = document.createElement("td");
 	oraScadenzaElement.textContent = asta.oraScadenza;
 	newRow.appendChild(oraScadenzaElement);
+	
+	// creazione bottone per passare al dettaglio asta
+	let dettaglioAstaButton = document.createElement("button");
+	dettaglioAstaButton.addEventListener("click", () => {
+		renderDettaglioAstaPage(asta.idAsta);
+	});
+	dettaglioAstaButton.textContent = "Dettaglio Asta";
+	newRow.appendChild(dettaglioAstaButton);
 				
 	tbody.appendChild(newRow);
 }
