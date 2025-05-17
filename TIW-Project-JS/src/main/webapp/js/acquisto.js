@@ -207,6 +207,10 @@ function addAstaInTable(asta, tableBodyQuerySelector){
 		let nomeTd = document.createElement("td");
 		nomeTd.textContent = articolo.nomeArticolo;
 		tr.appendChild(nomeTd);
+
+		let descrizioneTd = document.createElement("td");
+		descrizioneTd.textContent = articolo.descrizione;
+		tr.appendChild(descrizioneTd);
 		
 		articlesTable.appendChild(tr);
 	});

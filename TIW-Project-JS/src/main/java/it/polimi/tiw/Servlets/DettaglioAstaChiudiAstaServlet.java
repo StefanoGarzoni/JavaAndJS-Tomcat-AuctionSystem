@@ -84,7 +84,7 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
                         tablesAsteCookieFound = true;
                         response.addCookie(c);
                     }
-                    else if(c.getName().equals("asteLastVisited")){
+                    else if(c.getName().equals("asteVisionate")){
                         listaAste = c;
                         String json = URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8.name());
                         List<Integer> visits = new Gson().fromJson(json, new TypeToken<List<Integer>>() {}.getType());
@@ -106,7 +106,7 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
                 }
             }
             if(!lastActionCookieFound) {
-                Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
+                Cookie lastActionCookie = new Cookie("lastAction", "closedAsta");
                 lastActionCookie.setMaxAge(60*60*24);
                 response.addCookie(lastActionCookie);
             }

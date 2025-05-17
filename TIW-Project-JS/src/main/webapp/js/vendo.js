@@ -65,14 +65,14 @@ function showVendoContent(request){
 		}
 			
 		if(closedAste && closedAste.length > 0){
-			document.querySelector("#bodyTabellaAsteChiuse");		// svuota dal contenuto precedente
+			document.querySelector("#bodyTabellaAsteChiuse").innerHTML = '';		// svuota dal contenuto precedente
 			closedAste.forEach((currentAsta) => {
 				addClosedAstaInTable(currentAsta);
 			});			
 		}
 			
 		if(articoli && articoli.length > 0){
-			document.querySelector("#bodyTabellaArticoliNewAsta");	// svuota dal contenuto precedentes
+			document.querySelector("#bodyTabellaArticoliNewAsta").innerHTML = '';	// svuota dal contenuto precedentes
 			articoli.forEach((articolo) => {
 				addArticoloInTable(articolo);
 			});
