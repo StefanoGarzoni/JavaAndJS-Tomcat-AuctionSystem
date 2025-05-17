@@ -113,6 +113,16 @@ public class OfferteDAOImpl implements OfferteDAO{
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        if(idGenerato!=-1){
+            String sql2 = "UPDATE Aste SET offerta_max = ? WHERE id_asta = ?;";
+            try (PreparedStatement pstmt2 = conn.prepareStatement(sql2)) {
+                pstmt2.setInt(1, idGenerato);
+                pstmt2.setInt(2, idAsta);
+                pstmt2.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         return idGenerato;
     }
 
