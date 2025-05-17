@@ -6,6 +6,7 @@ import java.sql.Date;
 import java.sql.Time;
 import com.google.gson.Gson;
 import it.polimi.tiw.ConnectionManager;
+import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
@@ -26,11 +27,13 @@ import jakarta.servlet.annotation.MultipartConfig;
 public class AddOffertaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private OfferteDAOImpl offerteDAO;
+    private AsteDAOImpl asteDAO;
     Gson gson;
 
     @Override
     public void init() throws ServletException {
         offerteDAO = new OfferteDAOImpl();
+        asteDAO = new AsteDAOImpl();
         gson = new Gson();
     }
 
@@ -77,6 +80,17 @@ public class AddOffertaServlet extends HttpServlet {
             data = new Date(System.currentTimeMillis());
             ora = new Time(System.currentTimeMillis());
             result = offerteDAO.insertNewOfferta(conn, idAsta, username, prezzo, data, ora);
+            if (result == -1) {
+                //se l'inserimento non va a buon fine, si esegue il rollback e si comunica l'errore
+                conn.rollback();
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Inserimento offerta fallito.");
+                return;
+            }
+            
+            //aggiorno l'offerta massima
+            asteDAO.setOffertaMax(conn, idAsta, result);
+            //conn.commit();
+
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");

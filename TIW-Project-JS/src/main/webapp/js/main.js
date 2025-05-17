@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showAcquisto();
     });
 
-
     if (getCookie('lastAction') === 'addedAsta') {
         showVendo();
     } else {

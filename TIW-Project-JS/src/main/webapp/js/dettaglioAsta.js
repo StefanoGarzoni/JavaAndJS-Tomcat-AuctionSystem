@@ -123,8 +123,8 @@ export function handlerCloseAsta(idAsta) {
     if (xhr.status < 200 || xhr.status >= 300) {
       let msg = 'Errore nella chiusura dell\'asta';
       try {
-        const err = JSON.parse(xhr.responseText);
-        msg = err.error || msg;
+        const err = JSON.parse(xhr.response);
+        msg = err.error + msg;
       } catch (_) {}
       alert(msg);
       return;
@@ -132,6 +132,7 @@ export function handlerCloseAsta(idAsta) {
 	
     // Ricarica dettagli per mostrare stato aggiornato
     renderDettaglioAstaPage(idAsta);	
+
   };
 
   xhr.onerror = function() {
