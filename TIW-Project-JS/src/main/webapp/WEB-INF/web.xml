@@ -98,7 +98,7 @@
 	</servlet-mapping>
 	
 	<context-param>
-    	<param-name>articolesImagesUploadPath</param-name>
+    	<param-name>articlesImagesUploadPath</param-name>
     	<param-value>C:\Users\pietr\OneDrive - Politecnico di Milano\PoliMi\3anno\2semestre\TIW\articlesImages</param-value>
 	</context-param>
 </web-app>
