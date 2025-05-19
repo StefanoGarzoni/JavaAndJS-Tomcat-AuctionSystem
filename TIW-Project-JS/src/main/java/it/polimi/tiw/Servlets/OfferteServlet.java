@@ -5,7 +5,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,14 +12,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.dao.Beans.Articolo;
-import it.polimi.tiw.dao.Beans.Asta;
 import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -30,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 public class OfferteServlet extends HttpServlet {
+    //parametro consigliato da eclipse
     private static final long serialVersionUID = 1L;
 
     private OfferteDAOImpl offerteDAO;
@@ -48,9 +45,11 @@ public class OfferteServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         
+        //controllo l'esistenza della sessione e del parametro username in essa
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().print("{\"error\":\"Parametro username mancante o sessione inesistente\"}");
             return;
         }
 
@@ -58,17 +57,18 @@ public class OfferteServlet extends HttpServlet {
         String idParam = request.getParameter("idAsta");
         if (idParam == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Parametro idAsta mancante\"}");
+            response.getWriter().print("{\"error\":\"Parametro idAsta mancante\"}");
             return;
         }
 
+        //provo il parsing di idAsta
         int idAsta;
         try {
             idAsta = Integer.parseInt(idParam);
             session.setAttribute("idAsta", idAsta);
         } catch (NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"idAsta non valido\"}");
+            response.getWriter().print("{\"error\":\"idAsta non valido\"}");
             return;
         }
 
@@ -130,20 +130,21 @@ public class OfferteServlet extends HttpServlet {
 
             // Costruzione mappa e serializzazione JSON
             Map<String, Object> result = new HashMap<>();
-            result.put("articoli",       articoli);
-            result.put("offerte",        offerte);
-            result.put("rialzo_minimo",  rialzoMinimo);
+            result.put("articoli", articoli);
+            result.put("offerte", offerte);
+            result.put("rialzo_minimo",rialzoMinimo);
             result.put("prezzo_attuale", prezzoAttuale);
 
             String json = gson.toJson(result);
 
             //Risposta al client js tramite json
             response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(json);
+            //response.setCharacterEncoding("UTF-8");
+            response.getWriter().print(json);
 
         } catch (SQLException e) {
-            throw new ServletException("Errore in lettura dati offerte", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\""+e+"\"}");
         }
     }
 }

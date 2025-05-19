@@ -16,7 +16,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.annotation.MultipartConfig;
 
-
+//serve per gestire l'upload di contenuti tramite form (js formData)
+//Questa annotazione indica al container Java (come Tomcat) che la servlet deve 
+//gestire richieste multipart (tipiche di upload file o form complessi)
+//NOTA: in verità la pagina offerta js non manda file, ma è necessario avere questa annotazione dato che 
+// l'oggetto formData js modifica automaticamente il tipo di richiesta in multipart/form-data (protocollo)
 @MultipartConfig(
 	    fileSizeThreshold = 1024 * 1024 * 100,      // 100MB in RAM
 	    maxFileSize = 1024 * 1024 * 100,       // 100MB per file
@@ -39,7 +43,10 @@ public class AddOffertaServlet extends HttpServlet {
         // Verifica sessione
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
+            //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+             //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+            response.getWriter().print("{\"error\":\"Parametro username mancante in sessione o sessioni assenti\"}");
             return;
         }
         String username = (String) session.getAttribute("username");
@@ -47,16 +54,20 @@ public class AddOffertaServlet extends HttpServlet {
         // Recupera idAsta da sessione
         Integer idAsta = (Integer) session.getAttribute("idAsta");
         if (idAsta == null) {
+            //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Parametro idAsta mancante in sessione\"}");
+            //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+            response.getWriter().print("{\"error\":\"Parametro idAsta mancante in sessione\"}");
             return;
         }
 
         // Legge il prezzo della richiesta
         String prezzoStr = request.getParameter("prezzo");
         if (prezzoStr == null || prezzoStr.isEmpty()) {
+            //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Parametro prezzo mancante\"}");
+            //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+            response.getWriter().print("{\"error\":\"Parametro prezzo mancante\"}");
             return;
         }
 
@@ -64,8 +75,10 @@ public class AddOffertaServlet extends HttpServlet {
         try {
             prezzo = Double.parseDouble(prezzoStr);
         } catch (NumberFormatException e) {
+            //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Parametro prezzo non valido\"}");
+            //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+            response.getWriter().print("{\"error\":\"Parametro prezzo non valido\"}");
             return;
         }
 
@@ -74,59 +87,64 @@ public class AddOffertaServlet extends HttpServlet {
         Date data;
         Time ora;
         try (Connection conn = ConnectionManager.getConnection()) {
+
             conn.setAutoCommit(false);
+
+            // mando anche la data e il time come parametri dato che mi servono poi per passarli al js e aggiungere l'offerta 
+            // senza rifare il render della pagina
             data = new Date(System.currentTimeMillis());
             ora = new Time(System.currentTimeMillis());
             result = offerteDAO.insertNewOfferta(conn, idAsta, username, prezzo, data, ora);
             if (result == -1) {
                 //se l'inserimento non va a buon fine, si esegue il rollback e si comunica l'errore
                 conn.rollback();
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Inserimento offerta fallito.");
+                //setta lo stato della risposta HTTP
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                response.getWriter().print("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");
                 return;
             }
             conn.commit();
+            conn.setAutoCommit(true);
+
         } catch (SQLException e) {
+            //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");
+            //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+            response.getWriter().print("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");
             return;
         }
 
+        // crea l'offerta (oggetto) che va restituito al client
         Offerta newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
 
         //set del valore del cookie "lastAction"
         boolean lastActionCookieFound = false;
-        boolean tableOpenAsteCookieFound = false;
         Cookie[] cookies = request.getCookies();
 
+        //cerco il cookie tra i cookies
         if (cookies != null) {
             for (Cookie c : cookies) {
                 if (c.getName().equals("lastAction")) {
+
+                    //se lo trovo, modifico il suo valore
+                    c.setMaxAge(60*60*24*30); // rinnovo la scadenza di un mese
                     c.setValue("addedOfferta");
                     lastActionCookieFound = true;
                     response.addCookie(c);
-                }
-                else if (c.getName().equals("renderTableAsteAperte")) {
-                    c.setValue("true");
-                    tableOpenAsteCookieFound = true;
-                    response.addCookie(c);
-                }
-                if (lastActionCookieFound && tableOpenAsteCookieFound) {
                     break;
                 }
             }
         }
         
+        //se il cookie non esiste, lo creo
         if(!lastActionCookieFound) {
             Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
-            lastActionCookie.setMaxAge(60*60*24*30);
+            lastActionCookie.setMaxAge(60*60*24*30); //un mese
             response.addCookie(lastActionCookie);
         }
-        if(!tableOpenAsteCookieFound) {
-            Cookie tableOpenAsteCookie = new Cookie("renderTableAsteAperte", "true");
-            tableOpenAsteCookie.setMaxAge(60*60*24*30);
-            response.addCookie(tableOpenAsteCookie);
-        }
 
+        //serializzo l'oggetto offerta in json e poi lo metto nella body della risposta
         String jsonString = gson.toJson(newOfferta);
         response.getWriter().print(jsonString);
     }
