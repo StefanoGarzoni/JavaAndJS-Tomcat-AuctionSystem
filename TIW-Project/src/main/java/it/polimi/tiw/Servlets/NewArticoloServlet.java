@@ -108,10 +108,9 @@ public class NewArticoloServlet extends HttpServlet {
 		if (i > 0) extension = fileName.substring(i); 	// estrae l'estensione del file
 		String uniqueName = UUID.randomUUID().toString() + extension;		// genera un nome casuale per salvare il file (per evitare più file con lo stesso nome)
 		
-		String uploadPath = getServletContext().getRealPath("/WEB-INF/articlesImages");
+		String uploadPath = getServletContext().getInitParameter("articlesImagesUploadPath");
 		
 		File target = new File(uploadPath, uniqueName);
-		System.out.println("Scrivo l'immagine in: " + target.getAbsolutePath());
 
         // scrive l'immagine nel file
         filePart.write(uploadPath + File.separator + uniqueName);
