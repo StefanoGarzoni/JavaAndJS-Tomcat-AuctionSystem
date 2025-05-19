@@ -95,7 +95,6 @@ public class AddOffertaServlet extends HttpServlet {
 
         //set del valore del cookie "lastAction"
         boolean lastActionCookieFound = false;
-        boolean tableOpenAsteCookieFound = false;
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {
@@ -104,13 +103,6 @@ public class AddOffertaServlet extends HttpServlet {
                     c.setValue("addedOfferta");
                     lastActionCookieFound = true;
                     response.addCookie(c);
-                }
-                else if (c.getName().equals("renderTableAsteAperte")) {
-                    c.setValue("true");
-                    tableOpenAsteCookieFound = true;
-                    response.addCookie(c);
-                }
-                if (lastActionCookieFound && tableOpenAsteCookieFound) {
                     break;
                 }
             }
@@ -120,11 +112,6 @@ public class AddOffertaServlet extends HttpServlet {
             Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
             lastActionCookie.setMaxAge(60*60*24*30);
             response.addCookie(lastActionCookie);
-        }
-        if(!tableOpenAsteCookieFound) {
-            Cookie tableOpenAsteCookie = new Cookie("renderTableAsteAperte", "true");
-            tableOpenAsteCookie.setMaxAge(60*60*24*30);
-            response.addCookie(tableOpenAsteCookie);
         }
 
         String jsonString = gson.toJson(newOfferta);
