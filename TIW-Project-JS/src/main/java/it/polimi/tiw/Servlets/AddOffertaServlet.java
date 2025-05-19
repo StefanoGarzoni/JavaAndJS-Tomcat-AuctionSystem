@@ -45,7 +45,7 @@ public class AddOffertaServlet extends HttpServlet {
         if (session == null || session.getAttribute("username") == null) {
             //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-             //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+            //scrive il messaggio di errore in formato JSON all'interno del body della risposta
             response.getWriter().print("{\"error\":\"Parametro username mancante in sessione o sessioni assenti\"}");
             return;
         }

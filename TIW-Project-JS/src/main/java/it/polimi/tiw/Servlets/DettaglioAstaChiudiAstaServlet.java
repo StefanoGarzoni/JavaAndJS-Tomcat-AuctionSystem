@@ -36,6 +36,7 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         //Verifica sessione
         if (session == null || session.getAttribute("username") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().print("{\"error\":\"Parametro username mancante in sessione o sessioni assenti\"}");
             return;
         }
 
@@ -44,7 +45,7 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         String  username = (String)  session.getAttribute("username");
         if (idAsta == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\":\"Parametro idAsta mancante\"}");
+            response.getWriter().print("{\"error\":\"Parametro idAsta mancante\"}");
             return;
         }
 
@@ -52,15 +53,16 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             //Verifica che l'utente sia creatore
             if (!asteDAO.checkCreatorOfAsta(conn, username, idAsta)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"error\":\"Non autorizzato a chiudere l'asta\"}");
+                response.getWriter().print("{\"error\":\"Non autorizzato a chiudere l'asta\"}");
                 return;
             }
             // Verifica che l'asta possa essere chiusa
             if (!asteDAO.astaCanBeClosed(conn, idAsta)) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\":\"Asta non chiudibile\"}");
+                response.getWriter().print("{\"error\":\"Asta non chiudibile\"}");
                 return;
             }
+
             //Chiudo l'asta
             asteDAO.setAstaAsClosed(conn, idAsta, username);
 
@@ -72,6 +74,8 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             Cookie listaAste = null;
             Cookie[] cookies = request.getCookies();
 
+            //scorro l'array di cookie
+            //cerco i cookie "lastAction" e "renderAllTablesAste"
             if (cookies != null) {
                 for (Cookie c : cookies) {
                     if (c.getName().equals("lastAction")) {
@@ -105,14 +109,16 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
 
                 }
             }
+
+            //se i cookie non esistono, li creo
             if(!lastActionCookieFound) {
                 Cookie lastActionCookie = new Cookie("lastAction", "closedAsta");
-                lastActionCookie.setMaxAge(60*60*24);
+                lastActionCookie.setMaxAge(60*60*24*30);
                 response.addCookie(lastActionCookie);
             }
             if(!tablesAsteCookieFound) {
                 Cookie tableOpenAsteCookie = new Cookie("renderAllTablesAste", "true");
-                tableOpenAsteCookie.setMaxAge(60*60*24);
+                tableOpenAsteCookie.setMaxAge(60*60*24*30);
                 response.addCookie(tableOpenAsteCookie);
             }
             if(asteLastVisited){
@@ -127,7 +133,9 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             }
 
         } catch (SQLException e) {
-            throw new ServletException("Errore DB chiusura asta", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\"errore nella parte di comunicazione con il db :"+e+"\"}");   
+            return;
         }
     }
 }

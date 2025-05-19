@@ -38,6 +38,7 @@ public class DettaglioAstaPageServlet extends HttpServlet {
         // Verifica sessione e login
         if (session == null || session.getAttribute("username") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().print("{\"error\":\"Parametro username mancante in sessione o sessioni assenti\"}");
             return;
         }
 
@@ -45,8 +46,10 @@ public class DettaglioAstaPageServlet extends HttpServlet {
         String idAstaParam = request.getParameter("idAsta");
         if (idAstaParam == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametro idAsta mancante in sessione \"}");
             return;
         }
+
         int idAsta;
         //Provo il casting
         try {
@@ -54,6 +57,7 @@ public class DettaglioAstaPageServlet extends HttpServlet {
             session.setAttribute("idAsta", idAsta);
         } catch (NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"errore nel parsing\"}");
             return;
         }
 
@@ -88,14 +92,16 @@ public class DettaglioAstaPageServlet extends HttpServlet {
                 result.put("indirizzo", info.get(2));
             }
 
-            // 5) Serializzo e invio JSON
+            //Serializzo e invio JSON
             String json = gson.toJson(result);
             response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(json);
+            //response.setCharacterEncoding("UTF-8");
+            response.getWriter().print(json);
 
         } catch (SQLException e) {
-            throw new ServletException("Errore DB dettaglio asta", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\"errore nella parte di comunicazione con il db :"+e+"\"}");   
+            return;
         }
     }
 }
