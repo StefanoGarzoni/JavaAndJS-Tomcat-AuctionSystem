@@ -89,6 +89,7 @@ public class NewArticoloServlet extends HttpServlet {
 		    out.flush();
 		}
 		catch (SQLException e) {
+			e.printStackTrace(System.out);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
 		}
 	}	
