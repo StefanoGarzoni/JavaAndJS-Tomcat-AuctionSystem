@@ -104,7 +104,7 @@ public class AddOffertaServlet extends HttpServlet {
                 }catch(SQLException e) {
                 	//se non va a buon fine annullo le modifiche precedenti e comunico un errore
                 	conn.rollback();
-                    throw new ServletException("Errore nella esecuzione dell'inserimento in db", e);
+                	e.printStackTrace(System.out);
                 }
                 
                 //reindirizzo alla servlet che ricostruisce la pagina
@@ -113,15 +113,18 @@ public class AddOffertaServlet extends HttpServlet {
             } catch (Exception e) {
             	//se va male qualcosa annullo e mando l'errore
                 conn.rollback();
-                throw new ServletException("Errore nella gestione dell'offerta", e);
-                
+                e.printStackTrace(System.out);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server");
+                return;
             } finally {
                 conn.setAutoCommit(true);
             }
             
         } catch (SQLException e) {
         	//se va male qualcosa annullo e mando l'errore
-            throw new ServletException("Errore di connessione al database", e);
+        	e.printStackTrace(System.out);
+        	response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server");
+        	return;
         }
     }
 }

@@ -63,7 +63,7 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             }
 
         } catch (SQLException e) {
-            throw new ServletException("Errore durante la chiusura dell'asta. -> query error", e);
+        	e.printStackTrace(System.out);
         }
 
 

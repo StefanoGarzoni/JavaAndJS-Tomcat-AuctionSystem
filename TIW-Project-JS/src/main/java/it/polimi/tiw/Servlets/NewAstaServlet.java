@@ -165,9 +165,7 @@ public class NewAstaServlet extends HttpServlet {
 			    response.setCharacterEncoding("UTF-8");
 			    
 			    String finalJson = gson.toJson(newAsta);
-			    
-			    System.out.println(finalJson);
-			    
+			   
 			    // scrivo il json nella response
 			    PrintWriter out = response.getWriter();
 			    out.print(finalJson);

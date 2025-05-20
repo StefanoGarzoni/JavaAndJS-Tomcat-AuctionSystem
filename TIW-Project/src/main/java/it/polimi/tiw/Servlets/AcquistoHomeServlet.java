@@ -78,7 +78,8 @@ public class AcquistoHomeServlet extends HttpServlet {
 			templateEngine.process(vendoPath, ctx, response.getWriter());
 		}
 		catch (SQLException e) {
-			throw new ServletException("Errore di connessione al database", e);
+			e.printStackTrace(System.out);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server");
 		}
 	}
 }

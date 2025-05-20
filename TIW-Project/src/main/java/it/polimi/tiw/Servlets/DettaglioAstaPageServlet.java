@@ -128,7 +128,8 @@ public class DettaglioAstaPageServlet extends HttpServlet {
                     ctx.setVariable("indirizzo", info.get(2));
             }
         } catch (SQLException e) {
-            throw new ServletException("Errore durante il recupero dei dati dell'asta -> errore nelle query", e);
+        	e.printStackTrace(System.out);
+        	response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Errore durante la ricerca della pagina");
         }
 
         response.setContentType("text/html;charset=UTF-8");

@@ -152,7 +152,7 @@ public class NewAstaServlet extends HttpServlet {
 			}
 			catch (SQLException e) {
 				conn.rollback();
-				throw new SQLException("Errore nella creazione dell'asta");
+				throw new SQLException("Errore durante l'inserimento in DB dell'asta");
 			}
 			finally {
 				conn.setAutoCommit(true);
