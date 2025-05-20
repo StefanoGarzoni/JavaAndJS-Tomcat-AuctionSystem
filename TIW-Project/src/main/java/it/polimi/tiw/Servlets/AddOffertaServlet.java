@@ -66,6 +66,14 @@ public class AddOffertaServlet extends HttpServlet {
         //inizio delle query
         try (Connection conn = ConnectionManager.getConnection()) {
             try {
+
+
+                // Controllo se l'asta è già chiusa
+                if (asteDAO.checkIfAstaIsOpen(conn, idAsta)) {
+                    response.sendRedirect(request.getContextPath() + "/acquisto");
+                    return;
+                }
+
             	//recupero i prezzi dall'asta
                 Map<Double, Double> prezziInfo = asteDAO.getPrezzoOffertaMaxANDRialzoMinimo(conn, idAsta);
                 if (prezziInfo == null || prezziInfo.isEmpty()) {

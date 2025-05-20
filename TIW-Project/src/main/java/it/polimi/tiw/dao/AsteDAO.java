@@ -24,5 +24,6 @@ public interface AsteDAO{
     Map<Asta, ArrayList<String>> getInfoFromAClosedAsta(Connection conn, int idAsta) throws SQLException;
     boolean checkCreatorOfAsta(Connection conn, String username, int idAsta) throws SQLException;
     Double getRialzoMinimo(Connection conn, int idAsta) throws SQLException;
+    boolean checkIfAstaIsOpen(Connection conn, int idAsta) throws SQLException;
 
 }

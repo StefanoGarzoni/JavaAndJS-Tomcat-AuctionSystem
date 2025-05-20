@@ -4,12 +4,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import it.polimi.tiw.ConnectionManager;
+import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
+import it.polimi.tiw.dao.UtenteDAOImpl;
 import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,11 +33,15 @@ import jakarta.servlet.annotation.MultipartConfig;
 public class AddOffertaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private OfferteDAOImpl offerteDAO;
+    private UtenteDAOImpl utenteDAO;
+    private AsteDAOImpl asteDAO;
     Gson gson;
 
     @Override
     public void init() throws ServletException {
         offerteDAO = new OfferteDAOImpl();
+        utenteDAO = new UtenteDAOImpl();
+        asteDAO = new AsteDAOImpl();
         gson = new Gson();
     }
 
@@ -72,18 +79,64 @@ public class AddOffertaServlet extends HttpServlet {
         try {
             prezzo = Double.parseDouble(prezzoStr);
         } catch (NumberFormatException e) {
-            //setta lo stato della risposta HTTP
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
             //scrive il messaggio di errore in formato JSON all'interno del body della risposta
             response.getWriter().print("{\"error\":\"Parametro prezzo non valido\"}");
+
             return;
         }
 
-        // Inserisce l'offerta sul DB e ottiene data e ora in una mappa
-        int result;
-        Date data;
-        Time ora;
+        Offerta newOfferta = null;
+
         try (Connection conn = ConnectionManager.getConnection()) {
+
+            try {
+
+                // Controllo se l'asta è già chiusa
+                if (asteDAO.checkIfAstaIsOpen(conn, idAsta)) {
+
+                    //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                    response.getWriter().print("{\"errorChiusura\":\"L'asta è già chiusa\"}");
+                    return;
+                }
+
+            	//recupero i prezzi dall'asta
+                Map<Double, Double> prezziInfo = asteDAO.getPrezzoOffertaMaxANDRialzoMinimo(conn, idAsta);
+                if (prezziInfo == null || prezziInfo.isEmpty()) {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                    response.getWriter().print("{\"error\":\"Errore DB durante il recupero dei prezzi\"}");
+                    return;
+                }
+                
+                //salvo i dati dei prezzi appena estratti
+                double rialzoMinimo = prezziInfo.keySet().iterator().next();
+                double prezzoAttuale  = prezziInfo.get(rialzoMinimo);
+
+                //controllo se il nuovo prezzo inserito è valido
+                //se non lo è, reindirizzo dicendo di inserire un prezzo valido all'utente
+                if ((prezzo <= prezzoAttuale || (prezzo - prezzoAttuale) < rialzoMinimo)) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                    response.getWriter().print("{\"error\":\"Errore nel prezzo inserito\"}");
+                    return;
+                }
+
+            } catch (SQLException e) {
+                //setta lo stato della risposta HTTP
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                response.getWriter().print("{\"error\":\"Errore DB durante il recupero dei prezzi\"}");
+                e.printStackTrace(System.out);
+                return;
+            }
+
+
+            // Inserisce l'offerta sul DB e ottiene data e ora in una mappa
+            int result;
+            Date data;
+            Time ora;
+        
 
             conn.setAutoCommit(false);
 
@@ -104,6 +157,23 @@ public class AddOffertaServlet extends HttpServlet {
             conn.commit();
             conn.setAutoCommit(true);
 
+            //set del valore "ultima_azione..." nel DB
+            try{
+                utenteDAO.setUserLastActionWasAddedAsta(conn, username, false);
+            }
+            catch(SQLException e) {
+                //setta lo stato della risposta HTTP
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                response.getWriter().print("{\"error\":\"Errore DB durante l'aggiornamento dell'ultima azione\"}");
+                e.printStackTrace(System.out);
+                return;
+            }
+
+                
+            // crea l'offerta (oggetto) che va restituito al client
+            newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
+
         } catch (SQLException e) {
             //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -111,35 +181,6 @@ public class AddOffertaServlet extends HttpServlet {
             response.getWriter().print("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");
             e.printStackTrace(System.out);
             return;
-        }
-
-        // crea l'offerta (oggetto) che va restituito al client
-        Offerta newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
-
-        //set del valore del cookie "lastAction"
-        boolean lastActionCookieFound = false;
-        Cookie[] cookies = request.getCookies();
-
-        //cerco il cookie tra i cookies
-        if (cookies != null) {
-            for (Cookie c : cookies) {
-                if (c.getName().equals("lastAction")) {
-
-                    //se lo trovo, modifico il suo valore
-                    c.setMaxAge(60*60*24*30); // rinnovo la scadenza di un mese
-                    c.setValue("addedOfferta");
-                    lastActionCookieFound = true;
-                    response.addCookie(c);
-                    break;
-                }
-            }
-        }
-        
-        //se il cookie non esiste, lo creo
-        if(!lastActionCookieFound) {
-            Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
-            lastActionCookie.setMaxAge(60*60*24*30); //un mese
-            response.addCookie(lastActionCookie);
         }
 
         //serializzo l'oggetto offerta in json e poi lo metto nella body della risposta
