@@ -113,10 +113,12 @@ public class VendoHomeServlet extends HttpServlet {
 			// scrivo il json nella response
 			PrintWriter out = response.getWriter();
 			out.print(finalJson);
-			out.flush();
+
 		}
 		catch (SQLException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante il recupero delle informazioni");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\""+e+"\"}");
+            e.printStackTrace(System.out);
 		}
 	}
 

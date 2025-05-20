@@ -109,6 +109,7 @@ public class AddOffertaServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             //scrive il messaggio di errore in formato JSON all'interno del body della risposta
             response.getWriter().print("{\"error\":\"Errore DB durante l'inserimento dell'offerta\"}");
+            e.printStackTrace(System.out);
             return;
         }
 

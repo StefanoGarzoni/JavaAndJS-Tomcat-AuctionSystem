@@ -1,16 +1,13 @@
 package it.polimi.tiw.Servlets;
-
 import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
-
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.LoginDAOImpl;
 import jakarta.servlet.*;
@@ -33,8 +30,6 @@ public class LoginServlet extends HttpServlet {
 		templateResolver.setSuffix(".html");
 	}
 
-	/** Provides the client the login web page.
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = "/login.html";
 		
@@ -94,7 +89,9 @@ public class LoginServlet extends HttpServlet {
 			templateEngine.process(loginPath, ctx, response.getWriter());
 		}
 		else {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing credentials");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Errore nella richiesta\"}");
+            return;
 		}
 	}
 }
