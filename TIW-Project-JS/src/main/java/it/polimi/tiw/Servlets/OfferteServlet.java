@@ -48,8 +48,7 @@ public class OfferteServlet extends HttpServlet {
         //controllo l'esistenza della sessione e del parametro username in essa
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("username") == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"error\":\"Parametro username mancante o sessione inesistente\"}");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -78,6 +77,7 @@ public class OfferteServlet extends HttpServlet {
 
         //cerco se cookie esiste
         Cookie[] cookies = request.getCookies();
+        Cookie lastVisitedCookie = null;
 
         // cerco il cookie "asteVisionate"
         if (cookies != null) {
@@ -86,12 +86,14 @@ public class OfferteServlet extends HttpServlet {
                 	// dal cookie estraggo un JsonArray contente gli id delle aste
                     String decodedAsteVisionateJsonCookie = URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8);
                     asteVisionateJsonArray = JsonParser.parseString(decodedAsteVisionateJsonCookie).getAsJsonArray();
+                    lastVisitedCookie = c;
                     break;
                 }
             }
         }
         
         boolean astaAlreadyVisited = false;
+
         if(asteVisionateJsonArray != null) {
     		// controllo se l'asta è già stata visionata
 	    	for(JsonElement astaVisionata : asteVisionateJsonArray) {
@@ -108,14 +110,17 @@ public class OfferteServlet extends HttpServlet {
         if (!astaAlreadyVisited) {
         	asteVisionateJsonArray.add(idAsta);
             
-        	//creo il cookie aggiornato
+        	//aggiorna o creo il cookie 
         	String encodedAsteVisionate = URLEncoder.encode(gson.toJson(asteVisionateJsonArray), StandardCharsets.UTF_8);
-        	
-        	Cookie updatedCookie = new Cookie("asteVisionate", encodedAsteVisionate);
-            updatedCookie.setMaxAge(oneMonth);
-            updatedCookie.setPath(request.getContextPath());
-            
-            response.addCookie(updatedCookie);
+        	if(lastVisitedCookie != null) {
+        		lastVisitedCookie.setValue(encodedAsteVisionate);
+        	}
+            else{
+                lastVisitedCookie = new Cookie("asteVisionate", encodedAsteVisionate);
+                lastVisitedCookie.setPath(request.getContextPath());
+            }
+            lastVisitedCookie.setMaxAge(oneMonth);
+        	response.addCookie(lastVisitedCookie);
         }
 
         //Recupero dati dal DB
@@ -145,6 +150,7 @@ public class OfferteServlet extends HttpServlet {
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().print("{\"error\":\""+e+"\"}");
+            e.printStackTrace(System.out);
         }
     }
 }

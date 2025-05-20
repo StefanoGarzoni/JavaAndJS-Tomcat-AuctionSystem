@@ -12,9 +12,8 @@ import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 import it.polimi.tiw.ConnectionManager;
-import it.polimi.tiw.dao.LoginDAO;
+import it.polimi.tiw.dao.LoginDAOImpl;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 public class LoginServlet extends HttpServlet {
@@ -71,7 +70,7 @@ public class LoginServlet extends HttpServlet {
 		if(username != null && password != null) {
 			try ( Connection dbConnection = ConnectionManager.getConnection() ) {
 				
-				boolean validCredential = new LoginDAO().areCredentialsCorrect(dbConnection, username, password);
+				boolean validCredential = new LoginDAOImpl().areCredentialsCorrect(dbConnection, username, password);
 				
 				if(validCredential) {
 					session = request.getSession(true);

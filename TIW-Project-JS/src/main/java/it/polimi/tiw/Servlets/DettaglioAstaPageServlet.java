@@ -37,8 +37,7 @@ public class DettaglioAstaPageServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         // Verifica sessione e login
         if (session == null || session.getAttribute("username") == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().print("{\"error\":\"Parametro username mancante in sessione o sessioni assenti\"}");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
