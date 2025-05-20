@@ -1,6 +1,8 @@
 package it.polimi.tiw.Servlets;
 
 import java.io.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -8,6 +10,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import it.polimi.tiw.ConnectionManager;
+import it.polimi.tiw.dao.UtenteDAOImpl;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -49,6 +56,32 @@ public class HomeServlet extends HttpServlet {
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		
 		templateEngine.process(path, ctx, response.getWriter());
+	}
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
+		if(request.getSession(false) == null) {	// se non esiste una sessione, indirizza al login
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+		}
+		
+		try (Connection conn = ConnectionManager.getConnection()) {
+			// deve restituire il valore dell'ultima azione
+			Boolean userLastActionWasAddedAsta = new UtenteDAOImpl().userLastActionWasAddedAsta(conn, getServletInfo());
+			
+			JsonObject jsonObject = new JsonObject();
+			jsonObject.addProperty("userLastActionWasAddedAsta", userLastActionWasAddedAsta);
+			
+			String finalJson = new Gson().toJson(jsonObject);
+			// scrittura JSON nella response
+		    PrintWriter out = response.getWriter();
+		    out.print(finalJson);
+		    out.flush();
+		}
+		catch(SQLException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\""+e+"\"}");
+            e.printStackTrace(System.out);
+		}
 	}
 	
 	private void setCookie(HttpServletResponse response, String name, String value, int days) {
