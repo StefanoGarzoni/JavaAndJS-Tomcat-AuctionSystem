@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class LoginDAO{
+public class UtenteDAOImpl{
 	
 	public boolean areCredentialsCorrect(Connection conn, String username, String password) throws SQLException{
 		String queryString = "SELECT count(*) AS numRows"

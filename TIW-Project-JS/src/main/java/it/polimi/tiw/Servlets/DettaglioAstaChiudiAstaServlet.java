@@ -6,10 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.AsteDAOImpl;
 import jakarta.servlet.ServletException;
@@ -134,6 +132,7 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().print("{\"error\":\"errore nella parte di comunicazione con il db :"+e+"\"}");   
+            e.printStackTrace(System.out);
             return;
         }
     }

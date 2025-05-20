@@ -100,6 +100,7 @@ public class DettaglioAstaPageServlet extends HttpServlet {
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().print("{\"error\":\"errore nella parte di comunicazione con il db :"+e+"\"}");   
+            e.printStackTrace(System.out);
             return;
         }
     }

@@ -1,13 +1,10 @@
 package it.polimi.tiw.Servlets;
-
 import java.io.*;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
-
 import com.google.gson.Gson;
-
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
 import it.polimi.tiw.dao.Beans.Articolo;
@@ -48,20 +45,23 @@ public class NewArticoloServlet extends HttpServlet {
 		imageName = saveImage(request);
 			
 		if(articleName == null || articleDescription == null || imageName == null || articlePriceString == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
-			return;
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametri mancanti o non validi\"}");
+            return;
 		}
 		
 		try {
 			articlePrice = Integer.parseInt(articlePriceString);
 		}
 		catch (NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The selected price is not a number");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Prezzo non valido\"}");
 			return;
 		}
 		
 		if(articlePrice < 0) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Negative price");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Prezzo non valido\"}");
 			return;
 		}
 		
@@ -89,8 +89,9 @@ public class NewArticoloServlet extends HttpServlet {
 		    out.flush();
 		}
 		catch (SQLException e) {
-			e.printStackTrace(System.out);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
+		    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\""+e+"\"}");
+            e.printStackTrace(System.out);
 		}
 	}	
 	
@@ -109,8 +110,6 @@ public class NewArticoloServlet extends HttpServlet {
 		
 		String uploadPath = getServletContext().getInitParameter("articlesImagesUploadPath");
 		
-		File target = new File(uploadPath, uniqueName);
-
         // scrive l'immagine nel file
         filePart.write(uploadPath + File.separator + uniqueName);
 	

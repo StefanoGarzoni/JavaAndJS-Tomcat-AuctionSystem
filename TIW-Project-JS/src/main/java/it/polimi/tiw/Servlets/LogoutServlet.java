@@ -1,5 +1,4 @@
 package it.polimi.tiw.Servlets;
-
 import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -12,7 +11,6 @@ public class LogoutServlet extends HttpServlet {
 		if(request.getSession(false) != null) {
 			if(request.getSession().getAttribute("username") != null) {
 				request.getSession().invalidate();
-				//response.sendRedirect(request.getContextPath() + "/login");
 				
 				// elimino tutti i cookie (es. presenti perchè si è usata l'applicazione con un altro account)
 				Cookie[] cookies = request.getCookies();

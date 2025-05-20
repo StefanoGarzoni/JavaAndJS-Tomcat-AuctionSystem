@@ -1,5 +1,4 @@
 package it.polimi.tiw.Servlets;
-
 import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,9 +11,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.sql.Date;
-
 import com.google.gson.Gson;
-
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAO;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
@@ -47,7 +44,8 @@ public class NewAstaServlet extends HttpServlet {
 		
 		// controllo presenza di tutti i parametri
 		if(selectedArticlesStrings == null || rialzoMinimoString == null || dataScadenzaString == null || oraScadenzaString == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametri mancanti\"}");
 			return;
 		}
 		
@@ -59,7 +57,8 @@ public class NewAstaServlet extends HttpServlet {
 				selectedArticlesIds.add(parsedId);
 			}
 		} catch (NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Some articles identifiers are not number");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametri inviati non corretti : errore di parsing\"}");
 			return;
 		}
 		
@@ -68,12 +67,14 @@ public class NewAstaServlet extends HttpServlet {
 		try {
 			rialzoMinimo = Float.parseFloat(rialzoMinimoString);
 			if(rialzoMinimo <= 0) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Negative or zero rialzo minimo");
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            	response.getWriter().print("{\"error\":\"Rialzo minimo negativo o 0\"}");
 				return;
 			}
 		}
 		catch (NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Rialzo minimo is not a number");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Rialzo minimo non corretto : errore di parsing\"}");
 			return;
 		}
 		
@@ -88,17 +89,20 @@ public class NewAstaServlet extends HttpServlet {
 					data.isBefore(LocalDate.now()) || 
 					(data.isEqual(LocalDate.now()) && ora.isBefore(LocalTime.now())))
 			{
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La data di scadenza scelta è nel passato");
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            	response.getWriter().print("{\"error\":\"Parametri inviati non corretti : data nel passato\"}");
 				return;
 			}
 		}
 		catch (DateTimeParseException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Data o ora di scadenza non sono date");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametri inviati non corretti : errore di parsing per data o ora\"}");
 			return;
 		}
 		
 		if(selectedArticlesIds.isEmpty()) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Non è possibile creare un'asta senza articoli");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametri Articoli mancanti\"}");
 			return;
 		}
 		
@@ -111,13 +115,15 @@ public class NewAstaServlet extends HttpServlet {
 			
 			// controllo che l'utente possegga tutti gli articoli che vengono messi all'asta
 			if(!articoliDAO.areAllArticlesOfUser(conn, username, selectedArticlesIds)) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only your own articles");
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametri inviati non corretti : gli articoli non sono tuoi\"}");
 				return;
 			}
 			
 			// controllo che gli articoli che si vogliono inserire non siano già in un'altra asta
 			if(!articoliDAO.areAllArticlesFree(conn, selectedArticlesIds)) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only articles that are not in an asta yet");
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            	response.getWriter().print("{\"error\":\"Parametri inviati non corretti : gli articoli non possono già essere in un asta\"}");
 				return;
 			}
 			
@@ -163,19 +169,20 @@ public class NewAstaServlet extends HttpServlet {
 			    // scrivo il json nella response
 			    PrintWriter out = response.getWriter();
 			    out.print(finalJson);
-			    out.flush();
 			}
 			catch (SQLException e) {
 				conn.rollback();
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante l'inserimento");
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().print("{\"error\":\""+e+"\"}");
 			}
 			finally {
 				conn.setAutoCommit(true);
 			}
 		}
 		catch (SQLException e) {
-			e.printStackTrace(System.out);	// stampo su terminale l'errore SQL
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante l'inserimento");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\""+e+"\"}");
+            e.printStackTrace(System.out);
 		}
 	}
 

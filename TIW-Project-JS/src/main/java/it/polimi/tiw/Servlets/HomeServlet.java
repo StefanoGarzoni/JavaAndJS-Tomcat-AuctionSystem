@@ -1,5 +1,4 @@
 package it.polimi.tiw.Servlets;
-
 import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,10 +15,8 @@ import com.google.gson.JsonObject;
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.UtenteDAOImpl;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
-@WebServlet("/HomeServlet")
 public class HomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -37,8 +34,6 @@ public class HomeServlet extends HttpServlet {
 		templateResolver.setSuffix(".html");
 	}
 
-	/** Produces the home page
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = "/home.html";
 		
@@ -47,11 +42,13 @@ public class HomeServlet extends HttpServlet {
             return;
 		}
 		
+		/*
 		// alla prima interazione, imposta i cookie per ricaricare le tabelle
 		setCookie(response, "renderAllTablesAste", "true", 30);
 		setCookie(response, "renderTableAsteAperte", "true", 30);
 		setCookie(response, "renderArticoli", "true", 30);
-            
+        */
+
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		
@@ -89,4 +86,5 @@ public class HomeServlet extends HttpServlet {
 		cookie.setMaxAge(days*60*60*24);
         response.addCookie(cookie);
 	}
+	*/
 }

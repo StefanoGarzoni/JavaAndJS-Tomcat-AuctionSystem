@@ -7,13 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
 import it.polimi.tiw.dao.AsteDAOImpl;
@@ -65,7 +63,8 @@ public class AcquistoHomeServlet extends HttpServlet {
 						idAste.add(idAsta.getAsInt());
 					}
 					catch(NumberFormatException e) {
-						response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Format of parameters not accepted");
+						response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            			response.getWriter().print("{\"error\":\"Formato o parametri non accettati\"}");
 						return;
 					}
 				}
@@ -101,17 +100,15 @@ public class AcquistoHomeServlet extends HttpServlet {
 			
 			// impostazione content-type e charset della risposta
 			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF-8");
 			
 			// scrivo il json nella response
 			PrintWriter out = response.getWriter();
 			out.print(jsonResponse);
-			out.flush();
-		}
-		catch (SQLException e) {
-			e.printStackTrace(System.out);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
-		}
+		
+		}catch (SQLException e) {
+		    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\""+e+"\"}");
+            e.printStackTrace(System.out);}
 	}
 	
 	// mostra la pagina con in aggiunta la tabella delle aste con la parola chiave
@@ -126,7 +123,8 @@ public class AcquistoHomeServlet extends HttpServlet {
 		String keyword = request.getParameter("parolaChiave");
 		
 		if(keyword == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().print("{\"error\":\"Parametri mancanti valido\"}");
 			return;
 		}
 		
@@ -144,12 +142,11 @@ public class AcquistoHomeServlet extends HttpServlet {
 		    // scrivo il json nella response
 		    PrintWriter out = response.getWriter();
 		    out.print(jsonResponse);
-		    out.flush();
 		}
 		catch (SQLException e) {
-			e.printStackTrace(System.out);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error");
-		}
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().print("{\"error\":\""+e+"\"}");
+            e.printStackTrace(System.out);}
 	}
 	
 	private void removeClosedAsteFromCookieAndList(HttpServletRequest request, HttpServletResponse response, ArrayList<Asta> aste) {		
