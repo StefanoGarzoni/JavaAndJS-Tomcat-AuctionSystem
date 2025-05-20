@@ -146,7 +146,7 @@ export function handlerAddOfferta(prezzoAttuale, rialzoMinimo) {
 
     const newOfferta = JSON.parse(xhr.response);
     if (newOfferta.errorChiusura) {
-      alert('Errore: ' + json.errorChiusura);
+      alert('Errore: ' + newOfferta.errorChiusura);
       renderAcquistoPage();
       return;
     }
