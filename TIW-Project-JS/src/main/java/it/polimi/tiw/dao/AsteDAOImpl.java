@@ -397,4 +397,18 @@ public class AsteDAOImpl implements AsteDAO{
 
         return false;
     }
+
+    @Override
+    public boolean checkIfAstaIsOpen(Connection conn, int idAsta) throws SQLException {
+        String query = "SELECT * FROM Aste WHERE id_asta = ? AND chiusa = False;";
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setInt(1, idAsta);
+        ResultSet result = ps.executeQuery();
+        if (result.next()) {
+            return true;
+        }
+
+        return false;
+    }
 }

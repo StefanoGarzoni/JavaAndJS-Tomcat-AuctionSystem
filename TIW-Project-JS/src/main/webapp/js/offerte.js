@@ -1,3 +1,4 @@
+import { renderAcquistoPage } from './acquisto.js';
 import { hideAllPages, showAcquisto } from './main.js';
 
 // rendering della pagina offerta
@@ -143,11 +144,17 @@ export function handlerAddOfferta(prezzoAttuale, rialzoMinimo) {
       return;
     }
 
+    const newOfferta = JSON.parse(xhr.response);
+    if (newOfferta.errorChiusura) {
+      alert('Errore: ' + json.errorChiusura);
+      renderAcquistoPage();
+      return;
+    }
+
     try {
       // Parsing dell'oggetto Offerta restituito dalla servlet
       //NOTA: avessi inserito xhr.responseType = 'json'; non avrei dovuto fare il parsing manualmente
       //teniamo comunque questao processo per mostrare le varie possibilità di tecniche usabili
-      const newOfferta = JSON.parse(xhr.response);
 
       const table = document.getElementById('listaOffertePage');
 

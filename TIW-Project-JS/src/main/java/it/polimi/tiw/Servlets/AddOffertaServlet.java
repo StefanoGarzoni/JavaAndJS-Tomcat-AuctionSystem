@@ -4,8 +4,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import it.polimi.tiw.ConnectionManager;
+import it.polimi.tiw.dao.AsteDAOImpl;
 import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.dao.UtenteDAOImpl;
 import it.polimi.tiw.dao.Beans.Offerta;
@@ -31,12 +34,14 @@ public class AddOffertaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private OfferteDAOImpl offerteDAO;
     private UtenteDAOImpl utenteDAO;
+    private AsteDAOImpl asteDAO;
     Gson gson;
 
     @Override
     public void init() throws ServletException {
         offerteDAO = new OfferteDAOImpl();
         utenteDAO = new UtenteDAOImpl();
+        asteDAO = new AsteDAOImpl();
         gson = new Gson();
     }
 
@@ -74,18 +79,64 @@ public class AddOffertaServlet extends HttpServlet {
         try {
             prezzo = Double.parseDouble(prezzoStr);
         } catch (NumberFormatException e) {
-            //setta lo stato della risposta HTTP
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
             //scrive il messaggio di errore in formato JSON all'interno del body della risposta
             response.getWriter().print("{\"error\":\"Parametro prezzo non valido\"}");
+
             return;
         }
 
-        // Inserisce l'offerta sul DB e ottiene data e ora in una mappa
-        int result;
-        Date data;
-        Time ora;
+        Offerta newOfferta = null;
+
         try (Connection conn = ConnectionManager.getConnection()) {
+
+            try {
+
+                // Controllo se l'asta è già chiusa
+                if (asteDAO.checkIfAstaIsOpen(conn, idAsta)) {
+
+                    //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                    response.getWriter().print("{\"errorChiusura\":\"L'asta è già chiusa\"}");
+                    return;
+                }
+
+            	//recupero i prezzi dall'asta
+                Map<Double, Double> prezziInfo = asteDAO.getPrezzoOffertaMaxANDRialzoMinimo(conn, idAsta);
+                if (prezziInfo == null || prezziInfo.isEmpty()) {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                    response.getWriter().print("{\"error\":\"Errore DB durante il recupero dei prezzi\"}");
+                    return;
+                }
+                
+                //salvo i dati dei prezzi appena estratti
+                double rialzoMinimo = prezziInfo.keySet().iterator().next();
+                double prezzoAttuale  = prezziInfo.get(rialzoMinimo);
+
+                //controllo se il nuovo prezzo inserito è valido
+                //se non lo è, reindirizzo dicendo di inserire un prezzo valido all'utente
+                if ((prezzo <= prezzoAttuale || (prezzo - prezzoAttuale) < rialzoMinimo)) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                    response.getWriter().print("{\"error\":\"Errore nel prezzo inserito\"}");
+                    return;
+                }
+
+            } catch (SQLException e) {
+                //setta lo stato della risposta HTTP
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                response.getWriter().print("{\"error\":\"Errore DB durante il recupero dei prezzi\"}");
+                e.printStackTrace(System.out);
+                return;
+            }
+
+
+            // Inserisce l'offerta sul DB e ottiene data e ora in una mappa
+            int result;
+            Date data;
+            Time ora;
+        
 
             conn.setAutoCommit(false);
 
@@ -119,6 +170,10 @@ public class AddOffertaServlet extends HttpServlet {
                 return;
             }
 
+                
+            // crea l'offerta (oggetto) che va restituito al client
+            newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
+
         } catch (SQLException e) {
             //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -127,9 +182,6 @@ public class AddOffertaServlet extends HttpServlet {
             e.printStackTrace(System.out);
             return;
         }
-
-        // crea l'offerta (oggetto) che va restituito al client
-        Offerta newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
 
         //serializzo l'oggetto offerta in json e poi lo metto nella body della risposta
         String jsonString = gson.toJson(newOfferta);
