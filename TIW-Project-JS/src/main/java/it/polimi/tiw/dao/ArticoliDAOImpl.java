@@ -1,12 +1,12 @@
 //Implementazione DAO Tabella Articoli
 package it.polimi.tiw.dao;
-
 import java.sql.*;
 import java.util.*;
 import it.polimi.tiw.dao.Beans.Articolo;
 
 public class ArticoliDAOImpl implements ArticoliDAO{
 
+    @Override
     public boolean areAllArticlesOfUser(Connection conn, String usernameVenditore, ArrayList<Integer> idArticoli) throws SQLException {
     	String query = "SELECT cod FROM Articoli WHERE venditore = ?";
         
@@ -30,7 +30,7 @@ public class ArticoliDAOImpl implements ArticoliDAO{
        return true;
     }
     
-    // restituisce true se tutti gli articoli non sono ancora in un'asta
+    @Override
     public boolean areAllArticlesFree(Connection conn, ArrayList<Integer> idArticoliToInsertInAsta) throws SQLException {
     	String query = "SELECT count(*) AS notFreeArticles "
     			+ "FROM Articoli "
@@ -55,8 +55,7 @@ public class ArticoliDAOImpl implements ArticoliDAO{
     }
 	
 	@Override
-    public Articolo insertNewArticolo(Connection conn, String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo) 
-    	throws SQLException {
+    public Articolo insertNewArticolo(Connection conn, String usernameVenditore, String nomeArticolo, String descrizione, String imgPath, double prezzo) throws SQLException {
         String query = "INSERT INTO Articoli (venditore, nome, descrizione, img, prezzo) VALUES (?, ?, ?, ?, ?);";
 
         PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -78,13 +77,14 @@ public class ArticoliDAOImpl implements ArticoliDAO{
         }
     }
 	
-	public int getSumOfPrice(Connection conn, ArrayList<Integer> articles) {
+    @Override
+	public int getSumOfPrice(Connection conn, ArrayList<Integer> articles) throws SQLException {
 		if (articles.isEmpty()) {
 	        return 0; 	// nessun elemento da sommare
 	    }
 		
 	    StringBuilder query = new StringBuilder("SELECT SUM(prezzo) FROM Articoli WHERE cod IN (");
-	    
+	    //si puo fare perche i dati sono già stati sanificati
 	    for (int i = 0; i < articles.size(); i++) {
 	        query.append(articles.get(i));
 	        if (i < articles.size() - 1) {
@@ -92,22 +92,19 @@ public class ArticoliDAOImpl implements ArticoliDAO{
 	        }
 	    }
 	    query.append(");");
-		
-	    try (
-            PreparedStatement stmt = conn.prepareStatement(query.toString());
-            ResultSet rs = stmt.executeQuery()
-        ) {
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getSumOfPrice", e);
+
+        PreparedStatement stmt = conn.prepareStatement(query.toString());
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            return rs.getInt(1);
+        } else {
+            return 0;
         }
 	}
 
-	public void updateIdAstaInArticles(Connection conn, ArrayList<Integer> articles, int idAsta) {
+    @Override
+	public void updateIdAstaInArticles(Connection conn, ArrayList<Integer> articles, int idAsta) throws SQLException {
 		StringBuilder query = new StringBuilder("UPDATE Articoli SET id_asta = ? WHERE cod IN (");
 			    
 	    for (int i = 0; i < articles.size(); i++) {
@@ -117,66 +114,55 @@ public class ArticoliDAOImpl implements ArticoliDAO{
 	        }
 	    }
 	    query.append(");");
-		
-	    try (
-            PreparedStatement stmt = conn.prepareStatement(query.toString());
-        ) {
-	    	stmt.setInt(1, idAsta);
-	    	stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getSumOfPrice", e);
-        }
+
+        PreparedStatement stmt = conn.prepareStatement(query.toString());
+
+        stmt.setInt(1, idAsta);
+        stmt.executeUpdate();
 	}
 	
     @Override
-    public ArrayList<Articolo> getMyArticoli(Connection conn, String usernameVenditore) throws RuntimeException{
+    public ArrayList<Articolo> getMyArticoli(Connection conn, String usernameVenditore) throws SQLException{
         String query = "SELECT * FROM Articoli WHERE venditore = ? AND venduto = False AND id_asta IS NULL;";
         ArrayList<Articolo> articoli = new ArrayList<Articolo>();
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-            ps.setString(1, usernameVenditore);
-            ResultSet result = ps.executeQuery();
-            while (result.next()) {
-                Articolo articolo = new Articolo(
-                    result.getInt("cod"),
-                    result.getString("nome"),
-                    result.getString("descrizione"),
-                    result.getString("img"),
-                    result.getDouble("prezzo")
-                );
-                articoli.add(articolo);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getMyArticoli", e);
+
+        PreparedStatement ps = conn.prepareStatement(query);
+
+        ps.setString(1, usernameVenditore);
+        ResultSet result = ps.executeQuery();
+        while (result.next()) {
+            Articolo articolo = new Articolo(
+                result.getInt("cod"),
+                result.getString("nome"),
+                result.getString("descrizione"),
+                result.getString("img"),
+                result.getDouble("prezzo")
+            );
+            articoli.add(articolo);
         }
         return articoli;
     }
 
     @Override
-    public ArrayList<Articolo> getArticoliByIdAsta(Connection conn, int idAsta) {
+    public ArrayList<Articolo> getArticoliByIdAsta(Connection conn, int idAsta) throws SQLException {
         String query = "SELECT * FROM Articoli WHERE id_asta = ?;";
         ArrayList<Articolo> articoli = new ArrayList<>();
-        try (
-            PreparedStatement ps = conn.prepareStatement(query)
-        ) {
-            ps.setInt(1, idAsta);
-            ResultSet result = ps.executeQuery();
-            while (result.next()) {
-                Articolo articolo = new Articolo(
-                    result.getInt("cod"),
-                    result.getString("nome"),
-                    result.getString("descrizione"),
-                    result.getString("img"),
-                    result.getDouble("prezzo"),
-                    result.getString("venditore"),
-                    result.getBoolean("venduto"),
-                    result.getInt("id_asta")
-                );
-                articoli.add(articolo);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore in getArticoliByIdAsta", e);
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setInt(1, idAsta);
+        ResultSet result = ps.executeQuery();
+        while (result.next()) {
+            Articolo articolo = new Articolo(
+                result.getInt("cod"),
+                result.getString("nome"),
+                result.getString("descrizione"),
+                result.getString("img"),
+                result.getDouble("prezzo"),
+                result.getString("venditore"),
+                result.getBoolean("venduto"),
+                result.getInt("id_asta")
+            );
+            articoli.add(articolo);
         }
         return articoli;
     }

@@ -44,11 +44,6 @@ export function renderOffertaPage(idAsta) {
       return;
     }
 
-    //ogni volta che durante la richiesta AJAX si verifica un errore, viene chiamata questa funzione ( un alert )
-    xhr.onerror = function() {
-      alert('Impossibile caricare i dati dell\'asta.');
-    };
-
     //xhr.response; è convertito in un oggetto JS da JSON grazie al fatto che gli ho detto il tipo della risposta
     //poi uso il destructuring assignment per estrarre i dati (nota come i nomi devono combaciare)
     const { articoli, offerte, rialzo_minimo, prezzo_attuale } = xhr.response;
@@ -103,6 +98,11 @@ export function renderOffertaPage(idAsta) {
     });
   };
 
+  //ogni volta che durante la richiesta AJAX si verifica un errore, viene chiamata questa funzione ( un alert )
+  xhr.onerror = function() {
+    alert('Impossibile caricare i dati dell\'asta.');
+  };
+
   //mostro la pagina (il div dedicato)
   page.hidden = false;
 
@@ -110,6 +110,7 @@ export function renderOffertaPage(idAsta) {
   xhr.send();
 }
 
+// Funzione per gestire l'inserimento dell'offerta
 export function handlerAddOfferta(prezzoAttuale, rialzoMinimo) {
   
   // Seleziono e valido l'input prezzo
@@ -142,10 +143,6 @@ export function handlerAddOfferta(prezzoAttuale, rialzoMinimo) {
       return;
     }
 
-    xhr.onerror = function() {
-      alert("Errore durante l'invio dell'offerta.");
-    };
-
     try {
       // Parsing dell'oggetto Offerta restituito dalla servlet
       //NOTA: avessi inserito xhr.responseType = 'json'; non avrei dovuto fare il parsing manualmente
@@ -169,6 +166,10 @@ export function handlerAddOfferta(prezzoAttuale, rialzoMinimo) {
       console.error('Errore parsing risposta JSON', e);
       alert('Risposta non valida dal server | Errore parsing risposta JSON : '+e);
     }
+  };
+
+  xhr.onerror = function() {
+    alert("Errore durante l'invio dell'offerta.");
   };
 
 

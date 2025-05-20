@@ -4,10 +4,12 @@ import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.sql.Date;
 
@@ -143,7 +145,7 @@ public class NewAstaServlet extends HttpServlet {
 				ArrayList<Articolo> articoli = new ArticoliDAOImpl().getArticoliByIdAsta(conn, idNewAsta);
 	        	
 				Asta newAsta = new Asta(idNewAsta, username, startingPrice, rialzoMinimo, dataScadenza, oraScadenza, 0, false, articoli);
-	        	AsteDAOImpl.setTempoRimanenteInAsta(newAsta, LocalDateTime.now());
+	        	setTempoRimanenteInAsta(newAsta, LocalDateTime.now());
 				
 	        	// eseguo le modifiche sul DB se tutti i campi sono stati aggiornati correttamente senza errori
 				conn.commit();
@@ -175,5 +177,20 @@ public class NewAstaServlet extends HttpServlet {
 			e.printStackTrace(System.out);	// stampo su terminale l'errore SQL
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Errore interno al server durante l'inserimento");
 		}
+	}
+
+	private void setTempoRimanenteInAsta(Asta asta, LocalDateTime lastLoginTimestamp) {
+		// conversion from java.sql.Date and java.sql.Time to LocalDateTime
+		LocalDateTime scadenzaAsta = LocalDateTime.of(
+				asta.getDataScadenza().toLocalDate(), 
+				asta.getOraScadenza().toLocalTime()
+		);
+		
+		long giorniRimanentiAsta = ChronoUnit.DAYS.between(lastLoginTimestamp, scadenzaAsta);	// integer days distance
+		LocalDateTime dopoGiorni = lastLoginTimestamp.plusDays(giorniRimanentiAsta);
+		long oreRimanentiAsta = Duration.between(dopoGiorni, scadenzaAsta).toHours();	// integer hours distance
+		
+		asta.setGiorniRimanenti((int)giorniRimanentiAsta);
+		asta.setOreRimanenti((int)oreRimanentiAsta);
 	}
 }

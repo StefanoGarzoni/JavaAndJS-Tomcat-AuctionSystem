@@ -75,7 +75,7 @@ public class VendoHomeServlet extends HttpServlet {
 				// aggiungo aste aperte
 				ArrayList<Asta> openAste = asteDAO.getAllOpenAsteInfoByCreator(conn, username);
 				for(Asta asta : openAste)
-					AsteDAOImpl.setTempoRimanenteInAsta(asta, lastLoginTimestamp);
+					setTempoRimanenteInAsta(asta, lastLoginTimestamp);
 				JsonArray jsonArrayOpenAste = gson.toJsonTree(openAste).getAsJsonArray();
 				finalObject.add("openAste", jsonArrayOpenAste);
 				
@@ -124,5 +124,20 @@ public class VendoHomeServlet extends HttpServlet {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(days*60*60*24);
         response.addCookie(cookie);
+	}
+
+	private void setTempoRimanenteInAsta(Asta asta, LocalDateTime lastLoginTimestamp) {
+		// conversion from java.sql.Date and java.sql.Time to LocalDateTime
+		LocalDateTime scadenzaAsta = LocalDateTime.of(
+				asta.getDataScadenza().toLocalDate(), 
+				asta.getOraScadenza().toLocalTime()
+		);
+		
+		long giorniRimanentiAsta = ChronoUnit.DAYS.between(lastLoginTimestamp, scadenzaAsta);	// integer days distance
+		LocalDateTime dopoGiorni = lastLoginTimestamp.plusDays(giorniRimanentiAsta);
+		long oreRimanentiAsta = Duration.between(dopoGiorni, scadenzaAsta).toHours();	// integer hours distance
+		
+		asta.setGiorniRimanenti((int)giorniRimanentiAsta);
+		asta.setOreRimanenti((int)oreRimanentiAsta);
 	}
 }
