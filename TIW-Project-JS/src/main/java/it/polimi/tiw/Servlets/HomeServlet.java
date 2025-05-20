@@ -9,7 +9,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import it.polimi.tiw.ConnectionManager;
@@ -61,14 +61,18 @@ public class HomeServlet extends HttpServlet {
             return;
 		}
 		
+		String username = (String) request.getSession(false).getAttribute("username");
+		
 		try (Connection conn = ConnectionManager.getConnection()) {
 			// deve restituire il valore dell'ultima azione
-			Boolean userLastActionWasAddedAsta = new UtenteDAOImpl().userLastActionWasAddedAsta(conn, getServletInfo());
+			Boolean userLastActionWasAddedAsta = new UtenteDAOImpl().userLastActionWasAddedAsta(conn, username);
+			
 			
 			JsonObject jsonObject = new JsonObject();
 			jsonObject.addProperty("userLastActionWasAddedAsta", userLastActionWasAddedAsta);
 			
-			String finalJson = new Gson().toJson(jsonObject);
+			// uso un GsonBuilder perchè devo serializzare il flag anche nel caso in cui il valore sia null (Gson non serializza i null)
+			String finalJson = new GsonBuilder().serializeNulls().create().toJson(jsonObject);
 			// scrittura JSON nella response
 		    PrintWriter out = response.getWriter();
 		    out.print(finalJson);
