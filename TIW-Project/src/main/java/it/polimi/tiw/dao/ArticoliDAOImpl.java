@@ -34,8 +34,6 @@ public class ArticoliDAOImpl implements ArticoliDAO{
        	return true;
     }
     
-	
-    // restituisce true se tutti gli articoli non sono ancora in un'asta
 	@Override
     public boolean areAllArticlesFree(Connection conn, ArrayList<Integer> idArticoliToInsertInAsta) throws SQLException {
     	String query = "SELECT count(*) AS notFreeArticles "
