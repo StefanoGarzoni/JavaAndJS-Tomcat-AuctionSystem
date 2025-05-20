@@ -14,7 +14,6 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.LoginDAO;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 public class LoginServlet extends HttpServlet {

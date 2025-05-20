@@ -99,7 +99,9 @@ public class OfferteServlet extends HttpServlet {
             offerte  = offerteDAO.getOfferteByIdAsta(conn, idAsta);
             
         } catch (SQLException e) {
-            throw new ServletException("Errore durante il recupero dei dati", e);
+        	e.printStackTrace(System.out);
+        	response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Errore nel recuperare articoli e/o offerte dal database");
+        	return;
         }
         
         //provo a scaricare dal db il rialzo minimo
@@ -108,7 +110,9 @@ public class OfferteServlet extends HttpServlet {
             rialzo = asteDAO.getRialzoMinimo(conn, idAsta);
            
         } catch (SQLException e) {
-            throw new ServletException("Errore durante il recupero dei dati", e);
+        	e.printStackTrace(System.out);
+        	response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Errore nel recupero del rialzo minimo");
+        	return;
         }
 
         // Preparazione modello Thymeleaf
