@@ -7,9 +7,9 @@ import java.sql.Time;
 import com.google.gson.Gson;
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.OfferteDAOImpl;
+import it.polimi.tiw.dao.UtenteDAOImpl;
 import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,11 +30,13 @@ import jakarta.servlet.annotation.MultipartConfig;
 public class AddOffertaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private OfferteDAOImpl offerteDAO;
+    private UtenteDAOImpl utenteDAO;
     Gson gson;
 
     @Override
     public void init() throws ServletException {
         offerteDAO = new OfferteDAOImpl();
+        utenteDAO = new UtenteDAOImpl();
         gson = new Gson();
     }
 
@@ -104,6 +106,19 @@ public class AddOffertaServlet extends HttpServlet {
             conn.commit();
             conn.setAutoCommit(true);
 
+            //set del valore "ultima_azione..." nel DB
+            try{
+                utenteDAO.setUserLastActionWasAddedAsta(conn, username, false);
+            }
+            catch(SQLException e) {
+                //setta lo stato della risposta HTTP
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                //scrive il messaggio di errore in formato JSON all'interno del body della risposta
+                response.getWriter().print("{\"error\":\"Errore DB durante l'aggiornamento dell'ultima azione\"}");
+                e.printStackTrace(System.out);
+                return;
+            }
+
         } catch (SQLException e) {
             //setta lo stato della risposta HTTP
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -115,32 +130,6 @@ public class AddOffertaServlet extends HttpServlet {
 
         // crea l'offerta (oggetto) che va restituito al client
         Offerta newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
-
-        //set del valore del cookie "lastAction"
-        boolean lastActionCookieFound = false;
-        Cookie[] cookies = request.getCookies();
-
-        //cerco il cookie tra i cookies
-        if (cookies != null) {
-            for (Cookie c : cookies) {
-                if (c.getName().equals("lastAction")) {
-
-                    //se lo trovo, modifico il suo valore
-                    c.setMaxAge(60*60*24*30); // rinnovo la scadenza di un mese
-                    c.setValue("addedOfferta");
-                    lastActionCookieFound = true;
-                    response.addCookie(c);
-                    break;
-                }
-            }
-        }
-        
-        //se il cookie non esiste, lo creo
-        if(!lastActionCookieFound) {
-            Cookie lastActionCookie = new Cookie("lastAction", "addedOfferta");
-            lastActionCookie.setMaxAge(60*60*24*30); //un mese
-            response.addCookie(lastActionCookie);
-        }
 
         //serializzo l'oggetto offerta in json e poi lo metto nella body della risposta
         String jsonString = gson.toJson(newOfferta);
