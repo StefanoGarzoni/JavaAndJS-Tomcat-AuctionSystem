@@ -12,13 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     moveToAcquisto.addEventListener('click', () => {
         showAcquisto();
     });
-
-    if (lastActionIsAddedAsta()) {		// entra nel then SSE l'ultima azione è la creazione dell'asta
-        showVendo();
-    } else {
-        showAcquisto();
-    }
-
+	
+	renderPageByLastAction();
 });
 
 // Show "Vendo" pages
@@ -45,7 +40,7 @@ export function hideAllPages() {
     document.getElementById('back').hidden = true;
 }
 
-function lastActionIsAddedAsta() {
+function renderPageByLastAction() {
 	const request = new XMLHttpRequest();
 	request.open("POST", "/TIW-Project-JS/home");
 	
@@ -54,12 +49,16 @@ function lastActionIsAddedAsta() {
 			if(request.status == 200){
 				const userLastActionWasAddedAsta = JSON.parse(request.responseText).userLastActionWasAddedAsta;
 				
-				return userLastActionWasAddedAsta;
+				if (userLastActionWasAddedAsta) {		// entra nel then SSE l'ultima azione è la creazione dell'asta
+			        showVendo();
+			    } else {
+			        showAcquisto();
+			    }
 			}
 			else{
 				alert("Problema con il caricamento dei dati dal server");
 			}
 		}
 	}
-
+	request.send();
 }
