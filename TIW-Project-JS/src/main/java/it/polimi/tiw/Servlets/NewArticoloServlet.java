@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.google.gson.Gson;
 import it.polimi.tiw.ConnectionManager;
 import it.polimi.tiw.dao.ArticoliDAOImpl;
+import it.polimi.tiw.dao.UtenteDAOImpl;
 import it.polimi.tiw.dao.Beans.Articolo;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -74,10 +75,8 @@ public class NewArticoloServlet extends HttpServlet {
 			
 			String finalJson = gson.toJson(newArticolo);
 			
-			// imposto il cookie con la nuova azione
-			Cookie lastAction = new Cookie("lastAction", "addedArticolo");
-			lastAction.setMaxAge(30*60*60*24);	// scadenza a 30gg
-            response.addCookie(lastAction);
+			// imposto l'ultima azione nel db
+			new UtenteDAOImpl().setUserLastActionWasAddedAsta(conn, username, false);
 		    
 			// imposto content-type e charset della risposta
 		    response.setContentType("application/json");

@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showAcquisto();
     });
 
-    if (getCookie('lastAction') === 'addedAsta') {
+    if (lastActionIsAddedAsta()) {		// entra nel then SSE l'ultima azione è la creazione dell'asta
         showVendo();
     } else {
         showAcquisto();
@@ -45,22 +45,21 @@ export function hideAllPages() {
     document.getElementById('back').hidden = true;
 }
 
-export function getCookie(name) {
-  	// Prendi tutti i cookie come stringa e spezzali in array di "nome=valore"
-    const cookieArray = document.cookie.split('; ');
-    
-    // Scorri l’array fino a trovare quello giusto
-    for (let i = 0; i < cookieArray.length; i++) {
-        const cookiePair = cookieArray[i].split('=');
-        const key = cookiePair[0];
-        // Riassembla eventuali '=' nel valore
-        const value = cookiePair.slice(1).join('=');
-        
-        if (key === name) {
-            return decodeURIComponent(value);
-        }
-    }
-  
-  // Se non trovato, restituisci null
-  return null;
+function lastActionIsAddedAsta() {
+	const request = new XMLHttpRequest();
+	request.open("POST", "/TIW-Project-JS/home");
+	
+	request.onreadystatechange = () => {
+		if(request.readyState == 4){
+			if(request.status == 200){
+				const userLastActionWasAddedAsta = JSON.parse(request.responseText).userLastActionWasAddedAsta;
+				
+				return userLastActionWasAddedAsta;
+			}
+			else{
+				alert("Problema con il caricamento dei dati dal server");
+			}
+		}
+	}
+
 }
