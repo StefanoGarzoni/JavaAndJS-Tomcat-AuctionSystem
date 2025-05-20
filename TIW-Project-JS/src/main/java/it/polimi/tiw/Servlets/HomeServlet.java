@@ -80,7 +80,7 @@ public class HomeServlet extends HttpServlet {
             e.printStackTrace(System.out);
 		}
 	}
-	
+	/*
 	private void setCookie(HttpServletResponse response, String name, String value, int days) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(days*60*60*24);
