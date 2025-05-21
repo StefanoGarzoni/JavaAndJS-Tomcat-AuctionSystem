@@ -27,14 +27,17 @@ import jakarta.servlet.http.*;
 )
 public class NewArticoloServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
-	private TemplateEngine templateEngine;
 	
+	private TemplateEngine templateEngine;
+	private JakartaServletWebApplication webApplication ;
+	private WebApplicationTemplateResolver templateResolver;
+	private ArticoliDAOImpl articoloDAO;
+
 	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+		articoloDAO = new ArticoliDAOImpl();
+
+		webApplication= JakartaServletWebApplication.buildApplication(getServletContext());
+		templateResolver = new WebApplicationTemplateResolver(webApplication);
 		
 		templateResolver.setTemplateMode(TemplateMode.HTML);
 		this.templateEngine = new TemplateEngine();
@@ -86,7 +89,7 @@ public class NewArticoloServlet extends HttpServlet {
 			String username = (String) request.getSession().getAttribute("username");
 			
 			Connection conn = ConnectionManager.getConnection(); 
-			new ArticoliDAOImpl().insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
+			articoloDAO.insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
 		}
 		catch (SQLException e) {
 			e.printStackTrace(System.out);
@@ -109,8 +112,6 @@ public class NewArticoloServlet extends HttpServlet {
 		String uniqueName = UUID.randomUUID().toString() + extension;		// genera un nome casuale per salvare il file (per evitare più file con lo stesso nome)
 		
 		String uploadPath = getServletContext().getInitParameter("articlesImagesUploadPath");
-		
-		File target = new File(uploadPath, uniqueName);
 
         // scrive l'immagine nel file
         filePart.write(uploadPath + File.separator + uniqueName);

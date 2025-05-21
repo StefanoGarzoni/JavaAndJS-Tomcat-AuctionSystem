@@ -28,12 +28,19 @@ public class VendoHomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private TemplateEngine templateEngine;
+	private JakartaServletWebApplication webApplication;
+	private WebApplicationTemplateResolver templateResolver ;
+	private AsteDAO asteDAO;
+	private ArticoliDAO articoliDAO;
+
 	
 	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
+
+		asteDAO = new AsteDAOImpl();
+		articoliDAO = new ArticoliDAOImpl();
 		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+		webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
+		templateResolver= new WebApplicationTemplateResolver(webApplication);
 		
 		templateResolver.setTemplateMode(TemplateMode.HTML);
 		this.templateEngine = new TemplateEngine();
@@ -56,8 +63,7 @@ public class VendoHomeServlet extends HttpServlet {
 			session.removeAttribute("idAsta");
 		}
 		
-		AsteDAO asteDAO = new AsteDAOImpl();
-		ArticoliDAO articoliDAO = new ArticoliDAOImpl();
+
 		
 		String username = (String) session.getAttribute("username");
 		LocalDateTime lastLoginTimestamp = (LocalDateTime) session.getAttribute("lastLoginTimestamp");

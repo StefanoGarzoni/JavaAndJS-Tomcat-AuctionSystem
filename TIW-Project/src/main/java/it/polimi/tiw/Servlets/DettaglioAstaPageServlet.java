@@ -38,12 +38,11 @@ public class DettaglioAstaPageServlet extends HttpServlet {
 
     public void init() throws ServletException {
 
-        ServletContext servletContext = getServletContext();
         offerteDAO = new OfferteDAOImpl();
         asteDAO    = new AsteDAOImpl();
         
         //set di attributi e costruzione oggetti per la costruzione del template thymeleaf
-        webApplication = JakartaServletWebApplication.buildApplication(servletContext);
+        webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
         templateResolver = new WebApplicationTemplateResolver(webApplication);
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);

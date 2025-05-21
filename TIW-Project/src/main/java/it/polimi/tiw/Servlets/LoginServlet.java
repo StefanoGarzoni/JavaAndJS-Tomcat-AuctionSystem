@@ -20,12 +20,17 @@ public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private TemplateEngine templateEngine;
-	
+	private JakartaServletWebApplication webApplication ;
+	private WebApplicationTemplateResolver templateResolver;
+	private UtenteDAOImpl utenteDAO;
+	private String loginPath;
+
 	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+		loginPath = "/login.html";
+		utenteDAO = new UtenteDAOImpl();
+
+		webApplication= JakartaServletWebApplication.buildApplication(getServletContext());
+		templateResolver = new WebApplicationTemplateResolver(webApplication);
 		
 		templateResolver.setTemplateMode(TemplateMode.HTML);
 		this.templateEngine = new TemplateEngine();
@@ -36,19 +41,17 @@ public class LoginServlet extends HttpServlet {
 	/** Provides the client the login web page.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String path = "/login.html";
 		
 		if(request.getSession(false) != null)	// if a session already exists (the client logged in)
 			response.sendRedirect(request.getContextPath() + "/home");
 		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		
-		templateEngine.process(path, ctx, response.getWriter());
+		templateEngine.process(loginPath, ctx, response.getWriter());
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String loginPath = "/login.html";
+
 		String homePagePathString = "/TIW-Project/home";
 		
 		HttpSession session = request.getSession(false);
@@ -65,13 +68,12 @@ public class LoginServlet extends HttpServlet {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
 		
 		if(username != null && password != null) {
 			try ( Connection dbConnection = ConnectionManager.getConnection() ) {
 				
-				boolean validCredential = new UtenteDAOImpl().areCredentialsCorrect(dbConnection, username, password);
+				boolean validCredential = utenteDAO.areCredentialsCorrect(dbConnection, username, password);
 				
 				if(validCredential) {
 					session = request.getSession(true);

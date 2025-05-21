@@ -35,18 +35,17 @@ public class OfferteServlet extends HttpServlet {
     private AsteDAOImpl asteDAO;
     private TemplateEngine templateEngine;
     
-    JakartaServletWebApplication webApplication;
-    WebApplicationTemplateResolver resolver;
-    ServletContext servletContext;
+    private JakartaServletWebApplication webApplication;
+    private WebApplicationTemplateResolver resolver;
+    private ServletContext servletContext;
     
     public void init() throws ServletException {
 
-    	servletContext = getServletContext();
         offerteDAO = new OfferteDAOImpl();
         articoliDAO = new ArticoliDAOImpl();
         asteDAO = new AsteDAOImpl();
 
-        webApplication = JakartaServletWebApplication.buildApplication(servletContext);
+        webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
         resolver = new WebApplicationTemplateResolver(webApplication);
 
         resolver.setSuffix(".html");

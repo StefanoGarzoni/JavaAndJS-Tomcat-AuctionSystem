@@ -23,14 +23,18 @@ import jakarta.servlet.http.*;
 
 public class NewAstaServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
+	private AsteDAO asteDAO;
+	private ArticoliDAO articoliDAO;
 	private TemplateEngine templateEngine;
+	private JakartaServletWebApplication webApplication ;
+	private WebApplicationTemplateResolver templateResolver;
 	
 	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+
+		asteDAO = new AsteDAOImpl();
+		articoliDAO = new ArticoliDAOImpl();
+		webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
+		templateResolver = new WebApplicationTemplateResolver(webApplication);
 		
 		templateResolver.setTemplateMode(TemplateMode.HTML);
 		this.templateEngine = new TemplateEngine();
@@ -113,8 +117,7 @@ public class NewAstaServlet extends HttpServlet {
 		
 		// creazione nuova asta
 		String username = (String) request.getSession().getAttribute("username");
-		AsteDAO asteDAO = new AsteDAOImpl();
-		ArticoliDAO articoliDAO = new ArticoliDAOImpl();
+
 		try {
 			Connection conn = ConnectionManager.getConnection();
 			
