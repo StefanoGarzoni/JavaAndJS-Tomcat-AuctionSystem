@@ -51,6 +51,7 @@ public class OfferteServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+        String username = (String) session.getAttribute("username");
 
         //Lettura e validazione parametro idAsta
         String idParam = request.getParameter("idAsta");
@@ -82,7 +83,7 @@ public class OfferteServlet extends HttpServlet {
         // cerco il cookie "asteVisionate"
         if (cookies != null) {
             for (Cookie c : cookies) {
-                if (c.getName().equals("asteVisionate")) {
+                if (c.getName().equals("asteVisionate"+username)) {
                 	// dal cookie estraggo un JsonArray contente gli id delle aste
                     String decodedAsteVisionateJsonCookie = URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8);
                     asteVisionateJsonArray = JsonParser.parseString(decodedAsteVisionateJsonCookie).getAsJsonArray();
@@ -116,7 +117,7 @@ public class OfferteServlet extends HttpServlet {
         		lastVisitedCookie.setValue(encodedAsteVisionate);
         	}
             else{
-                lastVisitedCookie = new Cookie("asteVisionate", encodedAsteVisionate);
+                lastVisitedCookie = new Cookie("asteVisionate"+username, encodedAsteVisionate);
                 lastVisitedCookie.setPath(request.getContextPath());
             }
             lastVisitedCookie.setMaxAge(oneMonth);

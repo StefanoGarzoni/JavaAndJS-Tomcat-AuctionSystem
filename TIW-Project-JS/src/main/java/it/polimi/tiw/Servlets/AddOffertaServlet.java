@@ -177,7 +177,7 @@ public class AddOffertaServlet extends HttpServlet {
         //cerco i cookie "lastAction"
         if (cookies != null) {
             for (Cookie c : cookies) {
-                if (c.getName().equals("lastActionAstaCreated")) {
+                if (c.getName().equals("lastActionAstaCreated"+username)) {
                     c.setValue("false");
                     c.setMaxAge(60*60*24*30);
                     lastActionFound = true;
@@ -189,7 +189,7 @@ public class AddOffertaServlet extends HttpServlet {
 
         //se i cookie non esistono, li creo
         if(!lastActionFound) {
-            Cookie lastAction = new Cookie("lastActionAstaCreated", "false");
+            Cookie lastAction = new Cookie("lastActionAstaCreated"+username, "false");
             lastAction.setMaxAge(60*60*24*30);
             response.addCookie(lastAction);
         }
