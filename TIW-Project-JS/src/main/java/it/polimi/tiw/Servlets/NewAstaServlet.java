@@ -157,7 +157,10 @@ public class NewAstaServlet extends HttpServlet {
 	        	// eseguo le modifiche sul DB se tutti i campi sono stati aggiornati correttamente senza errori
 				conn.commit();
 	            
-	            new UtenteDAOImpl().setUserLastActionWasAddedAsta(conn, username, true);
+				// imposto l'ultima azione nei cookie
+				Cookie lastAction = new Cookie("lastActionAstaCreated", "true");
+				lastAction.setMaxAge(60*60*24*30);
+				response.addCookie(lastAction);
 			    
 				response.setContentType("application/json");
 			    response.setCharacterEncoding("UTF-8");

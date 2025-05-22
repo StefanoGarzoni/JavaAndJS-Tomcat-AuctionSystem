@@ -61,10 +61,11 @@ public class HomeServlet extends HttpServlet {
 		
 		try (Connection conn = ConnectionManager.getConnection()) {
 			// deve restituire il valore dell'ultima azione
-			Boolean value = utenteDAO.isUserPrimoAccesso(conn, username);
+			boolean isUserPrimoAccesso = utenteDAO.isUserPrimoAccesso(conn, username);
+			Boolean userLastActionWasAddedAsta = false;
 			boolean lastActionFound = false;
 
-			if(!value){
+			if(!isUserPrimoAccesso){
 				
 				Cookie[] cookies = request.getCookies();
 
@@ -73,7 +74,7 @@ public class HomeServlet extends HttpServlet {
 				if (cookies != null) {
 					for (Cookie c : cookies) {
 						if (c.getName().equals("lastActionAstaCreated")) {
-							value = Boolean.parseBoolean(c.getValue());
+							userLastActionWasAddedAsta = Boolean.parseBoolean(c.getValue());
 							c.setMaxAge(60*60*24*30);
 							lastActionFound = true;
 							response.addCookie(c);
@@ -81,11 +82,9 @@ public class HomeServlet extends HttpServlet {
 						}
 					}
 				}
-
 			}else{
+				// se è il primo accesso => userLastActionWasAddedAsta rimane al valore di default (false)
 				utenteDAO.setUserPrimoAccessoAtFalse(conn, username);
-				//cambio il valore in modo da porterlo inserire nel campo lastActionAstaCreated
-				value = !value;
 			}
 
 			if(!lastActionFound) {
@@ -95,7 +94,7 @@ public class HomeServlet extends HttpServlet {
 			}
 
 			JsonObject jsonObject = new JsonObject();
-			jsonObject.addProperty("userLastActionWasAddedAsta", value);
+			jsonObject.addProperty("userLastActionWasAddedAsta", userLastActionWasAddedAsta);
 
 			// scrittura JSON nella response
 		    PrintWriter out = response.getWriter();

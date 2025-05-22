@@ -75,8 +75,10 @@ public class NewArticoloServlet extends HttpServlet {
 			
 			String finalJson = gson.toJson(newArticolo);
 			
-			// imposto l'ultima azione nel db
-			new UtenteDAOImpl().setUserLastActionWasAddedAsta(conn, username, false);
+			// imposto l'ultima azione nei cookie
+			Cookie lastAction = new Cookie("lastActionAstaCreated", "false");
+			lastAction.setMaxAge(60*60*24*30);
+			response.addCookie(lastAction);
 		    
 			// imposto content-type e charset della risposta
 		    response.setContentType("application/json");
