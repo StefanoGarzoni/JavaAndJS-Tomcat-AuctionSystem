@@ -70,13 +70,13 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             //cerco i cookie "lastAction" e "renderAllTablesAste"
             if (cookies != null) {
                 for (Cookie c : cookies) {
-                    if (c.getName().equals("renderAllTablesAste")) {
+                    if (c.getName().equals("renderAllTablesAste"+username)) {
                         c.setValue("true");
                         c.setMaxAge(60*60*24*30);
                         tablesAsteCookieFound = true;
                         response.addCookie(c);
                       
-                    }else if(c.getName().equals("lastActionAstaCreated")) {
+                    }else if(c.getName().equals("lastActionAstaCreated"+username)) {
                         c.setValue("false");
                         c.setMaxAge(60*60*24*30);
                         lastActionCookieFound = true;
@@ -91,13 +91,13 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
 
             //se i cookie non esistono, li creo
             if(!tablesAsteCookieFound) {
-                Cookie tableOpenAsteCookie = new Cookie("renderAllTablesAste", "true");
+                Cookie tableOpenAsteCookie = new Cookie("renderAllTablesAste"+username, "true");
                 tableOpenAsteCookie.setMaxAge(60*60*24*30);
                 response.addCookie(tableOpenAsteCookie);
             }
 
             if(!lastActionCookieFound) {
-                Cookie lastAction = new Cookie("lastActionAstaCreated", "false");
+                Cookie lastAction = new Cookie("lastActionAstaCreated"+username, "false");
                 lastAction.setMaxAge(60*60*24*30);
                 response.addCookie(lastAction);
             }
