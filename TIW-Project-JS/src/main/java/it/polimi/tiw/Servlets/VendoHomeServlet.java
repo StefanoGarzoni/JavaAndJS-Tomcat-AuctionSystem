@@ -56,12 +56,12 @@ public class VendoHomeServlet extends HttpServlet {
 		
 		// estraggo i cookie che mi servono
 		for (Cookie cookie : cookies) {
-			if(cookie.getName().equals("renderAllTablesAste"))
+			if(cookie.getName().equals("renderAllTablesAste"+username))
 				renderAllAsteCookie = cookie;
-			else if(cookie.getName().equals("renderTableAsteAperte")) {
+			else if(cookie.getName().equals("renderTableAsteAperte"+username)) {
 				renderOpenAsteCookie = cookie;
 			}
-			else if(cookie.getName().equals("renderArticoli")) {
+			else if(cookie.getName().equals("renderArticoli"+username)) {
 				renderArticoliCookie = cookie;
 			}
 		}
@@ -71,7 +71,7 @@ public class VendoHomeServlet extends HttpServlet {
 		
 		try(Connection conn = ConnectionManager.getConnection()){
 			// imposto a true quelli non presenti (dovrò renderizzare le sezioni)
-			if(renderAllAsteCookie == null || ( renderAllAsteCookie.getName().equals("renderAllTablesAste") && renderAllAsteCookie.getValue().equals("true") )) {
+			if(renderAllAsteCookie == null || ( renderAllAsteCookie.getName().equals("renderAllTablesAste"+username) && renderAllAsteCookie.getValue().equals("true") )) {
 				// aggiungo aste aperte
 				ArrayList<Asta> openAste = asteDAO.getAllOpenAsteInfoByCreator(conn, username);
 				for(Asta asta : openAste)
@@ -86,25 +86,25 @@ public class VendoHomeServlet extends HttpServlet {
 				
 				// imposto a false il cookie => se non avvengono modifiche tra una visualizzazione di vendo e l'altra, 
 				// questa sezione non andrà richiesta
-				setCookie(response, "renderAllTablesAste", "false", 30);
+				setCookie(response, "renderAllTablesAste"+username, "false", 30);
 			}
 			
-			if(renderOpenAsteCookie == null || (renderOpenAsteCookie.getName().equals("renderTableAsteAperte") && renderOpenAsteCookie.getValue().equals("true"))) {
+			if(renderOpenAsteCookie == null || (renderOpenAsteCookie.getName().equals("renderTableAsteAperte"+username) && renderOpenAsteCookie.getValue().equals("true"))) {
 				// aggiungo aste chiuse
 				ArrayList<Asta> closedAste = asteDAO.getAllClosedAsteInfoByCreator(conn, username);
 				JsonArray jsonArrayClosedAste = gson.toJsonTree(closedAste).getAsJsonArray();
 				finalObject.add("closedAste", jsonArrayClosedAste);
 				
-				setCookie(response, "renderTableAsteAperte", "false", 30);
+				setCookie(response, "renderTableAsteAperte"+username, "false", 30);
 			}
 			
-			if(renderArticoliCookie == null || (renderArticoliCookie.getName().equals("renderArticoli") && renderArticoliCookie.getValue().equals("true"))) {
+			if(renderArticoliCookie == null || (renderArticoliCookie.getName().equals("renderArticoli"+username) && renderArticoliCookie.getValue().equals("true"))) {
 				// aggiungo gli articoli
 				ArrayList<Articolo> availableArticoli = articoliDAO.getMyArticoli(conn, username);
 				JsonArray jsonArrayArticoli = gson.toJsonTree(availableArticoli).getAsJsonArray();
 				finalObject.add("articoli", jsonArrayArticoli);
 				
-				setCookie(response, "renderArticoli", "false", 30);
+				setCookie(response, "renderArticoli"+username, "false", 30);
 			}
 			
 			// Converti in stringa JSON

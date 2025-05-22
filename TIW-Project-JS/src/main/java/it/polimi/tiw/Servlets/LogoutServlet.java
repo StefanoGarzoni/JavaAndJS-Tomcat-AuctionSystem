@@ -11,17 +11,6 @@ public class LogoutServlet extends HttpServlet {
 		if(request.getSession(false) != null) {
 			if(request.getSession().getAttribute("username") != null) {
 				request.getSession().invalidate();
-				
-				// elimino tutti i cookie (es. presenti perchè si è usata l'applicazione con un altro account)
-				Cookie[] cookies = request.getCookies();
-				if (cookies != null) {
-				    for (Cookie cookie : cookies) {
-				        cookie.setValue("");        // Svuota il valore
-				        cookie.setPath("/TIW-Project-JS");
-				        cookie.setMaxAge(0);        // scadenza a 0 => cancella il cookie
-				        response.addCookie(cookie); // invio il cookie aggiornato al client
-				    }
-				}
 			}
 		}
 		response.sendRedirect(request.getContextPath() + "/login");

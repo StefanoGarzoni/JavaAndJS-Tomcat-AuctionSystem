@@ -66,7 +66,6 @@ public class HomeServlet extends HttpServlet {
 			boolean lastActionFound = false;
 
 			if(!isUserPrimoAccesso){
-				
 				Cookie[] cookies = request.getCookies();
 
 				//scorro l'array di cookie
@@ -92,6 +91,8 @@ public class HomeServlet extends HttpServlet {
 				lastAction.setMaxAge(60*60*24*30);
 				response.addCookie(lastAction);
 			}
+			
+			setDefaultVendoCookies(response, username);
 
 			JsonObject jsonObject = new JsonObject();
 			jsonObject.addProperty("userLastActionWasAddedAsta", userLastActionWasAddedAsta);
@@ -99,7 +100,6 @@ public class HomeServlet extends HttpServlet {
 			// scrittura JSON nella response
 		    PrintWriter out = response.getWriter();
 		    out.print(jsonObject);
-		    
 		}
 		catch(SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -107,5 +107,18 @@ public class HomeServlet extends HttpServlet {
             e.printStackTrace(System.out);
 		}
 	}
-
+	
+	private void setDefaultVendoCookies(HttpServletResponse response, String username) {
+		Cookie renderAllTablesAste = new Cookie("renderAllTablesAste"+username, "true");
+		renderAllTablesAste.setMaxAge(60*60*24*30);
+		response.addCookie(renderAllTablesAste);
+		
+		Cookie renderTableAsteAperte = new Cookie("renderTableAsteAperte"+username, "true");
+		renderTableAsteAperte.setMaxAge(60*60*24*30);
+		response.addCookie(renderTableAsteAperte);
+		
+		Cookie renderArticoli = new Cookie("renderArticoli"+username, "true");
+		renderArticoli.setMaxAge(60*60*24*30);
+		response.addCookie(renderArticoli);
+	}
 }

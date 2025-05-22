@@ -42,7 +42,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 		Cookie[] cookies = request.getCookies();
 		
 		for(Cookie cookie : cookies) {
-			if(cookie.getName().equals("asteVisionate")) {
+			if(cookie.getName().equals("asteVisionate"+username)) {
 				asteVisionateJsonCookie = cookie.getValue();
 			}
 		}
@@ -72,7 +72,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 				if(idAste.size() > 0) {
 					// carico le aste visionate
 					ArrayList<Asta> asteVisionate = new AsteDAOImpl().getAsteById(conn, idAste);
-					removeClosedAsteFromCookieAndList(request, response, asteVisionate);
+					removeClosedAsteFromCookieAndList(request, response, asteVisionate, username);
 					
 					JsonArray jsonArrayAsteVisionate = gson.toJsonTree(asteVisionate).getAsJsonArray();
 					finalObject.add("asteVisionate", jsonArrayAsteVisionate);					
@@ -149,7 +149,7 @@ public class AcquistoHomeServlet extends HttpServlet {
             e.printStackTrace(System.out);}
 	}
 	
-	private void removeClosedAsteFromCookieAndList(HttpServletRequest request, HttpServletResponse response, ArrayList<Asta> aste) {		
+	private void removeClosedAsteFromCookieAndList(HttpServletRequest request, HttpServletResponse response, ArrayList<Asta> aste, String username) {		
 		// rimuovo l'asta se è chiusa
 		aste.removeIf(asta -> asta.isChiusa());		
 		
@@ -162,7 +162,7 @@ public class AcquistoHomeServlet extends HttpServlet {
 		String encodedAsteVisionate = URLEncoder.encode(gson.toJson(newAsteVisionateJsonArray), StandardCharsets.UTF_8);
 		
 		String newAsteVisionateCookieJson = gson.toJson(encodedAsteVisionate);
-		Cookie updatedCookie = new Cookie("asteVisionate", newAsteVisionateCookieJson);
+		Cookie updatedCookie = new Cookie("asteVisionate"+username, newAsteVisionateCookieJson);
 		
 		response.addCookie(updatedCookie);
 	}

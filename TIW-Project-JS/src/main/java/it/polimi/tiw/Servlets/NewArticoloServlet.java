@@ -76,7 +76,7 @@ public class NewArticoloServlet extends HttpServlet {
 			String finalJson = gson.toJson(newArticolo);
 			
 			// imposto l'ultima azione nei cookie
-			Cookie lastAction = new Cookie("lastActionAstaCreated", "false");
+			Cookie lastAction = new Cookie("lastActionAstaCreated"+username, "false");
 			lastAction.setMaxAge(60*60*24*30);
 			response.addCookie(lastAction);
 		    

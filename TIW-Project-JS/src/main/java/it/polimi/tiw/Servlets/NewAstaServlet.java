@@ -158,7 +158,7 @@ public class NewAstaServlet extends HttpServlet {
 				conn.commit();
 	            
 				// imposto l'ultima azione nei cookie
-				Cookie lastAction = new Cookie("lastActionAstaCreated", "true");
+				Cookie lastAction = new Cookie("lastActionAstaCreated"+username, "true");
 				lastAction.setMaxAge(60*60*24*30);
 				response.addCookie(lastAction);
 			    
