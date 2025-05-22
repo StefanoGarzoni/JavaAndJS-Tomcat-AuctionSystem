@@ -9,7 +9,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
 import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import it.polimi.tiw.ConnectionManager;
@@ -21,12 +20,16 @@ public class HomeServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private TemplateEngine templateEngine;
+	private JakartaServletWebApplication webApplication;
+	private WebApplicationTemplateResolver templateResolver;
+
+	private UtenteDAOImpl utenteDAO;
 	
 	public void init() throws ServletException {
-		ServletContext servletContext = getServletContext();
-		
-		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(servletContext);
-		WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(webApplication);
+		utenteDAO = new UtenteDAOImpl();
+
+		webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
+		templateResolver = new WebApplicationTemplateResolver(webApplication);
 		
 		templateResolver.setTemplateMode(TemplateMode.HTML);
 		this.templateEngine = new TemplateEngine();
@@ -41,13 +44,6 @@ public class HomeServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
 		}
-		
-		/*
-		// alla prima interazione, imposta i cookie per ricaricare le tabelle
-		setCookie(response, "renderAllTablesAste", "true", 30);
-		setCookie(response, "renderTableAsteAperte", "true", 30);
-		setCookie(response, "renderArticoli", "true", 30);
-        */
 
 		JakartaServletWebApplication webApplication = JakartaServletWebApplication.buildApplication(getServletContext());
 		WebContext ctx = new WebContext(webApplication.buildExchange(request, response), request.getLocale());
@@ -65,18 +61,46 @@ public class HomeServlet extends HttpServlet {
 		
 		try (Connection conn = ConnectionManager.getConnection()) {
 			// deve restituire il valore dell'ultima azione
-			Boolean userLastActionWasAddedAsta = new UtenteDAOImpl().userLastActionWasAddedAsta(conn, username);
-			
-			
+			Boolean value = utenteDAO.isUserPrimoAccesso(conn, username);
+			boolean lastActionFound = false;
+
+			if(!value){
+				
+				Cookie[] cookies = request.getCookies();
+
+				//scorro l'array di cookie
+				//cerco i cookie "lastAction"
+				if (cookies != null) {
+					for (Cookie c : cookies) {
+						if (c.getName().equals("lastActionAstaCreated")) {
+							value = Boolean.parseBoolean(c.getValue());
+							c.setMaxAge(60*60*24*30);
+							lastActionFound = true;
+							response.addCookie(c);
+							break;
+						}
+					}
+				}
+
+			}else{
+				utenteDAO.setUserPrimoAccessoAtFalse(conn, username);
+				//cambio il valore in modo da porterlo inserire nel campo lastActionAstaCreated
+				value = !value;
+			}
+
+			if(!lastActionFound) {
+				Cookie lastAction = new Cookie("lastActionAstaCreated", "false");
+				lastAction.setMaxAge(60*60*24*30);
+				response.addCookie(lastAction);
+			}
+
 			JsonObject jsonObject = new JsonObject();
-			jsonObject.addProperty("userLastActionWasAddedAsta", userLastActionWasAddedAsta);
-			
-			// uso un GsonBuilder perchè devo serializzare il flag anche nel caso in cui il valore sia null (Gson non serializza i null)
-			String finalJson = new GsonBuilder().serializeNulls().create().toJson(jsonObject);
+			jsonObject.addProperty("userLastActionWasAddedAsta", value);
+
 			// scrittura JSON nella response
 		    PrintWriter out = response.getWriter();
-		    out.print(finalJson);
-		    out.flush();
+		    out.print(jsonObject);
+		    
 		}
 		catch(SQLException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -84,11 +108,5 @@ public class HomeServlet extends HttpServlet {
             e.printStackTrace(System.out);
 		}
 	}
-	/*
-	private void setCookie(HttpServletResponse response, String name, String value, int days) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setMaxAge(days*60*60*24);
-        response.addCookie(cookie);
-	}
-	*/
+
 }

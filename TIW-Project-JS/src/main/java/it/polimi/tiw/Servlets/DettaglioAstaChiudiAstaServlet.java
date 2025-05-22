@@ -61,21 +61,9 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
             //Chiudo l'asta
             asteDAO.setAstaAsClosed(conn, idAsta, username);
 
-            //modifico l'ultima azione dell'utente
-            try{
-                utenteDAO.setUserLastActionWasAddedAsta(conn, username, false);
-            }
-            catch(SQLException e) {
-                //setta lo stato della risposta HTTP
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                //scrive il messaggio di errore in formato JSON all'interno del body della risposta
-                response.getWriter().print("{\"error\":\"Errore DB durante l'aggiornamento dell'ultima azione\"}");
-                e.printStackTrace(System.out);
-                return;
-            }
-
             //set del valore del cookie "lastAction"
             boolean tablesAsteCookieFound = false;
+            boolean lastActionCookieFound = false;
             Cookie[] cookies = request.getCookies();
 
             //scorro l'array di cookie
@@ -87,6 +75,15 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
                         c.setMaxAge(60*60*24*30);
                         tablesAsteCookieFound = true;
                         response.addCookie(c);
+                      
+                    }else if(c.getName().equals("lastActionAstaCreated")) {
+                        c.setValue("false");
+                        c.setMaxAge(60*60*24*30);
+                        lastActionCookieFound = true;
+                        response.addCookie(c);
+                   
+                    }
+                    if(lastActionCookieFound && tablesAsteCookieFound) {
                         break;
                     }
                 }
@@ -97,6 +94,12 @@ public class DettaglioAstaChiudiAstaServlet extends HttpServlet {
                 Cookie tableOpenAsteCookie = new Cookie("renderAllTablesAste", "true");
                 tableOpenAsteCookie.setMaxAge(60*60*24*30);
                 response.addCookie(tableOpenAsteCookie);
+            }
+
+            if(!lastActionCookieFound) {
+                Cookie lastAction = new Cookie("lastActionAstaCreated", "false");
+                lastAction.setMaxAge(60*60*24*30);
+                response.addCookie(lastAction);
             }
 
         } catch (SQLException e) {

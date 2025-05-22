@@ -13,6 +13,7 @@ import it.polimi.tiw.dao.OfferteDAOImpl;
 import it.polimi.tiw.dao.UtenteDAOImpl;
 import it.polimi.tiw.dao.Beans.Offerta;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -157,20 +158,6 @@ public class AddOffertaServlet extends HttpServlet {
             conn.commit();
             conn.setAutoCommit(true);
 
-            //set del valore "ultima_azione..." nel DB
-            try{
-                utenteDAO.setUserLastActionWasAddedAsta(conn, username, false);
-            }
-            catch(SQLException e) {
-                //setta lo stato della risposta HTTP
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                //scrive il messaggio di errore in formato JSON all'interno del body della risposta
-                response.getWriter().print("{\"error\":\"Errore DB durante l'aggiornamento dell'ultima azione\"}");
-                e.printStackTrace(System.out);
-                return;
-            }
-
-                
             // crea l'offerta (oggetto) che va restituito al client
             newOfferta = new Offerta(result, username, idAsta, prezzo, data, ora);
 
@@ -182,6 +169,31 @@ public class AddOffertaServlet extends HttpServlet {
             e.printStackTrace(System.out);
             return;
         }
+
+        boolean lastActionFound = false;
+        Cookie[] cookies = request.getCookies();
+
+        //scorro l'array di cookie
+        //cerco i cookie "lastAction"
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("lastActionAstaCreated")) {
+                    c.setValue("false");
+                    c.setMaxAge(60*60*24*30);
+                    lastActionFound = true;
+                    response.addCookie(c);
+                    break;
+                }
+            }
+        }
+
+        //se i cookie non esistono, li creo
+        if(!lastActionFound) {
+            Cookie lastAction = new Cookie("lastActionAstaCreated", "false");
+            lastAction.setMaxAge(60*60*24*30);
+            response.addCookie(lastAction);
+        }
+
 
         //serializzo l'oggetto offerta in json e poi lo metto nella body della risposta
         String jsonString = gson.toJson(newOfferta);

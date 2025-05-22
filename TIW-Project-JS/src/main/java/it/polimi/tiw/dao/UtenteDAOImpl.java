@@ -21,8 +21,8 @@ public class UtenteDAOImpl implements UtenteDAO{
 		return resSet.getInt(1) > 0;
 	}
 
-	public Boolean userLastActionWasAddedAsta(Connection conn, String username) throws SQLException {
-		String queryString = "SELECT ultima_azione_astaAggiunta"
+	public Boolean isUserPrimoAccesso(Connection conn, String username) throws SQLException {
+		String queryString = "SELECT primo_accesso"
 				+ "	FROM Utenti"
 				+ "	WHERE username = ?";
 		
@@ -34,20 +34,16 @@ public class UtenteDAOImpl implements UtenteDAO{
 			throw new SQLException("Errore nell'accesso al DB");
 		}
 		else {
-			boolean userLastActionWasAddedAsta = resSet.getBoolean("ultima_azione_astaAggiunta");
-			if(resSet.wasNull())
-				return null;		// se l'azione è null => l'utente non ha mai utilizzato l'applicazione
-			else
-				return userLastActionWasAddedAsta;		// se l'azione è != null => restituisce il flag true/false
+			boolean userLastActionWasAddedAsta = resSet.getBoolean("primo_accesso");
+			return userLastActionWasAddedAsta;		
 		}
 	}
 	
-	 public void setUserLastActionWasAddedAsta(Connection conn, String username, Boolean flagValue) throws SQLException {
-		String queryString = "UPDATE utenti SET ultima_azione_astaAggiunta = ? WHERE username = ?";
+	 public void setUserPrimoAccessoAtFalse(Connection conn, String username) throws SQLException {
+		String queryString = "UPDATE utenti SET primo_accesso = FALSE WHERE username = ?";
 			
 		PreparedStatement pStatement = conn.prepareStatement(queryString);
-		pStatement.setBoolean(1, flagValue);
-		pStatement.setString(2, username);
+		pStatement.setString(1, username);
 		
 		pStatement.executeUpdate();
 	 }
