@@ -55,6 +55,8 @@ function showVendoContent(request){
 		const closedAste = vendoContent.closedAste;
 		const articoli = vendoContent.articoli;
 		
+		
+		
 		// aggiorno solo le sezioni che hanno avuto modifiche (quindi di cui la servlet ha inviato gli oggetti)
 		// se gli array con gli elementi non esistono => non ci sono state modifiche e non bisogna renderizzare la sezione
 		if(openAste && openAste.length > 0){
@@ -68,7 +70,15 @@ function showVendoContent(request){
 			document.querySelector("#bodyTabellaAsteChiuse").innerHTML = '';		// svuota dal contenuto precedente
 			closedAste.forEach((currentAsta) => {
 				addClosedAstaInTable(currentAsta);
-			});			
+			});
+			
+			// entra in questo ramo se prima di caricare la pagina vendo, è stata chiusa l'unica asta che era presente.
+			// infatti le aste chiuse vanno ricaricase solo se: primo caricamento della pagina, asta chiusa.
+			// nel caso di primo caricamento: non si entra in questo ramo (a meno non ci siano aste, ma in questo caso la tabella è comunque vuota
+			// nel caso di asta chiusa, se non vengono inviate aste è perchè era l'ultima => si può svuotare la tabella delle aste aperte cancellando l'ultima
+			if(!openAste || openAste.length == 0 ){
+				document.querySelector("#bodyTabellaAsteAperte").innerHTML = '';
+			}
 		}
 			
 		if(articoli && articoli.length > 0){
