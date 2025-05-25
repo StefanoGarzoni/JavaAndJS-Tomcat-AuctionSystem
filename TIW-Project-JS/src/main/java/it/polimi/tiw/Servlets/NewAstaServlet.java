@@ -111,8 +111,7 @@ public class NewAstaServlet extends HttpServlet {
 		String username = (String) request.getSession().getAttribute("username");
 		AsteDAO asteDAO = new AsteDAOImpl();
 		ArticoliDAO articoliDAO = new ArticoliDAOImpl();
-		try {
-			Connection conn = ConnectionManager.getConnection();
+		try (Connection conn = ConnectionManager.getConnection()) {
 			
 			// controllo che l'utente possegga tutti gli articoli che vengono messi all'asta
 			if(!articoliDAO.areAllArticlesOfUser(conn, username, selectedArticlesIds)) {

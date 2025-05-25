@@ -67,10 +67,10 @@ public class NewArticoloServlet extends HttpServlet {
 		}
 		
 		// eseguire la query
-		try {
+		try (Connection conn = ConnectionManager.getConnection();) {
 			String username = (String) request.getSession().getAttribute("username");
 			
-			Connection conn = ConnectionManager.getConnection(); 
+			 
 			Articolo newArticolo = new ArticoliDAOImpl().insertNewArticolo(conn, username, articleName, articleDescription, imageName, articlePrice);
 			
 			String finalJson = gson.toJson(newArticolo);

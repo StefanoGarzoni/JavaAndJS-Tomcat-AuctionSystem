@@ -118,9 +118,7 @@ public class NewAstaServlet extends HttpServlet {
 		// creazione nuova asta
 		String username = (String) request.getSession().getAttribute("username");
 
-		try {
-			Connection conn = ConnectionManager.getConnection();
-			
+		try ( Connection conn = ConnectionManager.getConnection() ) {
 			// controllo che l'utente possegga tutti gli articoli che vengono messi all'asta
 			if(!articoliDAO.areAllArticlesOfUser(conn, username, selectedArticlesIds)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You can select only your own articles");

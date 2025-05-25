@@ -15,23 +15,27 @@ public class ArticoliDAOImpl implements ArticoliDAO{
     public boolean areAllArticlesOfUser(Connection conn, String usernameVenditore, ArrayList<Integer> idArticoli) throws SQLException {
     	String query = "SELECT cod FROM Articoli WHERE venditore = ?";
        
-    	PreparedStatement ps = conn.prepareStatement(query);
-    	ps.setString(1, usernameVenditore);
-    	ResultSet resultSet = ps.executeQuery();
-       
-    	// trasformo il result set in un'array di integer (lista di codici dell'utente)
-    	Set<Integer> userArticles = new HashSet<>();
-    	while (resultSet.next()) {
-    	   userArticles.add(resultSet.getInt("cod"));
+    	try( PreparedStatement ps = conn.prepareStatement(query) ){
+    		ps.setString(1, usernameVenditore);
+    		
+    		try( ResultSet resultSet = ps.executeQuery() ){
+    			
+    			// trasformo il result set in un'array di integer (lista di codici dell'utente)
+    			Set<Integer> userArticles = new HashSet<>();
+    			while (resultSet.next()) {
+    				userArticles.add(resultSet.getInt("cod"));
+    			}
+    			
+    			// appena uno degli articoli da inserire non è tra quelli dell'utente, restituisce false
+    			for (int idArticolo : idArticoli) {
+    				if (!userArticles.contains(idArticolo)) {
+    					return false;
+    				}
+    			}
+    			return true;
+    		}
     	}
-
-       // appena uno degli articoli da inserire non è tra quelli dell'utente, restituisce false
-       for (int idArticolo : idArticoli) {
-           if (!userArticles.contains(idArticolo)) {
-               return false;
-           }
-       	}
-       	return true;
+    	
     }
     
 	@Override
@@ -48,14 +52,20 @@ public class ArticoliDAOImpl implements ArticoliDAO{
     	}
     	query += ")";
     	
-    	PreparedStatement ps = conn.prepareStatement(query);
-    	ResultSet resultSet = ps.executeQuery();
+    	try(
+    			PreparedStatement ps = conn.prepareStatement(query);
+    			ResultSet resultSet = ps.executeQuery();    			
+		){
+    		if (resultSet.next() && resultSet.getInt("notFreeArticles") > 0) {	// false se almeno un articolo non è libero
+    			ps.close();
+    			resultSet.close();
+    			
+    			return false;
+    		}
+    		return true;    		
+    	}
        
     	
-    	if (resultSet.next() && resultSet.getInt("notFreeArticles") > 0) {	// false se almeno un articolo non è libero
-    		return false;
-    	}
-    	return true;
     }
 	
 	@Override
@@ -69,6 +79,8 @@ public class ArticoliDAOImpl implements ArticoliDAO{
         ps.setString(4, imgPath);
         ps.setDouble(5, prezzo);
         ps.executeUpdate();
+        
+        ps.close();
 	}
 	
 	@Override
@@ -87,13 +99,15 @@ public class ArticoliDAOImpl implements ArticoliDAO{
 	    }
 	    query.append(");");
 		
-        PreparedStatement stmt = conn.prepareStatement(query.toString());
-        ResultSet rs = stmt.executeQuery();
-
-        if (rs.next()) {
-            return rs.getInt(1);
-        } else {
-            return 0;
+        try (
+        		PreparedStatement stmt = conn.prepareStatement(query.toString());
+        		ResultSet rs = stmt.executeQuery();        		
+		){
+        	if (rs.next()) {
+        		return rs.getInt(1);
+        	} else {
+        		return 0;
+        	}        	
         }
 	}
 
@@ -109,10 +123,10 @@ public class ArticoliDAOImpl implements ArticoliDAO{
 	    }
 	    query.append(");");
 		
-        PreparedStatement stmt = conn.prepareStatement(query.toString());
-
-    	stmt.setInt(1, idAsta);
-    	stmt.executeUpdate();
+        try ( PreparedStatement stmt = conn.prepareStatement(query.toString()) ){
+        	stmt.setInt(1, idAsta);
+        	stmt.executeUpdate();        	
+        }
 	}
 	
     @Override
@@ -120,44 +134,52 @@ public class ArticoliDAOImpl implements ArticoliDAO{
         String query = "SELECT * FROM Articoli WHERE venditore = ? AND venduto = False AND id_asta IS NULL;";
         ArrayList<Articolo> articoli = new ArrayList<Articolo>();
         
-        PreparedStatement ps = conn.prepareStatement(query);
-        ps.setString(1, usernameVenditore);
-        ResultSet result = ps.executeQuery();
-        while (result.next()) {
-            Articolo articolo = new Articolo(
-                result.getInt("cod"),
-                result.getString("nome"),
-                result.getString("descrizione"),
-                result.getString("img"),
-                result.getDouble("prezzo")
-            );
-            articoli.add(articolo);
+        try (PreparedStatement ps = conn.prepareStatement(query) ){
+        	ps.setString(1, usernameVenditore);
+        	
+        	try( ResultSet result = ps.executeQuery() ){
+        		while (result.next()) {
+        			Articolo articolo = new Articolo(
+        					result.getInt("cod"),
+        					result.getString("nome"),
+        					result.getString("descrizione"),
+        					result.getString("img"),
+        					result.getDouble("prezzo")
+        					);
+        			articoli.add(articolo);
+        		}        		
+        		return articoli;
+        	}
         }
-        return articoli;
+        
     }
 
     @Override
     public ArrayList<Articolo> getArticoliByIdAsta(Connection conn, int idAsta) throws SQLException {
         String query = "SELECT * FROM Articoli WHERE id_asta = ?;";
         ArrayList<Articolo> articoli = new ArrayList<>();
-        PreparedStatement ps = conn.prepareStatement(query);
-
-        ps.setInt(1, idAsta);
-        ResultSet result = ps.executeQuery();
-        while (result.next()) {
-            Articolo articolo = new Articolo(
-                result.getInt("cod"),
-                result.getString("nome"),
-                result.getString("descrizione"),
-                result.getString("img"),
-                result.getDouble("prezzo"),
-                result.getString("venditore"),
-                result.getBoolean("venduto"),
-                result.getInt("id_asta")
-            );
-            articoli.add(articolo);
+        
+        try (PreparedStatement ps = conn.prepareStatement(query) ){
+        	ps.setInt(1, idAsta);
+        	
+        	try ( ResultSet result = ps.executeQuery() ){
+        		while (result.next()) {
+        			Articolo articolo = new Articolo(
+        					result.getInt("cod"),
+        					result.getString("nome"),
+        					result.getString("descrizione"),
+        					result.getString("img"),
+        					result.getDouble("prezzo"),
+        					result.getString("venditore"),
+        					result.getBoolean("venduto"),
+        					result.getInt("id_asta")
+        					);
+        			articoli.add(articolo);
+        		}
+        		
+        		return articoli;
+        	}
         }
-        return articoli;
     }
 
  }

@@ -12,13 +12,15 @@ public class UtenteDAOImpl{
 				+ "	FROM Utenti"
 				+ "	WHERE username = ? AND psw = ?";
 		
-		PreparedStatement pStatement = conn.prepareStatement(queryString);
-		pStatement.setString(1, username);
-		pStatement.setString(2, password);
-	
-		ResultSet resSet = pStatement.executeQuery();
-		resSet.next();
-		return resSet.getInt(1) > 0;
+		try(PreparedStatement pStatement = conn.prepareStatement(queryString)){
+			pStatement.setString(1, username);
+			pStatement.setString(2, password);
+			
+			try(ResultSet resSet = pStatement.executeQuery()){
+				resSet.next();
+				return resSet.getInt(1) > 0;				
+			}
+		}
 	}
 }
 
