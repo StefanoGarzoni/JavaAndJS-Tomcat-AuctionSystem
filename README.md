@@ -86,5 +86,3 @@ NOTE:
 
 📧 Contact
 Questions or contributions? Open an **Issue** or reach out on GitHub! 🚀
-
-**Politecnico di Milano – Web Technologies.**
